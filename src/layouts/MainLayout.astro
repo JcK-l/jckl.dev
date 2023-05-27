@@ -12,7 +12,9 @@ const { title } = Astro.props;
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
   <Head title={title} />
-  <body class="bg-white text-black antialiased selection:text-secondary">
+  <body
+    class="bg-white text-black antialiased selection:bg-secondary selection:text-white"
+  >
     <slot />
   </body>
 </html>

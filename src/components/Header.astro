@@ -1,44 +1,37 @@
 ---
+import { Menu } from "../components/Menu/Menu.jsx";
+
 const jckl = "JckL";
 const about = "about";
 const projects = "projects";
 const contactMe = "contact me";
 ---
 
-<ul
-  class="mx-6 my-8 flex select-none items-center font-heading font-medium sm:mx-12 xl:mx-24"
->
-  <li class="mr-10 cursor-pointer text-lg">{jckl}</li>
-  <li
-    class="mr-4 hidden cursor-pointer transition-colors delay-100 ease-in-out hover:text-secondary sm:block"
+<nav class="fixed top-0 w-full select-none">
+  <Menu client:visible />
+  <div
+    class="z-40 mx-6 my-8 flex flex-row items-center justify-between font-heading font-medium sm:mx-12 xl:mx-24"
   >
-    {about}
-  </li>
-  <li
-    class="hidden cursor-pointer transition-colors delay-100 ease-in-out hover:text-secondary sm:block"
-  >
-    {projects}
-  </li>
-  <li class="grow"></li>
-  <li
-    class="hover:black-bgblack hidden cursor-pointer rounded-xl border-2 border-black px-4 py-2 text-right font-sans transition-colors delay-100 ease-in-out hover:bg-black hover:text-white sm:block"
-  >
-    {contactMe}
-  </li>
-  <li class="cursor-pointer sm:hidden">
-    <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M4 6H20M4 12H20M4 18H20"
-        stroke="black"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"></path>
-    </svg>
-  </li>
-</ul>
+    <a class="" href="https://jckl.dev/">
+      <span class="mr-10 cursor-pointer text-lg">{jckl}</span>
+    </a>
+    <ul class="hidden flex-1 flex-row items-center sm:flex">
+      <li
+        class="mr-4 cursor-pointer transition-colors delay-100 ease-in-out hover:text-secondary"
+      >
+        {about}
+      </li>
+      <li
+        class="cursor-pointer transition-colors delay-100 ease-in-out hover:text-secondary"
+      >
+        {projects}
+      </li>
+      <li class="grow"></li>
+      <li
+        class="hover:black-bgblack cursor-pointer rounded-xl border-2 border-black px-4 py-2 font-sans transition-colors delay-100 ease-in-out hover:bg-black hover:text-white"
+      >
+        {contactMe}
+      </li>
+    </ul>
+  </div>
+</nav>
