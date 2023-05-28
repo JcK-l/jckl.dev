@@ -7,31 +7,35 @@ const projects = "projects";
 const contactMe = "contact me";
 ---
 
-<nav class="fixed top-0 w-full select-none">
-  <Menu client:visible />
+<header
+  class="sticky top-0 h-28 w-screen select-none bg-white/80 drop-shadow-md backdrop-blur-md"
+>
   <div
-    class="z-40 mx-6 my-8 flex flex-row items-center justify-between font-heading font-medium sm:mx-12 xl:mx-24"
+    class="absolute inset-0 z-10 mx-6 my-8 flex flex-row items-center font-heading font-medium sm:mx-12 xl:mx-24"
   >
     <a class="" href="https://jckl.dev/">
       <span class="mr-10 cursor-pointer text-lg">{jckl}</span>
     </a>
-    <ul class="hidden flex-1 flex-row items-center sm:flex">
-      <li
-        class="mr-4 cursor-pointer transition-colors delay-100 ease-in-out hover:text-secondary"
-      >
-        {about}
-      </li>
-      <li
-        class="cursor-pointer transition-colors delay-100 ease-in-out hover:text-secondary"
-      >
-        {projects}
-      </li>
-      <li class="grow"></li>
-      <li
-        class="hover:black-bgblack cursor-pointer rounded-xl border-2 border-black px-4 py-2 font-sans transition-colors delay-100 ease-in-out hover:bg-black hover:text-white"
-      >
-        {contactMe}
-      </li>
-    </ul>
+    <nav class="w-full">
+      <ul class="hidden flex-1 flex-row items-center justify-between sm:flex">
+        <li
+          class="mr-4 cursor-pointer transition-colors delay-100 ease-in-out hover:text-secondary"
+        >
+          {about}
+        </li>
+        <li
+          class="cursor-pointer transition-colors delay-100 ease-in-out hover:text-secondary"
+        >
+          {projects}
+        </li>
+        <li class="grow"></li>
+        <li
+          class="hover:black-bgblack cursor-pointer rounded-xl border-2 border-black px-4 py-2 font-sans transition-colors delay-100 ease-in-out hover:bg-black hover:text-white"
+        >
+          {contactMe}
+        </li>
+      </ul>
+    </nav>
   </div>
-</nav>
+  <Menu client:visible />
+</header>

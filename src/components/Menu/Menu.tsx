@@ -14,7 +14,7 @@ const sidebar = {
       restDelta: 2,
     },
   }),
-  closed: (width = 300) => ({
+  closed: () => ({
     clipPath: `circle(1px at 100% 0%)`,
     transition: {
       delay: 0.5,
@@ -29,18 +29,18 @@ export const Menu = () => {
   const [isOpen, toggleOpen] = useCycle(false, true);
   const { height } = useWindowSize();
   return (
-    <motion.div
+    <motion.nav
       initial={false}
       animate={isOpen ? "open" : "closed"}
-      className="absolute right-0 z-30 h-screen w-screen font-heading font-medium text-black sm:mx-12 sm:hidden xl:mx-24"
+      className="h-full w-full font-heading font-medium text-black  sm:hidden"
     >
       <motion.div
-        className="absolute right-0 top-0 h-full w-full bg-white/50 drop-shadow-2xl backdrop-blur-md"
+        className="h-screen w-screen bg-white/80 drop-shadow-2xl backdrop-blur-md"
         custom={height}
         variants={sidebar}
       />
       <Navigation />
       <MenuToggle toggle={() => toggleOpen()} />
-    </motion.div>
+    </motion.nav>
   );
 };

@@ -20,8 +20,9 @@ const variants = {
 export const MenuItem = ({ name }: any) => (
   <motion.li
     variants={variants}
-    whileHover={{ scale: 1.1 }}
+    whileHover={{ color: "#20537F" }}
     whileTap={{ scale: 0.95 }}
+    className="mb-2"
   >
     <span> {name} </span>
   </motion.li>
