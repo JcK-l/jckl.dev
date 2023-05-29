@@ -1,44 +1,56 @@
 import { motion, useCycle } from "framer-motion";
 import { MenuToggle } from "./MenuToggle";
 import { Navigation } from "./Navigation";
-import { useWindowSize, Size } from "../../Hook/UseWindowSize";
-import { useRef } from "react";
-import { useDimensions } from "../../Hook/use-dimensions";
-
-const sidebar = {
-  open: (height = 1000) => ({
-    clipPath: `circle(${height * 2 + 200}px at 100% 0%)`,
-    transition: {
-      type: "spring",
-      stiffness: 20,
-      restDelta: 2,
-    },
-  }),
-  closed: () => ({
-    clipPath: `circle(1px at 100% 0%)`,
-    transition: {
-      delay: 0.5,
-      type: "spring",
-      stiffness: 400,
-      damping: 40,
-    },
-  }),
-};
+import { useEffect, useRef } from "react";
 
 export const Menu = () => {
   const [isOpen, toggleOpen] = useCycle(false, true);
-  const { height } = useWindowSize();
+
+  useEffect(() => {
+    if (isOpen) {
+      document
+        .getElementById("header")
+        ?.setAttribute(
+          "class",
+          "sticky top-0 mx-auto h-64 sm:h-28 w-full flex-none select-none bg-white/90 shadow-md backdrop-blur-md transition-all ease-in delay-75"
+        );
+      document
+        .getElementById("top-nav-menu")
+        ?.setAttribute(
+          "class",
+          "absolute inset-0 flex flex-col items-center justify-center"
+        );
+    } else {
+      document
+        .getElementById("header")
+        ?.setAttribute(
+          "class",
+          "sticky top-0 mx-auto h-28 w-full flex-none select-none bg-white/90 shadow-md backdrop-blur-md transition-all ease-in delay-300"
+        );
+      setTimeout(() => {
+        document
+          .getElementById("top-nav-menu")
+          ?.setAttribute(
+            "class",
+            "absolute inset-0 hidden transition-all ease-in delay-75"
+          );
+      }, 200);
+      /*TODO: #1 Menu fix wenn zu schnell click*/
+    }
+  }),
+    [isOpen];
+
   return (
     <motion.nav
       initial={false}
       animate={isOpen ? "open" : "closed"}
-      className="h-full w-full font-heading font-medium text-black  sm:hidden"
+      className="h-full w-full font-heading text-lg font-medium text-black sm:hidden "
     >
-      <motion.div
-        className="h-screen w-screen bg-white/80 drop-shadow-2xl backdrop-blur-md"
+      {/* <motion.div
+        className="h-60 w-screen overflow-hidden bg-white/90 backdrop-blur-md"
         custom={height}
         variants={sidebar}
-      />
+      /> */}
       <Navigation />
       <MenuToggle toggle={() => toggleOpen()} />
     </motion.nav>

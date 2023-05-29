@@ -8,13 +8,17 @@ const contactMe = "contact me";
 ---
 
 <header
-  class="sticky top-0 h-28 w-screen select-none bg-white/80 drop-shadow-md backdrop-blur-md"
+  class="sticky top-0 mx-auto h-28 w-full flex-none select-none bg-white/90 shadow-md backdrop-blur-md"
+  id="header"
 >
   <div
-    class="absolute inset-0 z-10 mx-6 my-8 flex flex-row items-center font-heading font-medium sm:mx-12 xl:mx-24"
+    class="absolute inset-x-0 mx-6 flex h-full flex-row items-center font-heading font-medium sm:mx-12 xl:mx-24"
   >
-    <a class="" href="https://jckl.dev/">
-      <span class="mr-10 cursor-pointer text-lg">{jckl}</span>
+    <a
+      class="z-10 mr-10 mt-10 cursor-pointer self-start text-xl sm:mt-0 sm:self-center"
+      href="https://jckl.dev/"
+    >
+      {jckl}
     </a>
     <nav class="w-full">
       <ul class="hidden flex-1 flex-row items-center justify-between sm:flex">

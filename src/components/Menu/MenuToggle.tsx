@@ -12,8 +12,9 @@ const Path = (props: any) => (
 export const MenuToggle = ({ toggle }: any) => (
   <button
     onClick={toggle}
-    className="absolute inset-y-0 right-6 z-50 cursor-pointer rounded-xl align-middle"
+    className="absolute right-6 top-11 z-50 cursor-pointer rounded-xl"
     aria-label="navbar-menu"
+    id="menu-toggle"
   >
     <svg className="stroke-black" width="24" height="24" viewBox="0 0 24 24">
       <Path

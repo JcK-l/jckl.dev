@@ -13,7 +13,11 @@ const variants = {
 const names = ["about", "projects", "contact"];
 
 export const Navigation = () => (
-  <motion.ul className="absolute -bottom-28 left-6" variants={variants}>
+  <motion.ul
+    className="absolute inset-0 flex flex-col items-center justify-center"
+    variants={variants}
+    id="top-nav-menu"
+  >
     {names.map((name) => (
       <MenuItem name={name} key={name} />
     ))}
