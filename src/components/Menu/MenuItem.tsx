@@ -3,15 +3,10 @@ import { motion } from "framer-motion";
 const variants = {
   open: {
     opacity: 1,
-    transition: {
-      y: { stiffness: 1000, velocity: -10 },
-    },
+    transition: { duration: 0.1 },
   },
   closed: {
     opacity: 0,
-    transition: {
-      y: { stiffness: 1000 },
-    },
   },
 };
 

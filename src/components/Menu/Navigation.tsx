@@ -3,10 +3,14 @@ import { MenuItem } from "./MenuItem";
 
 const variants = {
   open: {
-    transition: { staggerChildren: 0.07, delayChildren: 0.2 },
+    opacity: 1,
+    display: "flex",
+    transition: { staggerChildren: 0.1, delayChildren: 0 },
   },
   closed: {
-    transition: { staggerChildren: 0.05, staggerDirection: -1 },
+    opacity: 0,
+    transitionEnd: { display: "none" },
+    transition: { duration: 0.1 },
   },
 };
 
@@ -14,9 +18,9 @@ const names = ["about", "projects", "contact"];
 
 export const Navigation = () => (
   <motion.ul
-    className="absolute inset-0 flex flex-col items-center justify-center"
+    className="absolute inset-0 flex-col items-center justify-center"
+    style={{ display: "flex" }}
     variants={variants}
-    id="top-nav-menu"
   >
     {names.map((name) => (
       <MenuItem name={name} key={name} />
