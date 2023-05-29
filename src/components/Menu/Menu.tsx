@@ -12,14 +12,14 @@ export const Menu = () => {
         .getElementById("header")
         ?.setAttribute(
           "class",
-          "sticky top-0 mx-auto h-64 sm:h-28 w-full flex-none select-none bg-white/95 shadow-md backdrop-blur-md transition-all duration-300"
+          "absolute -top-36 h-64 w-full bg-white/95 shadow-md backdrop-blur-md transition-transition transform-gpu duration-300 translate-y-36 sm:translate-y-0 "
         );
     } else {
       document
         .getElementById("header")
         ?.setAttribute(
           "class",
-          "sticky top-0 mx-auto h-28 w-full flex-none select-none bg-white/95 shadow-md backdrop-blur-md transition-all duration-300"
+          "absolute -top-36 h-64 w-full bg-white/95 shadow-md backdrop-blur-md transition-transition transform-gpu duration-300 sm:translate-y-0"
         );
     }
   }),

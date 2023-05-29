@@ -18,7 +18,7 @@ const names = ["about", "projects", "contact"];
 
 export const Navigation = () => (
   <motion.ul
-    className="absolute inset-0 flex-col items-center justify-center"
+    className="absolute inset-32 flex-col items-center justify-center"
     style={{ display: "flex" }}
     variants={variants}
   >
