@@ -5,12 +5,13 @@ const variants = {
   open: {
     opacity: 1,
     display: "flex",
+    transition: { duration: 0.2 },
     // transition: { staggerChildren: 0.1, delayChildren: 0 },
   },
   closed: {
     opacity: 0,
     transitionEnd: { display: "none" },
-    transition: { duration: 0.1 },
+    transition: { duration: 0.2 },
   },
 };
 
