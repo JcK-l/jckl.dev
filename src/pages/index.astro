@@ -1,12 +1,14 @@
 ---
 import Layout from "../layouts/MainLayout.astro";
 import Card from "../components/Card.astro";
-import Header from "../components/Header.astro";
+import { Header } from "../components/Header";
 import Footer from "../components/Footer.astro";
 ---
 
 <Layout title="Welcome to my site!">
-  <Header />
+  <header class="sticky top-0 mx-auto h-28 w-full flex-none select-none">
+    <Header client:load />
+  </header>
   <main>
     <svg
       class="fill-black"
@@ -36,5 +38,9 @@ import Footer from "../components/Footer.astro";
       ></path>
     </svg>
   </main>
-  <Footer />
+  <footer
+    class="relative h-36 w-full select-none items-center bg-white/80 text-base font-medium shadow-inner sm:h-28"
+  >
+    <Footer />
+  </footer>
 </Layout>

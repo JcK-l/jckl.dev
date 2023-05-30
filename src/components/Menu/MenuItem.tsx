@@ -1,20 +1,9 @@
 import { motion } from "framer-motion";
 
-const variants = {
-  open: {
-    opacity: 1,
-    transition: { duration: 0.1 },
-  },
-  closed: {
-    opacity: 0,
-  },
-};
-
 export const MenuItem = ({ name }: any) => (
   <motion.li
-    variants={variants}
-    whileTap={{ scale: 0.95 }}
-    className=" cursor-pointer rounded-lg p-5 hover:text-primary"
+    whileTap={{ scale: 0.95, backgroundColor: "#1e20220d" }}
+    className="w-full cursor-pointer rounded-xl p-5 text-center"
   >
     {name}
   </motion.li>

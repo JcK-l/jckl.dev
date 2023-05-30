@@ -5,7 +5,7 @@ const variants = {
   open: {
     opacity: 1,
     display: "flex",
-    transition: { staggerChildren: 0.1, delayChildren: 0 },
+    // transition: { staggerChildren: 0.1, delayChildren: 0 },
   },
   closed: {
     opacity: 0,
@@ -18,7 +18,7 @@ const names = ["about", "projects", "contact"];
 
 export const Navigation = () => (
   <motion.ul
-    className="absolute inset-32 flex-col items-center justify-center"
+    className="absolute inset-x-32 top-6 flex-col"
     style={{ display: "flex" }}
     variants={variants}
   >
