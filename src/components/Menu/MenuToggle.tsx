@@ -12,7 +12,8 @@ const Path = (props: any) => (
 export const MenuToggle = ({ toggle }: any) => (
   <button
     onClick={toggle}
-    className="absolute right-3 top-8 z-50 cursor-pointer rounded-xl p-3 active:bg-black/5"
+    // className="absolute right-3 top-8 z-50 cursor-pointer rounded-xl p-3 active:bg-black/5"
+    className="h-full cursor-pointer rounded-xl p-4 active:bg-black/5"
     aria-label="navbar-menu"
     id="menu-toggle"
   >
