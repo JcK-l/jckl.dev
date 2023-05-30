@@ -41,7 +41,7 @@ export const Header = () => {
     [isOpen, isScroll];
 
   return (
-    <div>
+    <motion.div>
       <div
         ref={scope}
         className="sm absolute -top-44 h-72 w-full bg-white/90 shadow-xl backdrop-blur-md "
@@ -77,6 +77,6 @@ export const Header = () => {
         <Navigation />
         <MenuToggle toggle={() => toggleOpen()} />
       </motion.nav>
-    </div>
+    </motion.div>
   );
 };
