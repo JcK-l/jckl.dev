@@ -44,7 +44,7 @@ export const Header = () => {
     <motion.div>
       <div
         ref={scope}
-        className="sm absolute -top-44 h-72 w-full bg-white/90 shadow-xl backdrop-blur-md "
+        className="sm absolute -top-44 h-72 w-full bg-white/90 shadow-md backdrop-blur-md "
         id="header-background"
       ></div>
       <div className="absolute inset-x-0 mx-6 flex h-full flex-row items-center font-heading font-medium sm:mx-12 xl:mx-24">
