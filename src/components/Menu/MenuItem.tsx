@@ -3,11 +3,11 @@ import { motion } from "framer-motion";
 const variants = {
   open: {
     cursor: "pointer",
-    "z-index": 10,
+    zIndex: 10,
   },
   closed: {
     cursor: "default",
-    "z-index": -10,
+    zIndex: -10,
   },
 };
 

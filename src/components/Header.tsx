@@ -48,6 +48,7 @@ export const Header = () => {
         </div>
       </motion.div>
 
+      {/* empty div. Maybe there is a different solution, but works fine like this */}
       <div
         ref={scope}
         className="absolute -top-52 -z-10 h-80 w-full bg-white/90 shadow-md backdrop-blur-md "
