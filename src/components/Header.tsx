@@ -20,8 +20,10 @@ export const Header = () => {
         initial={false}
         animate={isOpen ? "open" : "closed"}
       >
-        <div className="mr-8 inline-block cursor-pointer text-xl">
-          <a href="#hero">JckL</a>
+        <div className="mr-8 inline-block cursor-pointer">
+          <a className="text-xl text-black" href="#hero">
+            JckL
+          </a>
         </div>
 
         <nav className="w-full">

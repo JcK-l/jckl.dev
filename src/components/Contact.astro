@@ -1,19 +1,49 @@
-<form name="contact" method="POST" data-netlify="true">
-  <input
-    type="hidden"
-    name="subject"
-    value="New email from %{formName} (%{submissionId})"
-  />
-  <p>
-    <label>Your Name: <input type="text" name="name" /></label>
-  </p>
-  <p>
-    <label>Your Email: <input type="email" name="email" /></label>
-  </p>
-  <p>
-    <label>Message: <textarea name="message"></textarea></label>
-  </p>
-  <p>
-    <button type="submit">Send</button>
-  </p>
-</form>
+<div class="mx-20 flex flex-col items-center justify-between sm:flex-row">
+  <div class="m-4 w-1/2">
+    <h3 class="mb-6 font-heading text-4xl font-bold text-white">
+      Do you want to get in touch?
+    </h3>
+
+    <p class="font-sans leading-[16px]">
+      Then you can fill out this form or use the email: <br />
+      <br />
+      <u>mail</u> at <u>jckl.dev</u>
+      <br />
+      <br />
+      I'm thrilled to hear from you!
+    </p>
+  </div>
+
+  <form class="m-4 w-1/2" name="contact" method="POST" data-netlify="true">
+    <input
+      type="hidden"
+      name="subject"
+      value="New email from %{formName} (%{submissionId})"
+    />
+    <p>
+      <input
+        placeholder="Full Name"
+        class="mb-3 w-full rounded-lg p-1"
+        type="text"
+        name="name"
+      />
+    </p>
+    <p>
+      <input
+        placeholder="Your Email"
+        class="mb-3 w-full rounded-lg p-1"
+        type="email"
+        name="email"
+      />
+    </p>
+    <p>
+      <textarea
+        placeholder="Your Message"
+        class="mb-3 w-full rounded-lg p-2"
+        name="message"></textarea>
+    </p>
+    <p>
+      <button class="w-full rounded-lg border-2 p-1" type="submit">Send</button>
+    </p>
+  </form>
+</div>
