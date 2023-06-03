@@ -43,12 +43,28 @@ export const Hero = () => {
           <path fill="#20537f" d="M 0,0 V 743 H 900 V 0 Z" />
         </svg>
 
-        <motion.img
-          style={{ y: layer5 }}
-          className="absolute bottom-0 left-0 mix-blend-lighten"
-          src="/MeTransparentSmall.png"
-          alt="Me"
-        />
+        <picture>
+          <motion.source
+            style={{ y: layer5 }}
+            className="absolute bottom-0 left-0 mix-blend-lighten"
+            srcSet="/MeTransparentSmall.avif"
+            type="image/avif"
+          />
+
+          <motion.source
+            style={{ y: layer5 }}
+            className="absolute bottom-0 left-0 mix-blend-lighten"
+            srcSet="MeTransparentSmall.webp"
+            type="image/webp"
+          />
+
+          <motion.img
+            style={{ y: layer5 }}
+            className="absolute bottom-0 left-0 mix-blend-lighten"
+            src="MeTransparentSmall.jpeg"
+            alt="AVIF example with WebP and JPEG fallback"
+          />
+        </picture>
 
         <svg
           className="absolute left-0 top-0"
