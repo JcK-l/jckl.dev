@@ -46,7 +46,7 @@ export const Hero = () => {
         <motion.img
           style={{ y: layer5 }}
           className="absolute bottom-0 left-0 mix-blend-lighten"
-          src="/MeTransparent.png"
+          src="/MeTransparentSmall.png"
           alt="Me"
         />
 

@@ -5,13 +5,12 @@ import { Hero } from "../components/Hero";
 import Footer from "../components/Footer.astro";
 import { BlueLayout } from "../layouts/BlueLayout";
 import { WhiteLayout } from "../layouts/WhiteLayout";
-import { SeparatorOut } from "../components/SeparatorOut";
 ---
 
 <Layout title="Welcome to my site!">
   <main>
     <section class="scroll-mt-40" id="hero">
-      <Hero client:only="react" />
+      <Hero client:load />
     </section>
 
     <section class="" id="about">
