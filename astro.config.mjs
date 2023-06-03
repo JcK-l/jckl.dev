@@ -13,8 +13,5 @@ export default defineConfig({
       },
     }),
     react(),
-    image({
-      serviceEntryPoint: "@astrojs/image/sharp",
-    }),
   ],
 });
