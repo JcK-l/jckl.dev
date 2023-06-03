@@ -1,11 +1,16 @@
-<div class="mx-20 flex flex-col items-center justify-between sm:flex-row">
-  <div class="m-4 w-1/2">
-    <h3 class="mb-6 font-heading text-4xl font-bold text-white">
+---
+---
+
+<div
+  class="sm:mx-18 mx-12 flex flex-col items-center justify-between sm:flex-row sm:items-start xl:mx-48"
+>
+  <div class="m-4 w-full sm:w-1/2">
+    <h3 class="mb-6 font-heading text-4xl font-bold text-white xl:text-6xl">
       Do you want to get in touch?
     </h3>
 
-    <p class="font-sans leading-[16px]">
-      Then you can fill out this form or use the email: <br />
+    <p class="font-sans leading-[16px] xl:text-lg">
+      Then you can fill out this form or <br />
       <br />
       <u>mail</u> at <u>jckl.dev</u>
       <br />
@@ -14,7 +19,12 @@
     </p>
   </div>
 
-  <form class="m-4 w-1/2" name="contact" method="POST" data-netlify="true">
+  <form
+    class="m-4 w-full font-sans text-black/75 sm:w-1/2 xl:text-lg"
+    name="contact"
+    method="POST"
+    data-netlify="true"
+  >
     <input
       type="hidden"
       name="subject"
@@ -23,7 +33,7 @@
     <p>
       <input
         placeholder="Full Name"
-        class="mb-3 w-full rounded-lg p-1"
+        class="mb-3 w-full rounded-lg p-2 xl:p-4"
         type="text"
         name="name"
       />
@@ -31,7 +41,7 @@
     <p>
       <input
         placeholder="Your Email"
-        class="mb-3 w-full rounded-lg p-1"
+        class="mb-3 w-full rounded-lg p-2 xl:p-4"
         type="email"
         name="email"
       />
@@ -39,11 +49,14 @@
     <p>
       <textarea
         placeholder="Your Message"
-        class="mb-3 w-full rounded-lg p-2"
+        class="mb-3 w-full rounded-lg pb-10 pl-2 pt-2 xl:pb-24 xl:pl-4 xl:pt-4"
         name="message"></textarea>
     </p>
     <p>
-      <button class="w-full rounded-lg border-2 p-1" type="submit">Send</button>
+      <button
+        class="w-full rounded-lg border-2 p-2 text-white2 xl:p-4"
+        type="submit">Send Message</button
+      >
     </p>
   </form>
 </div>

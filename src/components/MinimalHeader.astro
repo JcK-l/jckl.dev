@@ -1,6 +1,17 @@
-<header class="fixed top-0 z-50 flex-none select-none mix-blend-luminosity">
+---
+export interface Props {
+  isBack: boolean;
+}
+
+const { isBack } = Astro.props;
+---
+
+<!-- TODO: make mix-blend-luminosity work on safari -->
+<header
+  class=`sticky top-0 z-10 w-full flex-none select-none ${isBack ? 'mix-blend-screen' : ''}`
+>
   <a
-    class="absolute left-6 top-6 cursor-pointer rounded-2xl bg-white p-2 font-heading text-2xl font-bold text-primary hover:bg-[#d4eefd]"
+    class=`absolute left-6 top-5 cursor-pointer rounded-2xl ${isBack ? 'bg-white' : ''} p-2 font-heading text-2xl font-bold text-[${isBack ? '#000' : '#1E2020'}] hover:bg-[#d4eefd] xl:text-3xl xl:font-extrabold`
     href="#hero"
   >
     JckL
