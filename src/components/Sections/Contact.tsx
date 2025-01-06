@@ -31,6 +31,7 @@ export const Contact = () => {
             method="POST"
             data-netlify="true"
           >
+            <input type="hidden" name="form-name" value="contact" />
             <input
               type="hidden"
               name="subject"
@@ -40,7 +41,7 @@ export const Contact = () => {
               {/* <label htmlFor="name" className="block mb-2">Full Name</label> */}
               <input
                 placeholder="Full Name"
-                className="mb-3 w-full rounded-lg p-2 xl:p-4 text-primary"
+                className="mb-3 w-full rounded-lg p-2 xl:p-4"
                 type="text"
                 name="name"
               />
