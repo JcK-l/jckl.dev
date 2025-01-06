@@ -26,7 +26,7 @@ export const Contact = () => {
           </div>
 
           <form
-            className="m-4 w-full font-sans text-black/75 sm:w-1/2 xl:text-lg"
+            className="m-4 w-full font-sans text-primary sm:w-1/2 xl:text-lg"
             name="contact"
             method="POST"
             data-netlify="true"
@@ -37,9 +37,10 @@ export const Contact = () => {
               value="New email from %{formName} (%{submissionId})"
             />
             <p>
+              {/* <label htmlFor="name" className="block mb-2">Full Name</label> */}
               <input
                 placeholder="Full Name"
-                className="mb-3 w-full rounded-lg p-2 xl:p-4"
+                className="mb-3 w-full rounded-lg p-2 xl:p-4 text-primary"
                 type="text"
                 name="name"
               />

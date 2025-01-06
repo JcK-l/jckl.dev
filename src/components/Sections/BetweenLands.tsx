@@ -1,15 +1,18 @@
 import { SeparatorIn } from "../test";
 import { SeparatorOut } from "../test2";
+import type { ReactNode } from 'react';
 
+interface BetweenLandsProps {
+  children: ReactNode;
+}
+// {children}: BetweenLandsProps
 export const BetweenLands = () => {
   return (
     <>
       <SeparatorIn />
       <div 
-        className="relative"
+        className="relative bg-primary -z-20"
       >
-        <div className="-z-20 h-auto bg-primary w-full absolute inset-0">
-        </div>
         <img src={"/star-svgrepo-com.svg"} alt="Icon"/>
       </div>
       <SeparatorOut />

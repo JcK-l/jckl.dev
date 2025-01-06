@@ -28,14 +28,14 @@ export const SeparatorIn = () => {
         <path 
           // fill="#003153" 
           fill="#231942" 
-          d="M 0,0 V 540 H 960 V 0 Z" 
+          d="M 0,0 V 402 H 960 V 0 Z" 
         />
       </svg>
 
       <svg
         className="absolute top-0"
         version="1.1"
-        viewBox="0 0 960 540"
+        viewBox="0 0 960 410"
         xmlns="http://www.w3.org/2000/svg"
       >
         <motion.path

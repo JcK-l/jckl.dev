@@ -148,11 +148,11 @@ export const CarouselText = () => {
 
   return (
     <motion.div 
-      className="relative mx-12 xl:mx-48 text-secondary"
+      className="relative mx-12 xl:mx-48 "
       animate={{ opacity: isAnimating ? 0 : 1 }}
     >
-      <h2 className="text-2xl font-bold text-center">{!isAnimating ? projects.at(position % projects.length)?.title : ''}</h2>
-      <p className="xl:mx-48">{!isAnimating ? projects.at(position % projects.length)?.description : ''}</p>
+      <h2 className="text-2xl font-bold text-center text-secondary">{!isAnimating ? projects.at(position % projects.length)?.title : ''}</h2>
+      <p className="xl:mx-48 text-primary">{!isAnimating ? projects.at(position % projects.length)?.description : ''}</p>
     </motion.div>
   );
 };

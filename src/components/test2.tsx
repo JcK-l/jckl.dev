@@ -26,12 +26,12 @@ export const SeparatorOut = () => {
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <path fill="#231942" d="M 0,0 V 400 H 960 V 0 Z" />
+        <path fill="#231942" d="M 0,0 V 402 H 960 V 0 Z" />
       </svg>
 
       <svg
         className="absolute bottom-0"
-        viewBox="0 0 960 540"
+        viewBox="0 130 960 410"
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
       >
