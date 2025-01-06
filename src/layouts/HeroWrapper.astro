@@ -1,0 +1,8 @@
+---
+import { Picture } from 'astro:assets';
+import { Hero } from '../components/Sections/Hero';
+import me from '../images/BigMeTransparent.png';
+---
+<Hero client:visible>
+  <Picture src={me} formats={['avif', 'webp']} alt="me"> </Picture>
+</Hero>
