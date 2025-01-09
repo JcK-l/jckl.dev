@@ -63,7 +63,7 @@ export const BetweenLands = () => {
       <div 
         className="relative bg-primary -z-30"
       >
-      <motion.video
+      {/* <motion.video
         className="inset-x-0 w-full select-none mix-blend-screen"
         autoPlay
         loop
@@ -71,7 +71,7 @@ export const BetweenLands = () => {
         playsInline
         preload="auto"
         src="/secret.mp4" 
-      />
+      /> */}
         {/* <motion.img 
           className={`absolute w-4 h-4 top-[${Math.floor(Math.random() * 100)}px] left-[${Math.floor(Math.random() * 100)}px]`}
           animate={{
