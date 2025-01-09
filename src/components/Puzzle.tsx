@@ -11,6 +11,7 @@ export const Puzzle = () => {
   const [pieceSize, setPieceSize] = useState(originalPieceSize);
   const [pieces, setPieces] = useState(originalPieces);
   const [box, setBox] = useState(originalCoords);
+  const [dragConstraints, setDragConstraints] = useState({ top: 0, left: 0, right: 0, bottom: 0 });
 
   const updatePieceSize = () => {
     if (puzzlebounds.current) {
@@ -20,23 +21,37 @@ export const Puzzle = () => {
       const pieceSize = newBoundsWidth * scale; 
       setPieceSize({ width: pieceSize, height: pieceSize });
 
+      const scaleX = pieceSize / originalPieceSize.width;
 
-        const scaleX = pieceSize / originalPieceSize.width;
+      setDragConstraints({
+        top: 0,
+        left: 0,
+        right: bounds.width - pieceSize,
+        bottom: bounds.height - pieceSize,
+      });
 
-        setBox(box.split(',').map((coord, index) => {
-          return Math.round(parseInt(coord) * scaleX);
-        }).join(','));
+      setBox(box.split(',').map((coord, index) => {
+        return Math.round(parseInt(coord) * scaleX);
+      }).join(','));
 
       setPieces(pieces.map(piece => {
         const newPolygonCoords = piece.polygonCoords.split(',').map((coord, index) => {
           return Math.round(parseInt(coord) * scaleX);
         }).join(',');
 
+        const newSnapPoints = {
+          x: Math.round(piece.snapPoints.x * scaleX),
+          y: Math.round(piece.snapPoints.y * scaleX),
+        };
+
+
         return {
           ...piece,
           polygonCoords: newPolygonCoords,
+          snapPoints: newSnapPoints,
         };
       }));
+
     }
   };
 
@@ -47,17 +62,18 @@ export const Puzzle = () => {
   }, []);
 
   return (
-    <div className="relative" draggable="false">
+    <div className="relative select-none" draggable="false">
       {/* <button onClick={applySvgChanges}>Apply SVG Changes</button> */}
-      {Object.entries(pieces).map(([key, piece]) => (
+      {pieces.map((piece, index) => (
         <PuzzlePiece
-          key={key}
+          id={index + 1}
           path={piece.path}
           puzzlebounds={puzzlebounds}
           pieceSize={pieceSize}
           pieceBox={box}
           pieceCoords={piece.polygonCoords}
-          snapPosition={piece.snapPosition}
+          snapPosition={piece.snapPoints}
+          dragConstraints={dragConstraints}
           hidden={false}
         />
       ))} 
