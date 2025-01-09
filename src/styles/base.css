@@ -3,3 +3,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  .page-margins {
+    @apply mx-12 sm:mx-16 lg:mx-20 xl:mx-24 desk:mx-32 desk-l:mx-64 desk-xl:mx-96;
+  }
+  .title-text {
+    @apply font-extrabold font-heading text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-8xl 2xl:text-9xl text-secondary;
+  }
+  .subtitle-text {
+    @apply font-extrabold font-heading text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-7xl 2xl:text-8xl text-secondary;
+  }
+}

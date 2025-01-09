@@ -4,7 +4,7 @@ import { useEffect, forwardRef, useState } from "react";
 interface FlyingManProps {
 }
 
-const FlyingMan = forwardRef<HTMLDivElement, FlyingManProps>((props, ref) => {
+export const FlyingMan = forwardRef<HTMLDivElement, FlyingManProps>((props, ref) => {
   const controls = useAnimation(); // Use controls for animation
   const [initialPosition, setInitialPosition] = useState<number>(0);
 
@@ -99,5 +99,3 @@ const FlyingMan = forwardRef<HTMLDivElement, FlyingManProps>((props, ref) => {
       />
   );
 });
-
-export default FlyingMan;
