@@ -8,10 +8,75 @@
   .page-margins {
     @apply mx-12 sm:mx-16 lg:mx-20 xl:mx-24 desk:mx-32 desk-l:mx-64 desk-xl:mx-96;
   }
-  .title-text {
-    @apply font-extrabold font-heading text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-8xl 2xl:text-9xl text-secondary;
+  .h1-text {
+    @apply font-extrabold font-heading text-s-h1 sm:text-m-h1 desk-l:text-l-h1;
   }
-  .subtitle-text {
-    @apply font-extrabold font-heading text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-7xl 2xl:text-8xl text-secondary;
+  .h2-text {
+    @apply font-extrabold font-heading text-s-h2 sm:text-m-h2 desk-l:text-l-h2;
+  }
+  .h3-text {
+    @apply font-extrabold font-heading text-s-h3 sm:text-m-h3 desk-l:text-l-h3;
+  }
+  .h4-text {
+    @apply font-extrabold font-heading text-s-h4 sm:text-m-h4 desk-l:text-l-h4;
+  }
+  .h5-text {
+    @apply font-extrabold font-heading text-s-h5 sm:text-m-h5 desk-l:text-l-h5;
+  }
+  .p-text {
+    @apply font-normal text-s-p sm:text-m-p lg:text-l-p;
+  }
+  .small-text {
+    @apply font-normal text-s-sm sm:text-m-sm lg:text-l-sm;
+  }
+  .button-on {
+    @apply bg-secondary rounded-lg text-white cursor-pointer hover:bg-tertiary
+  }
+  .button-pressed {
+    @apply bg-secondary rounded-lg text-white cursor-default
+  }
+  .button-initial {
+    @apply bg-primary rounded-lg text-white cursor-default
+  }
+}
+
+:root {
+  --color-primary: #231942; 
+  --color-secondary: #5e548e;
+  --color-tertiary: #9F86C0;
+  --color-extra1: #BE95C4;
+  --color-extra2: #E0B1CB;
+  --color-white: #F7F5FB;
+  --color-yellow: #FFDD4A;
+  --color-red: #AC3931;
+  --color-transition1: #918ab2;
+  --color-transition2: #c4c0d6;
+}
+
+html {
+  font-size: 14px;
+}
+
+@media only screen and (min-width: 370px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+@media only screen and (min-width: 768px) {
+  html {
+    font-size: 18px;
+  }
+}
+
+@media only screen and (min-width: 1024px) {
+  html {
+    font-size: 18px;
+  }
+}
+
+@media only screen and (min-width: 1920px) {
+  html {
+    font-size: 20px;
   }
 }

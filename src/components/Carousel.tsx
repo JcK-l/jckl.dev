@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import { motion, useAnimation } from "framer-motion";
 import type { DragHandlers } from "framer-motion";
-import { useCarouselContext } from "../hooks/useCarouselContext";
+import { useCarouselContext } from "../hooks/useDataContext";
 import { projects } from '../data/ProjectData';
 
 
@@ -151,8 +151,8 @@ export const CarouselText = () => {
       className="relative"
       animate={{ opacity: isAnimating ? 0 : 1 }}
     >
-      <h2 className="text-2xl font-bold text-secondary">{!isAnimating ? projects.at(position % projects.length)?.title : ''}</h2>
-      <p className="xl:mx-48 text-primary">{!isAnimating ? projects.at(position % projects.length)?.description : ''}</p>
+      <h5 className="h5-text font-bold text-secondary">{!isAnimating ? projects.at(position % projects.length)?.title : ''}</h5>
+      <p className="p-text text-primary">{!isAnimating ? projects.at(position % projects.length)?.description : ''}</p>
     </motion.div>
   );
 };
