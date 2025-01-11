@@ -29,7 +29,7 @@ export const About = () => {
 
   return (
     <>
-      {/* <FlyingMan ref={ref} /> */}
+      <FlyingMan ref={ref} />
       <div 
         className="relative page-margins"
         ref={ref}

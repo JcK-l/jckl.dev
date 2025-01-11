@@ -2,34 +2,33 @@ import { SeparatorIn } from "../SeparatorIn";
 import { SeparatorOut } from "../SeparatorOut";
 import type { ReactNode } from 'react';
 import { useEffect, useState, useRef } from 'react';
-import { motion, useScroll, useTransform, useViewportScroll } from 'framer-motion';
+import { motion, useScroll, useTransform} from 'framer-motion';
 
 interface BetweenLandsProps {
   children: ReactNode;
   isStars: boolean;
+  isBackground: boolean;
+  isScreenBlend?: boolean;
 }
-// {children}: BetweenLandsProps
-export const BetweenLands = ({children, isStars}: BetweenLandsProps) => {
+
+export const BetweenLands = ({children, isStars, isBackground, isScreenBlend}: BetweenLandsProps) => {
   let ref = useRef(null);
+  let separatorInRef = useRef<HTMLDivElement>(null);
+  let separatorOutRef = useRef<HTMLDivElement>(null);
   const [positions, setPositions] = useState<{ top: number, left: number }[]>([]);
+  const [separatorHeight, setSeparatorHeight] = useState(0);
 
-  const [radius, setRadius] = useState({ minRadius: 0, maxRadius: 100 });
+  const updateSeparatorHeights = () => {
+    if (!separatorInRef.current || !separatorOutRef.current) return;
+    const inHeight = separatorInRef.current.offsetHeight || 0;
+    setSeparatorHeight(inHeight);
+  };
 
-  // useEffect(() => {
-  //   const updateRadius = () => {
-  //     if (window.innerWidth < 768) {
-  //       setRadius({ minRadius: 35, maxRadius: 45 });
-  //     } else if (window.innerWidth < 1024) {
-  //       setRadius({ minRadius: 35, maxRadius: 40 });
-  //     } else {
-  //       setRadius({ minRadius: 35, maxRadius: 40 });
-  //     }
-  //   };
-
-  //   updateRadius();
-  //   window.addEventListener('resize', updateRadius);
-  //   return () => window.removeEventListener('resize', updateRadius);
-  // }, []);
+  useEffect(() => {
+    updateSeparatorHeights();
+    window.addEventListener('resize', updateSeparatorHeights);
+    return () => window.removeEventListener('resize', updateSeparatorHeights);
+  }, [separatorInRef, separatorOutRef]);
 
   useEffect(() => {
     const calculatePosition = (radius: number, angle: number) => {
@@ -41,8 +40,8 @@ export const BetweenLands = ({children, isStars}: BetweenLandsProps) => {
     }
     const generateRandomPositions = () => {
       const newPositions = [];
-      const numStars = 8; // Number of stars
-      const { minRadius, maxRadius } = radius;
+      const numStars = 14; // Number of stars
+      const { minRadius, maxRadius } = { minRadius: 20, maxRadius: 70 };
 
       const angleRanges = [
         { start: 0, end: 2 * Math.PI },
@@ -74,41 +73,47 @@ export const BetweenLands = ({children, isStars}: BetweenLandsProps) => {
     offset: ["0% 100%", "100% 0%"],
   });
 
-  let layer5 = useTransform(scrollYProgress, [0, 1], ["-50vh", "50vh"]);
+  let layer = useTransform(scrollYProgress, [0, 1], [`-${separatorHeight/2}px`, `${separatorHeight/2}px`]);
 
   return (
     <div 
-      className="relative"
+      className="relative bg-primary -z-20"
       ref={ref}
     >
-      <SeparatorIn />
-        {isStars && positions.map((pos, index) => (
-          <motion.img
-            className={`w-4 h-4 lg:w-8 lg:h-8 absolute -z-20`}
-            key={index}
-            // animate={{
-            //   rotate: [0, -3, 3, 0, 3, -3, 0], // Define the keyframes for the wiggle animation
-            //   transition: {
-            //     duration: 3, // Duration of one wiggle cycle
-            //     repeat: Infinity, // Repeat indefinitely
-            //     ease: "easeInOut", // Easing function
-            //   },
-            // }}
-            src={"/star-svgrepo-com.svg"}
-            alt="Icon"
-            style={{
-              y: layer5,
-              top: `${pos.top}%`,
-              left: `${pos.left}%`,
-            }}
-          />
-        ))}
-      <div 
-        className="absolute inset-0 bg-primary -z-30"
-      >
-      </div>
-      {children}
-      <SeparatorOut />
+      <SeparatorIn ref={separatorInRef} />
+
+      {isStars && positions.map((pos, index) => (
+        <motion.img
+          className={`w-4 h-4 lg:w-8 lg:h-8 absolute -z-20`}
+          key={index}
+          animate={{
+            rotate: [0, -3, 3, 0, 3, -3, 0], // Define the keyframes for the wiggle animation
+            transition: {
+              duration: 3, // Duration of one wiggle cycle
+              repeat: Infinity, // Repeat indefinitely
+              ease: "easeInOut", // Easing function
+            },
+          }}
+          src={"/star-svgrepo-com.svg"}
+          alt="Icon"
+          style={{
+            y: layer,
+            top: `${pos.top}%`,
+            left: `${pos.left}%`,
+          }}
+        />
+      ))}
+      
+      {isBackground ? (
+        <motion.div className={`relative -z-10 w-full ${isScreenBlend ? 'mix-blend-screen' : ''}`} style={{ y: layer }}>
+          {children}
+        </motion.div>
+      ) : 
+        <div className={`relative -z-10 w-full ${isScreenBlend ? 'mix-blend-screen' : ''}`}>
+          {children}
+        </div>
+      }
+      <SeparatorOut ref={separatorOutRef} />
     </div>
   );
 };

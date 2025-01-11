@@ -1,6 +1,13 @@
 import { Face } from "../Face";
 
 export const Hero = () => {
+  const scrollToSection = (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+    event.preventDefault();
+    const section = document.getElementById("separator1");
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth" });
+    }
+  };
   return (
     <>
       <div className="relative flex flex-col items-center justify-between">
@@ -21,7 +28,7 @@ export const Hero = () => {
 
 
           {/* <ButtonPrimary href="#about" text="See More"></ButtonPrimary> */}
-          <a href={"#about"} className="relative w-10 h-10 xl:w-16 xl:h-16 inline-block cursor-pointer">
+          <a onClick={scrollToSection} className="relative w-10 h-10 xl:w-16 xl:h-16 inline-block cursor-pointer">
             <img className="animate-bounce" src={"/arrow-down-svgrepo-com.svg"} alt="Icon"  />
           </a>
 

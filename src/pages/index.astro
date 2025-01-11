@@ -14,9 +14,8 @@ import { BetweenLands } from "../components/Sections/BetweenLands";
     </section>
 
     <section class="" id="separator1">
-      <BetweenLands isStars={true} client:idle> 
-        <> 
-        </>
+      <BetweenLands isStars={true} isBackground={true} client:idle> 
+        <img src="/star-constellation-com.svg" alt="Star Constellation" class="relative mx-auto w-2/3 lg:w-2/12 h-auto" />
       </BetweenLands>
     </section>
 
@@ -25,9 +24,8 @@ import { BetweenLands } from "../components/Sections/BetweenLands";
     </section>
 
     <section class="" id="separator2">
-      <BetweenLands isStars={true} client:idle> 
-        <> 
-        </>
+      <BetweenLands isStars={true} isBackground={false} isScreenBlend={true} client:idle> 
+        <img src="/mefly.avif" alt="me" class="relative mx-auto w-1/3 desk:w-2/12 h-auto" />
       </BetweenLands>
     </section>
 
@@ -36,7 +34,7 @@ import { BetweenLands } from "../components/Sections/BetweenLands";
     </section>
 
     <section class="" id="contact">
-      <BetweenLands isStars={false} client:visible> 
+      <BetweenLands isStars={false} isBackground={false} client:visible> 
         <Contact />
       </BetweenLands>
     </section>
