@@ -74,10 +74,10 @@ export const PuzzlePiece = ({ id, path, puzzlebounds, pieceSize, pieceBox, piece
               element.style.opacity = "1"; // Change the opacity value as needed
             }
           }
-          setIsHidden(true); // Hide the image after animation completes
           playRandomSound();
           setLastPiece(id);
           setTotalPlacedPieces((prev) => prev + 1);
+          setIsHidden(true); // Hide the image after animation completes
         });
       }
     }

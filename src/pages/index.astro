@@ -9,28 +9,36 @@ import { BetweenLands } from "../components/Sections/BetweenLands";
 
 <Layout title="Welcome to my site!">
   <main>
-    <section class="" id="hero">
+    <section class="bg-white" id="hero">
       <Hero client:visible/>
     </section>
 
     <section class="" id="separator1">
-      <BetweenLands client:visible />
+      <BetweenLands isStars={true} client:idle> 
+        <> 
+        </>
+      </BetweenLands>
     </section>
 
-    <section class="" id="about">
+    <section class="bg-white" id="about">
       <About client:visible />
     </section>
 
     <section class="" id="separator2">
-      <BetweenLands client:visible />
+      <BetweenLands isStars={true} client:idle> 
+        <> 
+        </>
+      </BetweenLands>
     </section>
 
-    <section class="" id="projects">
+    <section class="bg-white" id="projects">
       <Projects client:idle />
     </section>
 
     <section class="" id="contact">
-      <Contact client:visible />
+      <BetweenLands isStars={false} client:visible> 
+        <Contact />
+      </BetweenLands>
     </section>
 
   </main>

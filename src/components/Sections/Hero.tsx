@@ -3,7 +3,7 @@ import { Face } from "../Face";
 export const Hero = () => {
   return (
     <>
-      <div className="relative flex flex-col items-center justify-between bg-white">
+      <div className="relative flex flex-col items-center justify-between">
 
         <Face />
 

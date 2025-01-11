@@ -91,22 +91,17 @@ export const Puzzle = () => {
 
 
   return (
-    <div className="relative select-none w-full md:w-6/12" draggable={false}>
+    <div className="relative select-none w-full md:w-6/12 2xl:w-5/12 shrink-0" draggable={false}>
       {/* <div className="flex justify-center mb-12 gap-2 w-full">
         <Button text="Stars align" initial={false} onClick={() => {unhidePieces([1,12,13,5])}} />
         <Button text="Help me out" initial={false} onClick={() => {unhidePieces([15,11,3,8])}} />
         <Button text="something" initial={false} onClick={() => {unhidePieces([16,10,2,4])}} />
         <Button text="???" initial={false} onClick={() => {unhidePieces([9,7,6,14])}} />
       </div> */}
-      <div className="flex flex-col md:flex-row justify-center mb-12 gap-2 w-full">
-        <div className="flex flex-row gap-2 justify-center">
-          <Button text="Stars align" initial={false} onClick={() => { unhidePieces([1, 12, 13, 5]); }} />
-          <Button text="Help me out" initial={false} onClick={() => { unhidePieces([15, 11, 3, 8]); }} />
-        </div>
-        <div className="flex flex-row gap-2 justify-center">
-          <Button text="something" initial={false} onClick={() => { unhidePieces([16, 10, 2, 4]); }} />
-          <Button text="???" initial={false} onClick={() => { unhidePieces([9, 7, 6, 14]); }} />
-        </div>
+      <div className="relative flex justify-center mb-4 gap-2 w-full">
+        <Button text="Stars align" initial={false} onClick={() => { unhidePieces([1, 12, 13, 5]); }} />
+        <Button text="Help me" initial={false} onClick={() => { unhidePieces([15, 11, 3, 8]); }} />
+        <Button text="Infinity" initial={false} onClick={() => { unhidePieces([16, 10, 2, 4]); }} />
       </div>
       {pieces.current.map((piece, index) => (
         <PuzzlePiece
@@ -130,6 +125,9 @@ export const Puzzle = () => {
         className="relative select-none pointer-events-none w-full" 
         draggable="false" 
       />
+      <div className="relative flex justify-center mt-4">
+        <Button text="???" initial={true} onClick={() => { unhidePieces([9, 7, 6, 14]); }} />
+      </div>
     </div>
   );
 };
