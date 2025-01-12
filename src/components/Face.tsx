@@ -47,7 +47,7 @@ export const Face = () => {
       />
 
       <svg
-        className="absolute left-0 top-0"
+        className="absolute left-0 top-0 z-10"
         viewBox="0 0 900 743"
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
@@ -68,7 +68,7 @@ export const Face = () => {
 
 {/* m 0,0 v 100.00195 643 h 899.99997 v -643 V 0 Z  M 0,0 V 100 743 H 900 V 100 0 Z */ }
       <svg
-        className="absolute inset-0 w-[101%] h-[101%]"
+        className="absolute inset-0 w-[101%] h-[101%] z-20"
         viewBox="0 0 900 743"
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"

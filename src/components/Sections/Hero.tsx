@@ -1,9 +1,9 @@
 import { Face } from "../Face";
 
-export const Hero = () => {
+const Hero = () => {
   const scrollToSection = (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
     event.preventDefault();
-    const section = document.getElementById("separator1");
+    const section = document.getElementById("starConstellation");
     if (section) {
       section.scrollIntoView({ behavior: "smooth" });
     }
@@ -37,3 +37,5 @@ export const Hero = () => {
     </>
   );
 };
+
+export default Hero;

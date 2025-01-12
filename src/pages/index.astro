@@ -1,10 +1,11 @@
 ---
 import Layout from "../layouts/MainLayout.astro";
-import { Contact } from "../components/Sections/Contact";
-import { Hero } from "../components/Sections/Hero";
-import { About } from "../components/Sections/About";
-import { Projects } from "../components/Sections/Projects";
-import { BetweenLands } from "../components/Sections/BetweenLands";
+import Contact from "../components/Sections/Contact";
+import Hero from "../components/Sections/Hero";
+import About from "../components/Sections/About";
+import Projects from "../components/Sections/Projects";
+import StarConstellation from "../components/Sections/StarConstellation";
+import CrtMission from "../components/Sections/CrtMission";
 ---
 
 <Layout title="Welcome to my site!">
@@ -13,20 +14,16 @@ import { BetweenLands } from "../components/Sections/BetweenLands";
       <Hero client:visible/>
     </section>
 
-    <section class="" id="separator1">
-      <BetweenLands isStars={true} isBackground={true} client:idle> 
-        <img src="/star-constellation-com.svg" alt="Star Constellation" class="relative mx-auto w-2/3 lg:w-2/12 h-auto" />
-      </BetweenLands>
+    <section class="" id="starConstellation">
+      <StarConstellation client:idle />
     </section>
 
     <section class="bg-white" id="about">
       <About client:visible />
     </section>
 
-    <section class="" id="separator2">
-      <BetweenLands isStars={true} isBackground={false} isScreenBlend={true} client:idle> 
-        <img src="/mefly.avif" alt="me" class="relative mx-auto w-1/3 desk:w-2/12 h-auto" />
-      </BetweenLands>
+    <section class="" id="crtMission">
+      <CrtMission client:idle />
     </section>
 
     <section class="bg-white" id="projects">
@@ -34,11 +31,8 @@ import { BetweenLands } from "../components/Sections/BetweenLands";
     </section>
 
     <section class="" id="contact">
-      <BetweenLands isStars={false} isBackground={false} client:visible> 
-        <Contact />
-      </BetweenLands>
+      <Contact client:idle/>
     </section>
-
   </main>
 </Layout>
 

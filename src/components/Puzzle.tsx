@@ -100,7 +100,7 @@ export const Puzzle = () => {
       </div> */}
       <div className="relative flex justify-center mb-4 gap-2 w-full">
         <Button text="Stars align" initial={false} onClick={() => { unhidePieces([1, 12, 13, 5]); }} />
-        <Button text="Help me" initial={false} onClick={() => { unhidePieces([15, 11, 3, 8]); }} />
+        <Button text="Lend a hand" initial={false} onClick={() => { unhidePieces([15, 11, 3, 8]); }} />
         <Button text="Infinity" initial={false} onClick={() => { unhidePieces([16, 10, 2, 4]); }} />
       </div>
       {pieces.current.map((piece, index) => (

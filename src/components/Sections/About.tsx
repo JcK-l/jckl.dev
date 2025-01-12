@@ -6,7 +6,7 @@ import { AboutText } from "../AboutText";
 
 
 
-export const About = () => {
+const About = () => {
   const ref = useRef<HTMLDivElement>(null);
   const [isWide, setIsWide] = useState(false);
 
@@ -29,7 +29,7 @@ export const About = () => {
 
   return (
     <>
-      <FlyingMan ref={ref} />
+      {/* <FlyingMan ref={ref} /> */}
       <div 
         className="relative page-margins"
         ref={ref}
@@ -62,3 +62,5 @@ export const About = () => {
     </>
   );
 };
+
+export default About;

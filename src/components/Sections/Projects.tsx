@@ -1,7 +1,7 @@
 import { Carousel, CarouselText } from "../Carousel";
 import { CarouselProvider } from "../../context/CarouselContext";
 
-export const Projects = () => {
+const Projects = () => {
   return (
     <div className="relative page-margins bg-white">
     <div className="z-10 w-full text-secondary">
@@ -16,3 +16,5 @@ export const Projects = () => {
     </div>
   );
 };
+
+export default Projects;

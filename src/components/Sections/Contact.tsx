@@ -1,9 +1,11 @@
-import { SeparatorIn } from "../SeparatorIn";
-import { SeparatorOut } from "../SeparatorOut";
+import { BetweenLands } from "../BetweenLands";
 
-export const Contact = () => {
+const Contact = () => {
+    // <BetweenLands isStars={false} isBackground={false} client:visible> 
+    // </BetweenLands>
   return (
-    <div className="flex flex-col items-center justify-between sm:flex-row sm:items-start page-margins">
+  <BetweenLands isBackground={false} renderItem={(shift) => (
+    <div className="relative flex flex-col items-center justify-between sm:flex-row sm:items-start page-margins z-20 pointer-events-auto">
       <div className="m-4 w-full sm:w-1/2 text-white">
         <h3 className="mb-6 font-heading font-bold h3-text sm:h4-text">
           Do you want to get in touch?
@@ -70,5 +72,8 @@ export const Contact = () => {
         </button>
       </form>
     </div>
+  )}/> 
   );
 };
+
+export default Contact;
