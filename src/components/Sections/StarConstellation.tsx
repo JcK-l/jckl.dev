@@ -7,7 +7,7 @@ const StarConstellation = () => {
 
   const animation={
     // rotate: [0, -3, 3, 0, 3, -3, 0], // Define the keyframes for the wiggle animation
-    scale: [0.9, 1.1, 1], 
+    scale: [1, 1.1, 1], 
     transition: {
       duration: 3, 
       repeat: Infinity, 
@@ -18,7 +18,7 @@ const StarConstellation = () => {
     hidden: { strokeDashoffset: 0},
     visible: (i: number) => { 
       return {
-        strokeDashoffset: -1,
+        strokeDashoffset: 1,
         transition: {
           strokeDashoffset: { type: "spring", duration: 1.5, bounce: 0 },
         },
