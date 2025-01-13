@@ -12,7 +12,7 @@ export const SeparatorIn = forwardRef<HTMLDivElement, SeparatorInProps>((props, 
       <svg
         className="relative"
         version="1.1"
-        viewBox="0 0 960 279.17682"
+        viewBox="0 3 960 276.17682"
         xmlns="http://www.w3.org/2000/svg"
       >
         <path

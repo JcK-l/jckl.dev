@@ -11,8 +11,8 @@ export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>((props
 
       <svg
         className="relative"
-        // viewBox="0 230 960 309"
-        viewBox="0 0 960 277.177"
+        // viewBox="0 0 960 279.177"
+        viewBox="0 0 960 276.177"
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
       >
