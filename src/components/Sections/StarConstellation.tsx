@@ -101,7 +101,7 @@ const StarConstellation = () => {
 
           <motion.path
               className={`${!isPressed ? 'cursor-pointer' : 'cursor-default'}`}
-              style={{fontVariationSettings:"'wght' 700",opacity:0.5,fill:'none',fillRule:'evenodd',stroke:"var(--color-yellow)",strokeWidth:0.21,strokeLinecap:'round',strokeLinejoin:'round',strokeDasharray:'0,1,0', pointerEvents:"all"}}
+              style={{opacity:0.5,fill:'none',fillRule:'evenodd',stroke:"var(--color-yellow)",strokeWidth:0.21,strokeLinecap:'round',strokeLinejoin:'round',strokeDasharray:'0,1,0', pointerEvents:"all"}}
               d="M 24.934566,33.675624 25.51444,31.076931 36.918621,26.674187 42.008623,12.929034 32.42997,2.7919841 l -6.8511,8.1182309 -6.593378,3.071183"
               pathLength={1}
               variants={pathVariants}
@@ -109,7 +109,7 @@ const StarConstellation = () => {
               animate={`${isPressed ? "visible" : ''}`}
           />
           <motion.path
-              style={{fontVariationSettings:"'wght' 700",opacity:0.413462,fill:'none',fillRule:'evenodd',stroke:"var(--color-yellow)",strokeWidth:0.21,strokeLinecap:'round',strokeLinejoin:'round',strokeDasharray:'0,1,0'}}
+              style={{opacity:0.5,fill:'none',fillRule:'evenodd',stroke:"var(--color-yellow)",strokeWidth:0.21,strokeLinecap:'round',strokeLinejoin:'round',strokeDasharray:'0,1,0'}}
               d="M 36.902931,26.674897 32.432655,2.8376223"
               pathLength={1}
               variants={pathVariants}
