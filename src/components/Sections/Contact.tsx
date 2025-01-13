@@ -1,11 +1,13 @@
 import { BetweenLands } from "../BetweenLands";
+import { $binaryState, BitPosition, isBitSet } from '../../stores/binaryStateStore';
+import { useStore } from "@nanostores/react";
 
 const Contact = () => {
-    // <BetweenLands isStars={false} isBackground={false} client:visible> 
-    // </BetweenLands>
+  const binaryState = useStore($binaryState);
+
   return (
-  <BetweenLands isBackground={false} renderItem={(shift) => (
-    <div className="relative flex flex-col items-center justify-between sm:flex-row sm:items-start page-margins z-20 pointer-events-auto">
+  <BetweenLands isBackground={false} isCrt={isBitSet(BitPosition.FLAG_LEND_A_HAND)} renderItem={(shift) => (
+    <div className="relative flex flex-col items-center justify-between sm:flex-row sm:items-start page-margins z-20 pointer-events-auto py-8">
       <div className="m-4 w-full sm:w-1/2 text-white">
         <h3 className="mb-6 font-heading font-bold h3-text sm:h4-text">
           Do you want to get in touch?

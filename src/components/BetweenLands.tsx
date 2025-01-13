@@ -3,22 +3,52 @@ import { SeparatorOut } from "./SeparatorOut";
 import type { ReactNode } from 'react';
 import { useEffect, useState, useRef } from 'react';
 import { MotionValue, useScroll, useTransform, useMotionValue } from 'framer-motion';
+import { Crt } from './Crt';
 
 interface BetweenLandsProps {
   isBackground: boolean;
+  isCrt: boolean;
+  crtCallback?: () => void;
   renderItem: (shift: MotionValue<string>) => ReactNode;
 }
 
-export const BetweenLands = ({isBackground, renderItem}: BetweenLandsProps) => {
-  let ref = useRef(null);
+
+const originalImgWidth = 500;
+
+export const BetweenLands = ({isBackground, isCrt, crtCallback, renderItem}: BetweenLandsProps) => {
+  let ref = useRef<HTMLDivElement>(null);
   let separatorInRef = useRef<HTMLDivElement>(null);
   let separatorOutRef = useRef<HTMLDivElement>(null);
   const [separatorHeight, setSeparatorHeight] = useState(0);
+  const [dragConstraints, setDragConstraints] = useState({ top: 0, left: 0, right: 0, bottom: 0 });
+  const [crtWidth, setCrtWidth] = useState(0);
+  const [snapPoint, setSnapPoint] = useState({ x: 1600, y: 1600 });
 
   const updateSeparatorHeights = () => {
     if (!separatorInRef.current || !separatorOutRef.current) return;
     const inHeight = separatorInRef.current.offsetHeight || 0;
     setSeparatorHeight(inHeight);
+
+    if(ref.current) {
+      const bounds = ref.current.getBoundingClientRect();
+      const viewportWidth = window.innerWidth;
+      const width = viewportWidth * 0.2; 
+
+      const scale = width / originalImgWidth;
+
+      setSnapPoint( prev => ({
+        x: Math.round(prev.x * scale),
+        y: Math.round(prev.y * scale),
+      }));
+
+      setCrtWidth(width);
+      setDragConstraints({
+        top: 0,
+        left: 0,
+        right: viewportWidth - width,
+        bottom: bounds.height - width,
+      });
+    }
   };
 
   useEffect(() => {
@@ -37,11 +67,21 @@ export const BetweenLands = ({isBackground, renderItem}: BetweenLandsProps) => {
 
   const zeroPx = useMotionValue('0px');
 
+  const crtProp = {
+    isCrt: isCrt,
+    snapPoint: snapPoint,
+    callBack: crtCallback ? crtCallback : () => {},
+    dragConstraints: dragConstraints,
+    crtWidth: crtWidth,
+    bounds: ref,
+  }
+
   return (
     <div 
       className="relative bg-primary"
       ref={ref}
     >
+      <Crt {...crtProp} />
       <SeparatorIn ref={separatorInRef} />
       
       {isBackground ? (
@@ -63,16 +103,3 @@ export const BetweenLands = ({isBackground, renderItem}: BetweenLandsProps) => {
         preload="auto"
         src="/secret.mp4" 
       /> */}
-        {/* <motion.img 
-          className={`absolute w-4 h-4 top-[${Math.floor(Math.random() * 100)}px] left-[${Math.floor(Math.random() * 100)}px]`}
-          animate={{
-          rotate: [0, -3, 3, 0, 3, -3, 0], // Define the keyframes for the wiggle animation
-          transition: {
-            duration: 3, // Duration of one wiggle cycle
-            repeat: Infinity, // Repeat indefinitely
-            ease: "easeInOut", // Easing function
-          },
-          }}
-          src={"/star-svgrepo-com.svg"} 
-          alt="Icon"
-        /> */}

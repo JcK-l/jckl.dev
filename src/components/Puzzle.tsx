@@ -3,6 +3,8 @@ import { PuzzlePiece } from "./PuzzlePiece";
 import { pieces as originalPieces } from "../data/PuzzleData"; 
 import { usePuzzleContext } from "../hooks/useDataContext";
 import { Button } from "./Button";
+import { $binaryState, BitPosition, isBitSet } from '../stores/binaryStateStore';
+import { useStore } from "@nanostores/react";
 
 const originalCoords = "0,300,300,0"
 const originalPieceSize = { width: 300, height: 300 };
@@ -17,6 +19,7 @@ export const Puzzle = () => {
   const [dragConstraints, setDragConstraints] = useState({ top: 0, left: 0, right: 0, bottom: 0 });
   const { lastPiece, setLastPiece, totalPlacedPieces, setTotalPlacedPieces  } = usePuzzleContext();
   const hasMounted = useRef(false);
+  const binaryState = useStore($binaryState);
 
   const updatePieceSize = () => {
     if (puzzlebounds.current) {
@@ -92,16 +95,10 @@ export const Puzzle = () => {
 
   return (
     <div className="relative select-none w-full md:w-6/12 2xl:w-5/12 shrink-0" draggable={false}>
-      {/* <div className="flex justify-center mb-12 gap-2 w-full">
-        <Button text="Stars align" initial={false} onClick={() => {unhidePieces([1,12,13,5])}} />
-        <Button text="Help me out" initial={false} onClick={() => {unhidePieces([15,11,3,8])}} />
-        <Button text="something" initial={false} onClick={() => {unhidePieces([16,10,2,4])}} />
-        <Button text="???" initial={false} onClick={() => {unhidePieces([9,7,6,14])}} />
-      </div> */}
       <div className="relative flex justify-center mb-4 gap-2 w-full">
-        <Button text="Stars align" initial={false} onClick={() => { unhidePieces([1, 12, 13, 5]); }} />
-        <Button text="Lend a hand" initial={false} onClick={() => { unhidePieces([15, 11, 3, 8]); }} />
-        <Button text="Infinity" initial={false} onClick={() => { unhidePieces([16, 10, 2, 4]); }} />
+        <Button text="Stars align" initial={!isBitSet(BitPosition.FLAG_STARS_ALIGN)} onClick={() => { unhidePieces([1, 12, 13, 5]); }} />
+        <Button text="Lend a hand" initial={!isBitSet(BitPosition.FLAG_LEND_A_HAND)} onClick={() => { unhidePieces([15, 11, 3, 8]); }} />
+        <Button text="2024" initial={!isBitSet(BitPosition.FLAG_2024)} onClick={() => { unhidePieces([16, 10, 2, 4]); }} />
       </div>
       {pieces.current.map((piece, index) => (
         <PuzzlePiece

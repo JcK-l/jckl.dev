@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { motion, useAnimation, useSpring } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { BetweenLands } from "../BetweenLands";
+import { setBit, BitPosition } from '../../stores/binaryStateStore';
 
 const StarConstellation = () => {
   const [isPressed, setIsPressed] = useState<boolean>(false);
 
   const animation={
-    // rotate: [0, -3, 3, 0, 3, -3, 0], // Define the keyframes for the wiggle animation
     scale: [1, 1.1, 1], 
     transition: {
       duration: 3, 
@@ -26,49 +26,17 @@ const StarConstellation = () => {
     },
   }
   return (
-  <BetweenLands isBackground={true} renderItem={(shift) => (
-    <motion.div className="relative bg-primary" style={{y:shift}}>
-      <motion.img src="/stars.svg" alt="stars" className="absolute w-full lg:w-9/12 pointer-events-none" style={{left: '50%', top: '50%', y:"-50%", x:"-50%"}}  />
+  <BetweenLands isBackground={true} isCrt={false} renderItem={(shift) => (
+    <motion.div className="relative bg-primary select-none" style={{y:shift}}>
+      <motion.img src="/stars.svg" alt="stars" className="absolute w-full lg:w-9/12 pointer-events-none" style={{left: '50%', top: '50%', y:"-50%", x:"-50%"}} draggable={false} />
       <motion.svg
-        className='w-full lg:w-9/12 h-auto mx-auto'
+        className='relative w-full lg:w-9/12 h-auto mx-auto'
         viewBox="0 0 59.26923 36"
-        onClick={() => setIsPressed(true)}
         fill="none"
         version="1.1"
         id="svg1"
         xmlns="http://www.w3.org/2000/svg"
         >
-          
-          {/* <motion.path
-              style={{fontVariationSettings:"'wght' 700",opacity:0.413462,fill:'none',fillRule:'evenodd',stroke:"var(--color-yellow)",strokeWidth:0.21,strokeLinecap:'round',strokeLinejoin:'round',strokeDasharray:1}}
-              pathLength={1}
-              d="m 24.923828,33.675624 0.569135,-2.566479"
-              id="path1" /><motion.path
-              style={{fontVariationSettings:"'wght' 700",opacity:0.413462,fill:'none',fillRule:'evenodd',stroke:"var(--color-yellow)",strokeWidth:0.21,strokeLinecap:'round',strokeLinejoin:'round',strokeDasharray:1}}
-              pathLength={1}
-              d="m 25.482224,31.130622 11.490088,-4.48865"
-              id="path2" /><motion.path
-              style={{fontVariationSettings:"'wght' 700",opacity:0.413462,fill:'none',fillRule:'evenodd',stroke:"var(--color-yellow)",strokeWidth:0.21,strokeLinecap:'round',strokeLinejoin:'round',strokeDasharray:1}}
-              pathLength={1}
-              d="m 36.961575,26.65271 5.02557,-13.788106"
-              id="path3" /><motion.path
-              style={{fontVariationSettings:"'wght' 700",opacity:0.413462,fill:'none',fillRule:'evenodd',stroke:"var(--color-yellow)",strokeWidth:0.21,strokeLinecap:'round',strokeLinejoin:'round',strokeDasharray:1}}
-              pathLength={1}
-              d="M 36.961575,26.65271 32.42997,2.7705074"
-              id="path4" /><motion.path
-              style={{fontVariationSettings:"'wght' 700",opacity:0.413462,fill:'none',fillRule:'evenodd',stroke:"var(--color-yellow)",strokeWidth:0.21,strokeLinecap:'round',strokeLinejoin:'round',strokeDasharray:1}}
-              pathLength={1}
-              d="M 41.976408,12.875342 32.440707,2.7812457"
-              id="path5" /><motion.path
-              style={{fontVariationSettings:"'wght' 700",opacity:0.413462,fill:'none',fillRule:'evenodd',stroke:"var(--color-yellow)",strokeWidth:0.21,strokeLinecap:'round',strokeLinejoin:'round',strokeDasharray:1}}
-              pathLength={1}
-              d="M 32.43054,2.7867029 25.619443,10.85827"
-              id="path6" /><motion.path
-              style={{fontVariationSettings:"'wght' 700",opacity:0.413462,fill:'none',fillRule:'evenodd',stroke:"var(--color-yellow)",strokeWidth:0.21,strokeLinecap:'round',strokeLinejoin:'round',strokeDasharray:1}}
-              pathLength={1}
-              d="m 25.619443,10.873457 -6.621267,3.037278"
-              id="path7" /> */}
-
           <motion.path
           d="m 24.728322,33.074457 c 0.09611,-0.172413 0.144162,-0.258619 0.216011,-0.258619 0.07185,0 0.119901,0.0862 0.216008,0.258618 l 0.02486,0.04461 c 0.02732,0.04899 0.04097,0.07349 0.06227,0.08966 0.02129,0.01617 0.0478,0.02216 0.100841,0.03416 l 0.04829,0.01093 c 0.186628,0.04223 0.27995,0.06334 0.302151,0.134736 0.0222,0.07139 -0.04141,0.145788 -0.168652,0.294568 l -0.03291,0.03849 c -0.03616,0.04228 -0.05424,0.06341 -0.06237,0.08957 -0.0081,0.02616 -0.0054,0.05436 6.8e-5,0.110774 l 0.005,0.05136 c 0.01923,0.19851 0.02886,0.297766 -0.02927,0.341888 -0.05813,0.04412 -0.145503,0.0039 -0.320248,-0.07656 l -0.04521,-0.02082 c -0.04965,-0.02286 -0.07448,-0.03429 -0.100804,-0.03429 -0.02632,0 -0.05115,0.01143 -0.100803,0.03429 l -0.04521,0.02082 c -0.174747,0.08045 -0.26212,0.120683 -0.320244,0.07656 -0.05813,-0.04412 -0.04851,-0.143378 -0.02927,-0.341888 l 0.005,-0.05136 c 0.0055,-0.05642 0.0082,-0.08462 6.6e-5,-0.110774 -0.0081,-0.02615 -0.02621,-0.0473 -0.06237,-0.08957 l -0.03292,-0.03849 c -0.127235,-0.14878 -0.190853,-0.223177 -0.168651,-0.294568 0.0222,-0.07139 0.115519,-0.09251 0.302153,-0.134736 l 0.04828,-0.01093 c 0.05304,-0.012 0.07955,-0.018 0.100845,-0.03416 0.02129,-0.01617 0.03495,-0.04066 0.06226,-0.08966 z"
           animate = {!isPressed ? animation : {}}
@@ -104,6 +72,10 @@ const StarConstellation = () => {
               style={{opacity:0.5,fill:'none',fillRule:'evenodd',stroke:"var(--color-yellow)",strokeWidth:0.21,strokeLinecap:'round',strokeLinejoin:'round',strokeDasharray:'0,1,0', pointerEvents:"all"}}
               d="M 24.934566,33.675624 25.51444,31.076931 36.918621,26.674187 42.008623,12.929034 32.42997,2.7919841 l -6.8511,8.1182309 -6.593378,3.071183"
               pathLength={1}
+              onClick={() => {
+                setBit(BitPosition.FLAG_STARS_ALIGN);
+                setIsPressed(true);
+              }}
               variants={pathVariants}
               initial="hidden"
               animate={`${isPressed ? "visible" : ''}`}

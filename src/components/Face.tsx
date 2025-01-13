@@ -1,12 +1,9 @@
 import { useRef } from "react";
 import { useScroll, useTransform, motion } from "framer-motion";
-import { useStore } from "@nanostores/react";
-import { isDerpFace } from "../faceStore";
 
 export const Face = () => {
   let ref = useRef(null);
 
-  const $isDerpFace = useStore(isDerpFace);
 
   let { scrollYProgress } = useScroll({
     target: ref,
@@ -26,7 +23,6 @@ export const Face = () => {
   return (
     <div
       ref={ref} 
-      onClick={() => isDerpFace.set(!$isDerpFace)}
       className="relative z-30 mb-8 w-10/12 h-auto select-none overflow-hidden md:mb-10 sm:w-9/12 md:w-8/12 lg:w-6/12 2xl:w-5/12 desk:w-4/12 desk-l:w-4/12 bg-primary"
     >
       <svg

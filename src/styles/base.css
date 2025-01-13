@@ -43,14 +43,21 @@
 :root {
   --color-primary: #231942; 
   --color-secondary: #5e548e;
+  --color-secondary-shade: #423B64;
   --color-tertiary: #9F86C0;
   --color-extra1: #BE95C4;
   --color-extra2: #E0B1CB;
   --color-white: #F7F5FB;
+  --color-white-shade: #CDCBCF;
   --color-yellow: #FFDD4A;
   --color-red: #AC3931;
+  --color-red-shade: #802A24;
   --color-transition1: #918ab2;
   --color-transition2: #c4c0d6;
+}
+
+#ellipse6 {
+  fill: var(--color-secondary)
 }
 
 html {

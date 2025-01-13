@@ -10,14 +10,14 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/react": "^4.1.2",
+    "@astrojs/react": "^4.1.4",
     "@astrojs/sitemap": "^3.2.1",
     "@astrojs/tailwind": "^5.1.4",
     "@nanostores/react": "^0.7.1",
     "@playform/compress": "^0.1.7",
     "@types/react": "^18.2.7",
     "@types/react-dom": "^18.2.4",
-    "astro": "^5.1.2",
+    "astro": "^5.1.6",
     "framer-motion": "^10.12.16",
     "nanostores": "^0.9.1",
     "react": "^18.2.0",
