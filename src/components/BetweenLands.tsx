@@ -14,6 +14,7 @@ interface BetweenLandsProps {
 
 
 const originalImgWidth = 500;
+const originalSnapPoint = { x: 1600, y: 1750 };
 
 export const BetweenLands = ({isBackground, isCrt, crtCallback, renderItem}: BetweenLandsProps) => {
   let ref = useRef<HTMLDivElement>(null);
@@ -22,7 +23,7 @@ export const BetweenLands = ({isBackground, isCrt, crtCallback, renderItem}: Bet
   const [separatorHeight, setSeparatorHeight] = useState(0);
   const [dragConstraints, setDragConstraints] = useState({ top: 0, left: 0, right: 0, bottom: 0 });
   const [crtWidth, setCrtWidth] = useState(0);
-  const [snapPoint, setSnapPoint] = useState({ x: 1600, y: 1600 });
+  const [snapPoint, setSnapPoint] = useState(originalSnapPoint);
 
   const updateSeparatorHeights = () => {
     if (!separatorInRef.current || !separatorOutRef.current) return;
@@ -36,10 +37,10 @@ export const BetweenLands = ({isBackground, isCrt, crtCallback, renderItem}: Bet
 
       const scale = width / originalImgWidth;
 
-      setSnapPoint( prev => ({
-        x: Math.round(prev.x * scale),
-        y: Math.round(prev.y * scale),
-      }));
+      setSnapPoint({
+        x: Math.round(originalSnapPoint.x * scale),
+        y: Math.round(originalSnapPoint.y * scale),
+      });
 
       setCrtWidth(width);
       setDragConstraints({

@@ -37,12 +37,14 @@ const CrtMission = () => {
         });
         }, 1000); 
       }} renderItem={(shift) => (
-      <motion.div className="relative bg-primary" style={{y:shift}}>
+      <motion.div className="relative mix-blend-screen select-none" style={{y:shift}}>
+      {
+        (isHidden) ? null : (
       <motion.svg
         viewBox="0 0 49.26923 39"
         fill="none"
         animate={controls}
-        className="absolute w-7/12  h-auto top-[50%] left-[50%] mix-blend-screen" 
+        className="absolute w-7/12  h-auto top-[50%] left-[50%]" 
         style={{x:'-50%', y:'-50%', transformOrigin:"top"}} 
         visibility={isHidden ? 'hidden' : 'visible'}
         version="1.1"
@@ -125,7 +127,8 @@ const CrtMission = () => {
             x="31.965414"
             y="26.777388" />
             </motion.svg>
-
+        )
+      }
         <motion.img src="/stars.svg" alt="stars" className="relative w-full lg:w-9/12 mx-auto" draggable={false} />
            
       </motion.div>

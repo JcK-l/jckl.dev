@@ -27,7 +27,7 @@ const StarConstellation = () => {
   }
   return (
   <BetweenLands isBackground={true} isCrt={false} renderItem={(shift) => (
-    <motion.div className="relative bg-primary select-none" style={{y:shift}}>
+    <motion.div className="relative select-none mix-blend-screen" style={{y:shift}}>
       <motion.img src="/stars.svg" alt="stars" className="absolute w-full lg:w-9/12 pointer-events-none" style={{left: '50%', top: '50%', y:"-50%", x:"-50%"}} draggable={false} />
       <motion.svg
         className='relative w-full lg:w-9/12 h-auto mx-auto'

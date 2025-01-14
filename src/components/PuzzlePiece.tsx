@@ -91,6 +91,7 @@ export const PuzzlePiece = ({ id, path, puzzlebounds, pieceSize, pieceBox, piece
         x: startPoint.x - imgRect.width / 2,
         y: startPoint.y - imgRect.height / 2,
         transition: {
+          delay: 0.5,
           type: "spring",
           stiffness: 800,
           damping: 50,
@@ -101,6 +102,27 @@ export const PuzzlePiece = ({ id, path, puzzlebounds, pieceSize, pieceBox, piece
 
   useEffect(() => {
     moveToStartPosition();
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (imgRef.current && puzzlebounds.current) {
+        const imgRect = imgRef.current.getBoundingClientRect();
+        const boundsRect = puzzlebounds.current.getBoundingClientRect(); 
+
+        const top = imgRect.top - boundsRect.top;
+        const left = imgRect.left - boundsRect.left;
+        
+
+        const newX = Math.max(0, Math.min(left, boundsRect.width - imgRect.width));
+        const newY = Math.max(0, Math.min(top, boundsRect.height - imgRect.height));
+
+        controls.start({ x: newX, y: newY });
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   return (

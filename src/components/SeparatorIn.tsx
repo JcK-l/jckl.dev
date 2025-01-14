@@ -7,12 +7,12 @@ interface SeparatorInProps {
 export const SeparatorIn = forwardRef<HTMLDivElement, SeparatorInProps>((props, ref) => {
 
   return (
-    <div className="relative z-10" ref={ref}>
+    <div className="relative" ref={ref}>
 
       <svg
-        className="relative"
+        className="relative z-10"
         version="1.1"
-        viewBox="0 3 960 276.17682"
+        viewBox="0 0 960 279.177"
         xmlns="http://www.w3.org/2000/svg"
       >
         <path
@@ -27,6 +27,14 @@ export const SeparatorIn = forwardRef<HTMLDivElement, SeparatorInProps>((props, 
           style={{ filter: "drop-shadow(0 15px 15px rgba(35, 25, 66, 0.00)) drop-shadow(0 8px 5px rgba(35, 25, 66, 0.0))", fill:"var(--color-transition2)", strokeLinecap: "round", strokeLinejoin: "miter", opacity: 1  }}
           d="m 1e-5,190.68305 20,-9.5 c 20,-9.5 60,-28.5 100,-37.5 40,-9 80,-8 120,3.5 40,11.5 80,33.5 120,46 40,12.5 80,15.5 120,-5.2 40,-20.6 80,-65 120,-80.6 40,-15.7 80,-2.7 120,12.3 40,15 80,32 120,43.8 40,11.9 80,18.5 100,21.9 l 20,3.3 v -182 h -20 c -20,0 -60,0 -100,0 -40,0 -80,0 -120,0 -40,0 -80,0 -120,0 -40,0 -80,0 -120,0 -40,0 -80,0 -120,0 -40,0 -80,0 -120,0 -40,0 -80,0 -120,0 -40,0 -80,0 -100,0 h -20 z"
         />
+      </svg>
+
+      <svg
+        viewBox="0 0 960 279.177"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        className="absolute -top-1 z-20"
+      >
         <path
           style={{ filter: "drop-shadow(0 15px 15px rgba(35, 25, 66, 0.00)) drop-shadow(0 8px 5px rgba(35, 25, 66, 0.0))", fill:"var(--color-white)", strokeLinecap: "round", strokeLinejoin: "miter" }}
           d="m 960.00001,117 -17.8,-7.5 c -17.9,-7.5 -53.5,-22.5 -89,-15.5 -35.5,7 -70.9,36 -106.4,49.8 -35.5,13.9 -71.1,12.5 -106.8,-0.8 -35.7,-13.3 -71.3,-38.7 -106.8,-54.8 -35.5,-16.2 -70.9,-23.2 -106.4,-16 -35.5,7.1 -71.1,28.5 -106.8,47.1 -35.7,18.7 -71.3,34.7 -106.8,42.2 -35.5,7.5 -70.9,6.5 -106.4,-7.7 -35.5,-14.1 -71.1,-41.5 -89,-55.1 L 1e-5,85 V 0 h 17.8 c 17.9,0 53.5,0 89,0 35.5,0 70.9,0 106.4,0 35.5,0 71.1,0 106.8,0 35.7,0 71.3,0 106.8,0 35.5,0 70.9,0 106.4,0 35.5,0 71.1,0 106.8,0 35.7,0 71.3,0 106.8,0 35.5,0 70.9,0 106.4,0 35.5,0 71.1,0 89,0 h 17.8 z"

@@ -10,9 +10,11 @@ interface CrtProps {
   bounds: React.RefObject<HTMLElement>;
 }
 
-const threshold = 200;
+const threshold = 100;
 
 export const Crt = ({isCrt, snapPoint, callBack, dragConstraints, crtWidth, bounds} : CrtProps) => {
+
+  if (!isCrt) return null;
 
   const controls = useAnimation();
   const imgRef = useRef<HTMLImageElement>(null);
@@ -65,15 +67,18 @@ export const Crt = ({isCrt, snapPoint, callBack, dragConstraints, crtWidth, boun
 
   useEffect(() => {
     const handleResize = () => {
-      if (imgRef.current) {
+      if (imgRef.current && bounds.current) {
         const imgRect = imgRef.current.getBoundingClientRect();
         const viewportWidth = window.innerWidth;
-        // const viewportHeight = window.innerHeight;
+        const boundsRect = bounds.current.getBoundingClientRect(); 
+
+        const top = imgRect.top - boundsRect.top;
+        
 
         const newX = Math.max(0, Math.min(imgRect.left, viewportWidth - imgRect.width));
-        // const newY = Math.max(0, Math.min(imgRect.top, viewportHeight - imgRect.height));
+        const newY = Math.max(boundsRect.height - 2 * imgRect.height, Math.min(top, boundsRect.height - 2 * imgRect.height));
 
-        controls.start({ x: newX });
+        controls.start({ x: newX, y: newY });
       }
     };
 
@@ -81,14 +86,31 @@ export const Crt = ({isCrt, snapPoint, callBack, dragConstraints, crtWidth, boun
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const moveToStartPosition = () => {
+    if (imgRef.current && bounds.current) {
+      const imgRect = imgRef.current.getBoundingClientRect();
+      const boundsRect = bounds.current.getBoundingClientRect();
+
+      console.log(dragConstraints);
+      console.log(boundsRect.height - imgRect.width);
+      controls.start({
+        x: 0,
+        y: boundsRect.height - 2 * imgRect.height,
+        transition: {
+          duration: 0
+        },
+      })
+    }
+  }
+
   useEffect(() => {
-    controls.start({ y: dragConstraints.bottom, transition: { duration: 0 } });
-  }, []);
+    moveToStartPosition();
+  }, [imgRef.current]);
 
 
   return (
     <>
-      {isCrt && 
+      { 
         (<motion.img 
           drag 
           ref={imgRef}
@@ -97,7 +119,7 @@ export const Crt = ({isCrt, snapPoint, callBack, dragConstraints, crtWidth, boun
           dragElastic={0} 
           dragMomentum={false} 
           draggable={false} 
-          src="/crt.avif" 
+          src="/tv.avif" 
           alt="crt" 
           hidden={isHidden}
           animate={controls}
