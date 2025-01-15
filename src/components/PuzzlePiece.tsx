@@ -122,8 +122,11 @@ export const PuzzlePiece = ({ id, path, puzzlebounds, pieceSize, pieceBox, piece
     };
 
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+
+    return () => { 
+      window.removeEventListener("resize", handleResize);
+    }
+  }, [imgRef.current, puzzlebounds.current]);
 
   return (
     <>

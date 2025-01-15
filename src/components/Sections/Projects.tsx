@@ -1,5 +1,8 @@
-import { Carousel, CarouselText } from "../Carousel";
-import { CarouselProvider } from "../../context/CarouselContext";
+// import { Carousel } from "../Carousel";
+import { projects } from '../../data/ProjectData';
+import { PhoneProvider } from "../../context/PhoneContext";
+import { Phone } from "../Phone";
+import { ProjectText } from "../ProjectText";
 
 const Projects = () => {
   return (
@@ -9,10 +12,24 @@ const Projects = () => {
         My Projects!
       </h1>
     </div>
-    <CarouselProvider>
-      <Carousel />
-      <CarouselText />
-    </CarouselProvider>
+    <PhoneProvider>
+      <div className="relative flex justify-between flex-col-reverse md:flex-row gap-2 ">
+        <div className="relative flex flex-col justify-center w-full gap-2">
+          {projects.map((project, index) => (
+            <ProjectText 
+              title={project.title} 
+              description={project.description} 
+              showOnNumber={index}  
+              imageFolder={project.imageFolder}
+              numberImages={project.numberImages}
+              githubLink={project.githubLink}
+            />
+          ))}
+          <ProjectText title={"No Project"} description="There is no project with this number!" showOnNumber={-1} numbersExclude={Array.from({length: projects.length}, (_, i) => i)} />
+        </div>
+        <Phone />
+      </div>
+    </PhoneProvider>
     </div>
   );
 };

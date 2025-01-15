@@ -65,6 +65,7 @@ export const Crt = ({isCrt, snapPoint, callBack, dragConstraints, crtWidth, boun
     }
   };
 
+
   useEffect(() => {
     const handleResize = () => {
       if (imgRef.current && bounds.current) {
@@ -76,23 +77,29 @@ export const Crt = ({isCrt, snapPoint, callBack, dragConstraints, crtWidth, boun
         
 
         const newX = Math.max(0, Math.min(imgRect.left, viewportWidth - imgRect.width));
-        const newY = Math.max(boundsRect.height - 2 * imgRect.height, Math.min(top, boundsRect.height - 2 * imgRect.height));
+        // const newY = Math.max(boundsRect.height - 2 * imgRect.height, Math.min(top, boundsRect.height - 2 * imgRect.height));
 
-        controls.start({ x: newX, y: newY });
+        console.log('newY', boundsRect.height - 2 * imgRect.height);
+        controls.start({ x: newX, y: boundsRect.height - 2 * imgRect.height });
       }
     };
 
+
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+    return () => { 
+      window.removeEventListener("resize", handleResize);
+    }
+  }, [imgRef.current, bounds.current]);
+
+  useEffect(() => {
+    console.log('test', bounds.current?.getBoundingClientRect().height)
+  }, [bounds.current?.getBoundingClientRect().height]);
 
   const moveToStartPosition = () => {
     if (imgRef.current && bounds.current) {
       const imgRect = imgRef.current.getBoundingClientRect();
       const boundsRect = bounds.current.getBoundingClientRect();
 
-      console.log(dragConstraints);
-      console.log(boundsRect.height - imgRect.width);
       controls.start({
         x: 0,
         y: boundsRect.height - 2 * imgRect.height,

@@ -98,7 +98,7 @@ export const Puzzle = () => {
       <div className="relative flex justify-center mb-4 gap-2 w-full">
         <Button text="Stars align" initial={!isBitSet(BitPosition.FLAG_STARS_ALIGN)} onClick={() => { unhidePieces([1, 12, 13, 5]); }} />
         <Button text="Lend a hand" initial={!isBitSet(BitPosition.FLAG_LEND_A_HAND)} onClick={() => { unhidePieces([15, 11, 3, 8]); }} />
-        <Button text="2024" initial={!isBitSet(BitPosition.FLAG_2024)} onClick={() => { unhidePieces([16, 10, 2, 4]); }} />
+        <Button text="*____" initial={!isBitSet(BitPosition.FLAG_2024)} onClick={() => { unhidePieces([16, 10, 2, 4]); }} />
       </div>
       {pieces.current.map((piece, index) => (
         <PuzzlePiece
