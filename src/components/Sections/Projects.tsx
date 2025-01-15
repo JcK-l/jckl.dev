@@ -13,8 +13,8 @@ const Projects = () => {
       </h1>
     </div>
     <PhoneProvider>
-      <div className="relative flex justify-between flex-col-reverse md:flex-row gap-2 ">
-        <div className="relative flex flex-col justify-center w-full gap-2">
+      <div className="relative flex justify-between flex-col md:flex-row gap-2 ">
+        <div className="relative flex flex-col justify-start w-full gap-2">
           {projects.map((project, index) => (
             <ProjectText 
               title={project.title} 
@@ -25,7 +25,8 @@ const Projects = () => {
               githubLink={project.githubLink}
             />
           ))}
-          <ProjectText title={"No Project"} description="There is no project with this number!" showOnNumber={-1} numbersExclude={Array.from({length: projects.length}, (_, i) => i)} />
+          <ProjectText title={"No Project"} description="There is no project with this number!" showOnNumber={0} numbersExclude={Array.from({length: projects.length + 1}, (_, i) => i - 1)} />
+          <ProjectText title={"No Project"} description="There is no project with this number!" showOnNumber={-1} />
         </div>
         <Phone />
       </div>

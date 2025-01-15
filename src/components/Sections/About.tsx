@@ -42,7 +42,7 @@ const About = () => {
         </div>
 
         <PuzzleProvider>
-          <div className="relative flex justify-between flex-col-reverse md:flex-row gap-2 ">
+          <div className="relative flex justify-between flex-col-reverse md:flex-row gap-2 mb-1">
             <div className="relative flex flex-col w-full gap-2">
               <AboutText text="" showRange={{min:0, max:3}} remove={true} />
               <AboutText 

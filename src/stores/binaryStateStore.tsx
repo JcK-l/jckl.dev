@@ -5,8 +5,9 @@ export const $binaryState = atom<number>(0);
 export enum BitPosition {
   FLAG_STARS_ALIGN = 0,
   FLAG_LEND_A_HAND = 1,
-  FLAG_2024 = 2,
-  FLAG_D = 3,
+  FLAG_CONNECTION = 2,
+  FLAG_CRT = 3,
+  FLAG_SECRET = 4,
   // Add more flags as needed
 }
 

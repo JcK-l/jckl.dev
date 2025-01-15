@@ -22,6 +22,34 @@ export const ProjectText = ({title, description, showOnNumber, numbersExclude, i
     return null;
   } 
 
+
+
+  if (showOnNumber == -1) {
+
+    const formatDate = (date: Date): string => {
+      const options: Intl.DateTimeFormatOptions = { hour: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' };
+      return date.toLocaleDateString(undefined, options);
+    };
+
+    const currentDate = new Date();
+    const pastDate = new Date(currentDate.getTime() - timer * 60 * 60 * 1000);
+
+    const isSuccess = pastDate.getFullYear() === 2024;
+
+    return (
+      <div className="relative">
+        <p>Current Date: {formatDate(currentDate)}</p>
+        <p>Date {timer} hours ago: {formatDate(pastDate)}</p>
+        {isSuccess ? (
+          <p>Success: The past date is in the year 2024.</p>
+        ) : (
+          <p>Failure: The past date is not in the year 2024. It is in the year {pastDate.getFullYear()}.</p>
+        )}
+      </div>
+    );
+  }
+
+
   const anyLink = githubLink ? true : false;
 
   return (
@@ -52,7 +80,7 @@ export const ProjectText = ({title, description, showOnNumber, numbersExclude, i
           </a>
         )}
       </div>
-      <p className="p-text text-primary text-center w-full md:w-2/3 mx-auto">{description}</p>
+      <p className="p-text text-primary text-center w-full md:w-2/3 mx-auto mb-4">{description}</p>
     </div>
   );
 }

@@ -98,7 +98,7 @@ export const Puzzle = () => {
       <div className="relative flex justify-center mb-4 gap-2 w-full">
         <Button text="Stars align" initial={!isBitSet(BitPosition.FLAG_STARS_ALIGN)} onClick={() => { unhidePieces([1, 12, 13, 5]); }} />
         <Button text="Lend a hand" initial={!isBitSet(BitPosition.FLAG_LEND_A_HAND)} onClick={() => { unhidePieces([15, 11, 3, 8]); }} />
-        <Button text="*____" initial={!isBitSet(BitPosition.FLAG_2024)} onClick={() => { unhidePieces([16, 10, 2, 4]); }} />
+        <Button text="*____" initial={!isBitSet(BitPosition.FLAG_CONNECTION)} onClick={() => { unhidePieces([16, 10, 2, 4]); }} />
       </div>
       {pieces.current.map((piece, index) => (
         <PuzzlePiece
@@ -123,7 +123,7 @@ export const Puzzle = () => {
         draggable="false" 
       />
       <div className="relative flex justify-center mt-4">
-        <Button text="???" initial={true} onClick={() => { unhidePieces([9, 7, 6, 14]); }} />
+        <Button text={`${totalPlacedPieces < 12 ? "???" : "Turn on the crt..."}`} initial={true} onClick={() => { unhidePieces([9, 7, 6, 14]); }} />
       </div>
     </div>
   );

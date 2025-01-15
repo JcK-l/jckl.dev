@@ -19,6 +19,7 @@ export const Carousel = ({imageFolder, numberImages} : CarouselProps) => {
   const [ position, setPosition ] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
   const [itemWidth, setItemWidth] = useState(0);
+  const positionRef = useRef(position);
   const controls = useAnimation();
   const images = Array.from({length: numberImages}, (_, index) => `${imageFolder}/${index + 1}.avif`);
 
@@ -46,14 +47,14 @@ export const Carousel = ({imageFolder, numberImages} : CarouselProps) => {
       const newPosition = Math.max(0, Math.min(position + direction, images.length-1));
       setPosition(newPosition);
       controls.start({ translateX: `-${newPosition * itemWidth}px`, transition: SPRING_OPTIONS });
-      console.log(newPosition);
+      positionRef.current = newPosition;
     }
   }
 
   useEffect(() => {
     const handleResize = () => {
       if (carouselRef.current) {
-        controls.start({ translateX: `-${position * carouselRef.current.offsetWidth}px`, transition: SPRING_OPTIONS });
+        controls.start({ translateX: `-${positionRef.current * carouselRef.current.offsetWidth}px`, transition: SPRING_OPTIONS });
       }
     };
 
@@ -68,7 +69,7 @@ export const Carousel = ({imageFolder, numberImages} : CarouselProps) => {
     <div className="relative overflow-hidden w-full md:w-7/12 mx-auto mb-2 select-none">
       <motion.div
         ref={carouselRef}
-        className={`relative flex items-start cursor-grab active:cursor-grabbing justify-start touch-pan-x`}
+        className={`relative flex items-start cursor-grab active:cursor-grabbing justify-start`}
         drag={"x"}
         onDragEnd={onDragEndHandler}
         animate={controls}

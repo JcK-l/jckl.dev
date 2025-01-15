@@ -1,15 +1,20 @@
 import { useState, useEffect, useRef } from 'react';
 import { usePhoneContext } from '../hooks/useDataContext';
+import { setBit, BitPosition } from '../stores/binaryStateStore';
 
 export const Phone = () => {
   const [input, setInput] = useState('#0');
   const { number, setNumber, timer, setTimer  } = usePhoneContext();
+
+
 
   const handleButtonClick = (number: string) => {
     setInput(prevInput => {
       if (prevInput.startsWith('#')) {
         setNumber(Number(number));
         return `#${number}`;
+      } else if (prevInput.startsWith('*')) {
+        setTimer(Number(prevInput.slice(1) + number));
       }
       return prevInput + number;
     });
@@ -22,7 +27,17 @@ export const Phone = () => {
   const handleCallClick = () => {
     console.log(`Calling ${input}... Not really`);
     setInput('');
-    setNumber(getInputAsNumber());
+    if (input.startsWith('*')) {
+      const currentDate = new Date();
+      const pastDate = new Date(currentDate.getTime() - timer * 60 * 60 * 1000);
+      const isSuccess = pastDate.getFullYear() === 2024;
+      if (isSuccess) {
+        setBit(BitPosition.FLAG_CONNECTION);
+      }
+      setNumber(-1);
+    } else {
+      setNumber(getInputAsNumber());
+    }
   }
 
   const getInputAsNumber = () => {
@@ -34,12 +49,12 @@ export const Phone = () => {
   const numberBackgroundStyle={opacity:1,fill:'var(--color-white-shade)',fillOpacity:1,fillRule:'evenodd',strokeWidth:0.184,strokeLinecap:'square',strokeLinejoin:'bevel'}
   return (
     <div className="relative select-none w-11/12 md:w-3/12 2xl:w-3/12 mx-auto shrink-0">
-      <div className="relative flex justify-center items-center poppins-extrabold h5-text h-auto">
-        {input}
+      <div className='relative flex justify-center items-center poppins-extrabold h5-text h-auto'>
+        {input === "" ? <>&nbsp;</> : input}
       </div>
       <svg
         className="relative m-4"
-        viewBox="0 0 73.424544 123.60033"
+        viewBox="0 0 74.424544 125"
         version="1.1"
         id="svg1"
         xmlns="http://www.w3.org/2000/svg"
@@ -54,7 +69,6 @@ export const Phone = () => {
                 cx="79.073036"
                 cy="196.06964"
                 r="8.9518633" /><path
-                // https://www.svgrepo.com/svg/526086/phone
                 d="m 80.65525,197.14021 -0.20266,0.20146 c 0,0 -0.48167,0.47895 -1.796403,-0.82835 -1.314726,-1.30726 -0.833066,-1.78618 -0.833066,-1.78618 l 0.127602,-0.12689 c 0.31438,-0.31258 0.344012,-0.81441 0.06972,-1.18078 l -0.561015,-0.7494 c -0.339465,-0.45346 -0.995417,-0.51335 -1.384502,-0.12648 l -0.698344,0.69438 c -0.192926,0.19183 -0.322211,0.4405 -0.306531,0.71635 0.04011,0.70575 0.359413,2.2242 2.141155,3.99582 1.889455,1.8787 3.662321,1.95337 4.387317,1.88578 0.22931,-0.0214 0.428723,-0.13815 0.589427,-0.29796 l 0.632052,-0.6284 c 0.426632,-0.42423 0.306326,-1.15149 -0.239545,-1.44821 l -0.850017,-0.46209 c -0.358426,-0.19482 -0.795069,-0.13761 -1.07519,0.14095 z"
                 fill="#1c274c"
                 style={{fill:'var(--color-white)',fillOpacity:1,strokeWidth:0.444919}}

@@ -45,6 +45,7 @@ const Contact = () => {
               className="w-full rounded-lg p-2 xl:p-4 text-primary font-medium focus:bg-primary focus:text-white"
               type="text"
               name="name"
+              required
             />
           </div>
           <div className="relative w-7/12">
@@ -54,6 +55,7 @@ const Contact = () => {
               className="w-full rounded-lg p-2 xl:p-4 text-primary font-medium focus:bg-primary focus:text-white"
               type="email"
               name="email"
+              required
             />
           </div>
         </div> 
@@ -62,6 +64,7 @@ const Contact = () => {
           // placeholder="Type your message here"
           className="mb-3 w-full rounded-lg pb-10 pl-2 pt-2 xl:pb-24 xl:pl-4 xl:pt-4 text-primary font-medium focus:bg-primary focus:text-white"
           name="message"
+          required
         ></textarea>
         <button
           className="w-full rounded-lg border-2 p-2 text-white xl:p-4 hover:bg-secondary"
