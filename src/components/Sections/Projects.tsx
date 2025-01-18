@@ -13,7 +13,7 @@ const Projects = () => {
       </h1>
     </div>
     <PhoneProvider>
-      <div className="relative flex justify-between flex-col md:flex-row gap-2 ">
+      <div className="relative flex justify-between flex-col-reverse md:flex-row gap-2 ">
         <div className="relative flex flex-col justify-start w-full gap-2">
           {projects.map((project, index) => (
             <ProjectText 

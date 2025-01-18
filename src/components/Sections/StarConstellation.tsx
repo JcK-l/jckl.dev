@@ -32,7 +32,7 @@ const StarConstellation = () => {
       isCrt={false}
       renderItem={(shift) => (
         <motion.div
-          className="relative select-none"
+          className="relative select-none mix-blend-screen"
           style={{ y: shift }}
         >
           <motion.svg

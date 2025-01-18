@@ -1,3 +1,4 @@
+// https://www.svgrepo.com/svg/525539/star 
 export const Stars = () => {
   const style = {strokeWidth: 0.0965762};
   return (

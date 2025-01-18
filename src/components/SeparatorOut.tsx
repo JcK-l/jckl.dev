@@ -40,7 +40,7 @@ export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
           />
           {displayCrt && (
             <svg
-              cursor="pointer"
+              cursor={`${isBitSet(BitPosition.FLAG_CRT) ? 'default' : 'pointer'}`}
               onClick={() => {
                 if (
                   isBitSet(BitPosition.FLAG_STARS_ALIGN) &&

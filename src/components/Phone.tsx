@@ -9,8 +9,12 @@ export const Phone = () => {
 
 
   const formatDate = (date: Date): string => {
-    const options: Intl.DateTimeFormatOptions = { hour: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' };
-    return date.toLocaleDateString(undefined, options);
+    const day = date.getDate();
+    const month = date.toLocaleString('default', { month: 'long' });
+    const year = date.getFullYear();
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${day}. ${month} ${year} at ${hours}:${minutes}`;
   };
 
   const handleButtonClick = (number: string) => {

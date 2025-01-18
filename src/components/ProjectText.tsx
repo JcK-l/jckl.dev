@@ -1,5 +1,6 @@
 import { usePhoneContext } from "../hooks/useDataContext";
 import { Carousel } from "./Carousel";
+import { GitHub } from "../utility/icons";
 
 interface ProjectTextProps {
   title: string;
@@ -76,7 +77,7 @@ export const ProjectText = ({title, description, showOnNumber, numbersExclude, i
         )}
         { !githubLink ? null : (
           <a href={githubLink} target="_blank" rel="noreferrer noopener">
-            <img className="h-6 w-6" src={"/github-svgrepo-com.svg"} alt="Icon"  />
+            <GitHub />
           </a>
         )}
       </div>
