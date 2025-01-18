@@ -46,6 +46,10 @@ module.exports = {
         'l-xsm': '0.5rem',
       },
       colors: {
+        textColor: "var(--color-text-color)",
+        bgColor: "var(--color-bg-color)",
+        fgColor: "var(--color-fg-color)",
+        titleColor: "var(--color-title-color)",
         primary: "var(--color-primary)",
         secondary: "var(--color-secondary)",
         tertiary: "var(--color-tertiary)",

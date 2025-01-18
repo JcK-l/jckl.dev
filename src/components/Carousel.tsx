@@ -69,7 +69,7 @@ export const Carousel = ({imageFolder, numberImages} : CarouselProps) => {
     <div className="relative overflow-hidden w-full md:w-7/12 mx-auto mb-2 select-none">
       <motion.div
         ref={carouselRef}
-        className={`relative flex items-start cursor-grab active:cursor-grabbing justify-start`}
+        className={`relative flex items-start cursor-grab active:cursor-grabbing justify-start touch-none`}
         drag={"x"}
         onDragEnd={onDragEndHandler}
         animate={controls}
@@ -85,10 +85,10 @@ export const Carousel = ({imageFolder, numberImages} : CarouselProps) => {
 
 const ProjectCards = ({ key, src }: { key: number, src: string }) => {
   return (
-    <div className="relative w-full shrink-0 bg-white">
+    <div className="relative w-full shrink-0">
       <img
         key={key}
-        className={'relative w-full pointer-events-none mix-blend-multiply'}
+        className={'relative w-full pointer-events-none mix-blend-multiply rounded-lg'}
         src={src}
         loading="lazy"
         alt="Get a better browser!"

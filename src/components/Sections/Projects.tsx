@@ -6,8 +6,8 @@ import { ProjectText } from "../ProjectText";
 
 const Projects = () => {
   return (
-    <div className="relative page-margins bg-white">
-    <div className="z-10 w-full text-secondary">
+    <div className="relative page-margins bg-fgColor">
+    <div className="z-10 w-full text-titleColor">
       <h1 className="inline-block w-auto mb-8 xl:mb-24 h2-text">
         My Projects!
       </h1>

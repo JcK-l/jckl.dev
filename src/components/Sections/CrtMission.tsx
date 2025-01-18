@@ -3,8 +3,10 @@ import { motion, useAnimation } from "framer-motion";
 import { meImage, meDown } from "../../data/meImage";
 import { crtImage } from "../../data/crtImage";
 import { useState, useEffect } from "react";
-import { setBit, BitPosition } from '../../stores/binaryStateStore';
+import { setBit, isBitSet, BitPosition } from '../../stores/binaryStateStore';
+import { Stars } from "../Stars";
 
+//https://www.svgrepo.com/svg/237627/balloons-balloon
 const CrtMission = () => {
   const [opactiy, setOpacity] = useState(0);
   const [opacitySwitch, setOpacitySwitch] = useState(0);
@@ -19,20 +21,20 @@ const CrtMission = () => {
   }, []);
 
   return (
-    <BetweenLands isBackground={true} isCrt={true} crtCallback={() => 
+    <BetweenLands isBackground={true} isCrt={!isBitSet(BitPosition.FLAG_LEND_A_HAND)} crtCallback={() => 
       {
         setOpacity(1); 
         setTimeout(() => {
           setOpacitySwitch(1);
+          setBit(BitPosition.FLAG_LEND_A_HAND);
           controls.start({
             y: 0,
             transition: {
               delay: 0.5,
               type: "inertia",
-              velocity: 300,
+              velocity: 350,
             },
           }).then(() => {
-          setBit(BitPosition.FLAG_LEND_A_HAND);
           setIsHidden(true);
         });
         }, 1000); 
@@ -117,6 +119,7 @@ const CrtMission = () => {
             id="image1-2"
             x="28.29455"
             y="11.51998" />
+            {/* https://www.pexels.com/photo/an-antique-television-set-on-orange-surface-8058637/ */}
             <image
             width="8.0540342"
             height="6.0324798"
@@ -129,7 +132,7 @@ const CrtMission = () => {
             </motion.svg>
         )
       }
-        <motion.img src="/stars.svg" alt="stars" className="relative w-full lg:w-9/12 mx-auto" draggable={false} />
+        <Stars />
            
       </motion.div>
     )}/> 

@@ -1,21 +1,24 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { usePhoneContext } from '../hooks/useDataContext';
 import { setBit, BitPosition } from '../stores/binaryStateStore';
+import { $date } from '../stores/stringStore';
 
 export const Phone = () => {
-  const [input, setInput] = useState('#0');
+  const [input, setInput] = useState('*0');
   const { number, setNumber, timer, setTimer  } = usePhoneContext();
 
 
+  const formatDate = (date: Date): string => {
+    const options: Intl.DateTimeFormatOptions = { hour: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' };
+    return date.toLocaleDateString(undefined, options);
+  };
 
   const handleButtonClick = (number: string) => {
     setInput(prevInput => {
-      if (prevInput.startsWith('#')) {
+      if (prevInput.startsWith('*')) {
         setNumber(Number(number));
-        return `#${number}`;
-      } else if (prevInput.startsWith('*')) {
-        setTimer(Number(prevInput.slice(1) + number));
-      }
+        return `*${number}`;
+      }       
       return prevInput + number;
     });
   };
@@ -25,17 +28,22 @@ export const Phone = () => {
   };
 
   const handleCallClick = () => {
-    console.log(`Calling ${input}... Not really`);
     setInput('');
-    if (input.startsWith('*')) {
+    if (input.endsWith('#')) {
+      console.log(`Input timer ${input}...`);
+      setNumber(-1);
+      const time = Number(input.slice(0, -1));
+      setTimer(time);
       const currentDate = new Date();
-      const pastDate = new Date(currentDate.getTime() - timer * 60 * 60 * 1000);
+      const pastDate = new Date(currentDate.getTime() - time * 60 * 60 * 1000);
       const isSuccess = pastDate.getFullYear() === 2024;
+
       if (isSuccess) {
         setBit(BitPosition.FLAG_CONNECTION);
       }
-      setNumber(-1);
+      $date.set(formatDate(pastDate));
     } else {
+      console.log(`Calling ${input}... Not really`);
       setNumber(getInputAsNumber());
     }
   }

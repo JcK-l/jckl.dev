@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import { useEffect, useState, useRef } from 'react';
 import { MotionValue, useScroll, useTransform, useMotionValue } from 'framer-motion';
 import { Crt } from './Crt';
+import { BitPosition, isBitSet } from "../stores/binaryStateStore"
 
 interface BetweenLandsProps {
   isBackground: boolean;
@@ -17,15 +18,15 @@ const originalImgWidth = 500;
 const originalSnapPoint = { x: 1600, y: 1750 };
 
 export const BetweenLands = ({isBackground, isCrt, crtCallback, renderItem}: BetweenLandsProps) => {
-  let ref = useRef<HTMLDivElement>(null);
-  let separatorInRef = useRef<HTMLDivElement>(null);
-  let separatorOutRef = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
+  const separatorInRef = useRef<HTMLDivElement>(null);
+  const separatorOutRef = useRef<HTMLDivElement>(null);
   const [separatorHeight, setSeparatorHeight] = useState(0);
   const [dragConstraints, setDragConstraints] = useState({ top: 0, left: 0, right: 0, bottom: 0 });
   const [crtWidth, setCrtWidth] = useState(0);
   const [snapPoint, setSnapPoint] = useState(originalSnapPoint);
 
-  const updateSeparatorHeights = () => {
+  const updateSizes = () => {
     if (!separatorInRef.current || !separatorOutRef.current) return;
     const inHeight = separatorInRef.current.offsetHeight || 0;
     setSeparatorHeight(inHeight);
@@ -53,9 +54,9 @@ export const BetweenLands = ({isBackground, isCrt, crtCallback, renderItem}: Bet
   };
 
   useEffect(() => {
-    updateSeparatorHeights();
-    window.addEventListener('resize', updateSeparatorHeights);
-    return () => window.removeEventListener('resize', updateSeparatorHeights);
+    updateSizes();
+    window.addEventListener('resize', updateSizes);
+    return () => window.removeEventListener('resize', updateSizes);
   }, [separatorInRef, separatorOutRef]);
 
 
@@ -69,7 +70,7 @@ export const BetweenLands = ({isBackground, isCrt, crtCallback, renderItem}: Bet
   const zeroPx = useMotionValue('0px');
 
   const crtProp = {
-    isCrt: isCrt,
+    isCrt: isCrt && !isBitSet(BitPosition.FLAG_LEND_A_HAND),
     snapPoint: snapPoint,
     callBack: crtCallback ? crtCallback : () => {},
     dragConstraints: dragConstraints,
@@ -79,7 +80,7 @@ export const BetweenLands = ({isBackground, isCrt, crtCallback, renderItem}: Bet
 
   return (
     <div 
-      className="relative bg-primary"
+      className="relative bg-bgColor"
       ref={ref}
     >
       <Crt {...crtProp} />
@@ -90,17 +91,7 @@ export const BetweenLands = ({isBackground, isCrt, crtCallback, renderItem}: Bet
       ) : 
         renderItem(zeroPx)
       }
-      <SeparatorOut ref={separatorOutRef} />
+      <SeparatorOut ref={separatorOutRef} isCrt={isCrt} />
     </div>
   );
 };
-
-      {/* <motion.video
-        className="inset-x-0 w-full select-none mix-blend-screen"
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="auto"
-        src="/secret.mp4" 
-      /> */}

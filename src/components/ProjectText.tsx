@@ -56,7 +56,7 @@ export const ProjectText = ({title, description, showOnNumber, numbersExclude, i
     <div className="relative w-full">
       { imageFolder && numberImages ? <Carousel imageFolder={imageFolder} numberImages={numberImages} /> : null }
       <div className="relative flex justify-center items-center gap-3 mb-2">
-        <h5 className="relative h5-text block font-bold text-secondary">{title}</h5>
+        <h5 className="relative h5-text block font-bold text-titleColor">{title}</h5>
         { !anyLink ? null : (
           <svg
             width="2"
@@ -68,7 +68,7 @@ export const ProjectText = ({title, description, showOnNumber, numbersExclude, i
               y1="0"
               x2="1"
               y2="24"
-              stroke="var(--color-primary)"
+              stroke="var(--color-text-color)"
               stroke-linecap="round"
               stroke-linejoin="round"
               />
@@ -76,11 +76,11 @@ export const ProjectText = ({title, description, showOnNumber, numbersExclude, i
         )}
         { !githubLink ? null : (
           <a href={githubLink} target="_blank" rel="noreferrer noopener">
-            <img className="h-6 w-6 text-white" src={"/github-svgrepo-com.svg"} alt="Icon"  />
+            <img className="h-6 w-6" src={"/github-svgrepo-com.svg"} alt="Icon"  />
           </a>
         )}
       </div>
-      <p className="p-text text-primary text-center w-full md:w-2/3 mx-auto mb-4">{description}</p>
+      <p className="p-text text-center w-full md:w-2/3 mx-auto mb-4">{description}</p>
     </div>
   );
 }

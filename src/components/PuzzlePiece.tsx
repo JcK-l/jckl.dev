@@ -1,11 +1,12 @@
 import { motion, useDragControls, useAnimation } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { usePuzzleContext } from "../hooks/useDataContext";
+import { getAudioContext } from "../utility/audioContext";
 
 interface PuzzlePieceProps {
   id: number;
   path: string;
-  puzzlebounds: React.RefObject<HTMLElement>;
+  puzzlebounds: React.RefObject<SVGSVGElement>;
   pieceSize: {width:number, height:number};
   pieceBox: string;
   pieceCoords: string;
@@ -36,10 +37,17 @@ export const PuzzlePiece = ({ id, path, puzzlebounds, pieceSize, pieceBox, piece
 
   const { lastPiece, setLastPiece, totalPlacedPieces, setTotalPlacedPieces  } = usePuzzleContext();
 
-  const playRandomSound = () => {
+  const playRandomSound = async () => {
     const randomIndex = Math.floor(Math.random() * soundFiles.length);
-    const audio = new Audio(soundFiles[randomIndex]);
-    audio.play();
+    const audioContext = getAudioContext();
+    const response = await fetch(soundFiles[randomIndex]);
+    const arrayBuffer = await response.arrayBuffer();
+    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+    const source = audioContext.createBufferSource();
+    source.buffer = audioBuffer;
+    source.connect(audioContext.destination);
+    source.start(0);
   };
 
   const calculateDistance = (x1: number, y1: number, x2: number, y2: number) => {
@@ -66,13 +74,17 @@ export const PuzzlePiece = ({ id, path, puzzlebounds, pieceSize, pieceBox, piece
             damping: 50,
           },
         }).then(() => {
-          const svgDoc = (puzzlebounds.current as HTMLObjectElement).contentDocument;
-          if (svgDoc) {
-            const pieceId = `p${id}`;
-            const element = svgDoc.getElementById(pieceId);
-            if (element) {
-              element.style.opacity = "1"; // Change the opacity value as needed
-            }
+          // const svgDoc = (puzzlebounds.current as HTMLObjectElement).contentDocument;
+          // if (svgDoc) {
+          //   const pieceId = `b${id}`;
+          //   const element = svgDoc.getElementById(pieceId);
+          //   if (element) {
+          //     element.style.opacity = "0"; // Change the opacity value as needed
+          //   }
+          // }
+          const svgImage = document.getElementById(`p${id}`);
+          if (svgImage) {
+            svgImage.style.opacity = '1'; // Set the desired opacity value
           }
           playRandomSound();
           setLastPiece(id);
@@ -132,7 +144,7 @@ export const PuzzlePiece = ({ id, path, puzzlebounds, pieceSize, pieceBox, piece
     <>
       <motion.img
         ref={imgRef}
-        className={`absolute cursor-default z-10 select-none ${isHidden ? 'hidden' : ''}`}
+        className={`absolute cursor-default z-30 select-none ${isHidden ? 'hidden' : ''}`}
         src={path}
         drag
         dragTransition={{ power: 0 }}

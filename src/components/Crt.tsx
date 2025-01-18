@@ -10,7 +10,6 @@ interface CrtProps {
   bounds: React.RefObject<HTMLElement>;
 }
 
-const threshold = 100;
 
 export const Crt = ({isCrt, snapPoint, callBack, dragConstraints, crtWidth, bounds} : CrtProps) => {
 
@@ -34,7 +33,7 @@ export const Crt = ({isCrt, snapPoint, callBack, dragConstraints, crtWidth, boun
 
       const distance = calculateDistance(centerX, centerY, snapPoint.x, snapPoint.y);
 
-      if (distance < threshold) {
+      if (distance < crtWidth) {
         controls.start({
           x: snapPoint.x - imgRect.width / 2,
           y: snapPoint.y - imgRect.height / 2,
@@ -111,23 +110,20 @@ export const Crt = ({isCrt, snapPoint, callBack, dragConstraints, crtWidth, boun
 
 
   return (
-    <>
-      { 
-        (<motion.img 
-          drag 
-          ref={imgRef}
-          dragConstraints={dragConstraints} 
-          onDragEnd={handleDragEnd}
-          dragElastic={0} 
-          dragMomentum={false} 
-          draggable={false} 
-          src="/tv.avif" 
-          alt="crt" 
-          hidden={isHidden}
-          animate={controls}
-          style={{ width : crtWidth  }}
-          className="absolute z-40 cursor-grab active:cursor-grabbing select-none" />)
-      }
-    </>
+    // https://www.pexels.com/photo/an-antique-television-set-on-orange-surface-8058637/
+    <motion.img 
+      drag 
+      ref={imgRef}
+      dragConstraints={dragConstraints} 
+      onDragEnd={handleDragEnd}
+      dragElastic={0} 
+      dragMomentum={false} 
+      draggable={false} 
+      src="/tv.avif" 
+      alt="crt" 
+      hidden={isHidden}
+      animate={controls}
+      style={{ width : crtWidth  }}
+      className="absolute z-40 cursor-grab active:cursor-grabbing select-none" />
   );
 };
