@@ -17,7 +17,7 @@ const Projects = () => {
     <div className="page-margins my-4 relative bg-fgColor">
       <div className="z-10 w-full text-titleColor">
         <h1 className="h2-text mb-8 inline-block w-auto xl:mb-24">
-          My Projects!
+          My Projects{isBitSet(SentimentStateFlags.FLAG_POSITIVE) ? '!' : ''}
         </h1>
       </div>
       <PhoneProvider>

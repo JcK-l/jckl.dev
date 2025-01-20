@@ -31,7 +31,7 @@ const Hero = () => {
       ) : (
         <div className="relative z-10 w-full px-8 text-center">
           <h1 className="h1-text mb-8 inline-block w-auto text-titleColor">
-            I'm Joshua!
+            I'm Joshua{isBitSet(SentimentStateFlags.FLAG_POSITIVE) ? '!' : ''}
           </h1>
           <p className="p-text mb-10 xl:mb-16">
             Welcome to my website! Cool that you found it something something{" "}

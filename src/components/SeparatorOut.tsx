@@ -1,6 +1,14 @@
 import { forwardRef } from "react";
 import { crtImage, crtScreen } from "../data/crtImage";
-import { GameStateFlags, isBitSet, setBit } from "../stores/gameStateStore";
+import {
+  GameStateFlags,
+  isBitSet as gameStateIsBitSet,
+  setBit,
+} from "../stores/gameStateStore";
+import {
+  SentimentStateFlags,
+  isBitSet as sentimentStateIsBitSet,
+} from "../stores/sentimentStateStore";
 
 interface SeparatorOutProps {
   isCrt?: boolean;
@@ -8,7 +16,14 @@ interface SeparatorOutProps {
 
 export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
   (props, ref) => {
-    const displayCrt = props.isCrt && isBitSet(GameStateFlags.FLAG_LEND_A_HAND);
+    const displayCrt =
+      props.isCrt &&
+      gameStateIsBitSet(GameStateFlags.FLAG_LEND_A_HAND) &&
+      !(
+        (sentimentStateIsBitSet(SentimentStateFlags.FLAG_POSITIVE) ||
+          sentimentStateIsBitSet(SentimentStateFlags.FLAG_NEUTRAL)) &&
+        sentimentStateIsBitSet(SentimentStateFlags.FLAG_ACTIVE)
+      );
 
     return (
       <div className="relative" ref={ref}>
@@ -40,12 +55,16 @@ export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
           />
           {displayCrt && (
             <svg
-              cursor={`${isBitSet(GameStateFlags.FLAG_CRT) ? 'default' : 'pointer'}`}
+              cursor={`${
+                gameStateIsBitSet(GameStateFlags.FLAG_CRT)
+                  ? "default"
+                  : "pointer"
+              }`}
               onClick={() => {
                 if (
-                  isBitSet(GameStateFlags.FLAG_STARS_ALIGN) &&
-                  isBitSet(GameStateFlags.FLAG_LEND_A_HAND) &&
-                  isBitSet(GameStateFlags.FLAG_CONNECTION)
+                  gameStateIsBitSet(GameStateFlags.FLAG_STARS_ALIGN) &&
+                  gameStateIsBitSet(GameStateFlags.FLAG_LEND_A_HAND) &&
+                  gameStateIsBitSet(GameStateFlags.FLAG_CONNECTION)
                 ) {
                   setBit(GameStateFlags.FLAG_CRT);
                 }
@@ -72,7 +91,7 @@ export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
                   width="123.47222"
                   height="97.013885"
                   preserveAspectRatio="none"
-                  opacity={isBitSet(GameStateFlags.FLAG_CRT) ? 1 : 0}
+                  opacity={gameStateIsBitSet(GameStateFlags.FLAG_CRT) ? 1 : 0}
                   xlinkHref={crtScreen}
                   id="screen"
                   x="26.629618"

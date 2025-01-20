@@ -48,7 +48,7 @@ const About = () => {
         ) : (
           <div className="z-10 w-full">
             <h1 className="h2-text mb-8 inline-block text-titleColor xl:mb-24">
-              About Me!
+              About Me{sentimentStateIsBitSet(SentimentStateFlags.FLAG_POSITIVE) ? '!' : ''}
             </h1>
           </div>
         )}
