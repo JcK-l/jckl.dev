@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { useEffect, useState, useRef } from 'react';
 import { MotionValue, useScroll, useTransform, useMotionValue } from 'framer-motion';
 import { Crt } from './Crt';
-import { BitPosition, isBitSet } from "../stores/binaryStateStore"
+import { GameStateFlags, isBitSet } from "../stores/gameStateStore"
 
 interface BetweenLandsProps {
   isBackground: boolean;
@@ -70,7 +70,7 @@ export const BetweenLands = ({isBackground, isCrt, crtCallback, renderItem}: Bet
   const zeroPx = useMotionValue('0px');
 
   const crtProp = {
-    isCrt: isCrt && !isBitSet(BitPosition.FLAG_LEND_A_HAND),
+    isCrt: isCrt && !isBitSet(GameStateFlags.FLAG_LEND_A_HAND),
     snapPoint: snapPoint,
     callBack: crtCallback ? crtCallback : () => {},
     dragConstraints: dragConstraints,

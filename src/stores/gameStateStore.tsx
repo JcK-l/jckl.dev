@@ -1,8 +1,8 @@
 import { atom } from 'nanostores';
 
-export const $binaryState = atom<number>(0);
+export const $gameState = atom<number>(0);
 
-export enum BitPosition {
+export enum GameStateFlags {
   FLAG_STARS_ALIGN = 0,
   FLAG_LEND_A_HAND = 1,
   FLAG_CONNECTION = 2,
@@ -12,17 +12,17 @@ export enum BitPosition {
 }
 
 export const setBit = (bitPosition: number) => {
-  $binaryState.set($binaryState.get() | (1 << bitPosition));
+  $gameState.set($gameState.get() | (1 << bitPosition));
 };
 
 export const clearBit = (bitPosition: number) => {
-  $binaryState.set($binaryState.get() & ~(1 << bitPosition));
+  $gameState.set($gameState.get() & ~(1 << bitPosition));
 };
 
 export const toggleBit = (bitPosition: number) => {
-  $binaryState.set($binaryState.get() ^ (1 << bitPosition));
+  $gameState.set($gameState.get() ^ (1 << bitPosition));
 };
 
 export const isBitSet = (bitPosition: number): boolean => {
-  return ($binaryState.get() & (1 << bitPosition)) !== 0;
+  return ($gameState.get() & (1 << bitPosition)) !== 0;
 };

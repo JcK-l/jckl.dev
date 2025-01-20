@@ -4,10 +4,10 @@ import { pieces as originalPieces } from "../data/PuzzleData";
 import { usePuzzleContext } from "../hooks/useDataContext";
 import { Button } from "./Button";
 import {
-  $binaryState,
-  BitPosition,
+  $gameState,
+  GameStateFlags,
   isBitSet,
-} from "../stores/binaryStateStore";
+} from "../stores/gameStateStore";
 import { useStore } from "@nanostores/react";
 import { Puzzle } from "./Puzzle";
 
@@ -30,7 +30,7 @@ export const PuzzleGame = () => {
   const { lastPiece, setLastPiece, totalPlacedPieces, setTotalPlacedPieces } =
     usePuzzleContext();
   const hasMounted = useRef(false);
-  const binaryState = useStore($binaryState);
+  const binaryState = useStore($gameState);
 
   const updatePieceSize = () => {
     if (puzzlebounds.current) {
@@ -117,21 +117,21 @@ export const PuzzleGame = () => {
       <div className="relative mb-4 flex w-full justify-center gap-2">
         <Button
           text="Stars align"
-          initial={!isBitSet(BitPosition.FLAG_STARS_ALIGN)}
+          initial={!isBitSet(GameStateFlags.FLAG_STARS_ALIGN)}
           onClick={() => {
             unhidePieces([1, 12, 13, 5]);
           }}
         />
         <Button
           text="Lend a hand"
-          initial={!isBitSet(BitPosition.FLAG_LEND_A_HAND)}
+          initial={!isBitSet(GameStateFlags.FLAG_LEND_A_HAND)}
           onClick={() => {
             unhidePieces([15, 11, 3, 8]);
           }}
         />
         <Button
           text="____#"
-          initial={!isBitSet(BitPosition.FLAG_CONNECTION)}
+          initial={!isBitSet(GameStateFlags.FLAG_CONNECTION)}
           onClick={() => {
             unhidePieces([16, 10, 2, 4]);
           }}
@@ -155,8 +155,8 @@ export const PuzzleGame = () => {
       <Puzzle ref={puzzlebounds} />
       <div className="relative mt-4 flex justify-center">
         <Button
-          text={`${totalPlacedPieces < 12 ? "???" : "Turn on the crt..."}`}
-          initial={!isBitSet(BitPosition.FLAG_SECRET)}
+          text={`${totalPlacedPieces < 12 ? "???" : "Turn on the old tv and..."}`}
+          initial={!isBitSet(GameStateFlags.FLAG_SECRET)}
           onClick={() => {
             unhidePieces([9, 7, 6, 14]);
           }}

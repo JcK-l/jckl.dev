@@ -49,6 +49,7 @@ module.exports = {
         textColor: "var(--color-text-color)",
         bgColor: "var(--color-bg-color)",
         fgColor: "var(--color-fg-color)",
+        fgColorShade: "var(--color-fg-color-shade)",
         titleColor: "var(--color-title-color)",
         primary: "var(--color-primary)",
         secondary: "var(--color-secondary)",

@@ -1,7 +1,16 @@
 import { ArrowDown } from "../../utility/icons";
 import { Face } from "../Face";
+import {
+  $sentimentState,
+  isBitSet,
+  SentimentStateFlags,
+} from "../../stores/sentimentStateStore";
+import { useStore } from "@nanostores/react";
+import { useEffect, useState } from "react";
 
 const Hero = () => {
+  const sentimentState = useStore($sentimentState);
+
   const scrollToSection = (
     event: React.MouseEvent<HTMLAnchorElement, MouseEvent>
   ) => {
@@ -11,11 +20,15 @@ const Hero = () => {
       section.scrollIntoView({ behavior: "smooth" });
     }
   };
-  return (
-    <>
-      <div className="relative flex flex-col items-center justify-between">
-        <Face />
 
+
+  return (
+    <div className="relative mb-1 flex flex-col items-center justify-between">
+      <Face />
+
+      {isBitSet(SentimentStateFlags.FLAG_NEGATIVE) ? (
+        <div></div>
+      ) : (
         <div className="relative z-10 w-full px-8 text-center">
           <h1 className="h1-text mb-8 inline-block w-auto text-titleColor">
             I'm Joshua!
@@ -27,16 +40,15 @@ const Hero = () => {
             you &lt;3
           </p>
 
-          {/* <ButtonPrimary href="#about" text="See More"></ButtonPrimary> */}
           <a
             onClick={scrollToSection}
             className="relative inline-block h-10 w-10 cursor-pointer xl:h-16 xl:w-16"
           >
-            <ArrowDown className="animate-bounce"/>
+            <ArrowDown className="animate-bounce" />
           </a>
         </div>
-      </div>
-    </>
+      )}
+    </div>
   );
 };
 

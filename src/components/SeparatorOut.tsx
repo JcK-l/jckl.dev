@@ -1,6 +1,6 @@
 import { forwardRef } from "react";
 import { crtImage, crtScreen } from "../data/crtImage";
-import { BitPosition, isBitSet, setBit } from "../stores/binaryStateStore";
+import { GameStateFlags, isBitSet, setBit } from "../stores/gameStateStore";
 
 interface SeparatorOutProps {
   isCrt?: boolean;
@@ -8,7 +8,7 @@ interface SeparatorOutProps {
 
 export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
   (props, ref) => {
-    const displayCrt = props.isCrt && isBitSet(BitPosition.FLAG_LEND_A_HAND);
+    const displayCrt = props.isCrt && isBitSet(GameStateFlags.FLAG_LEND_A_HAND);
 
     return (
       <div className="relative" ref={ref}>
@@ -40,14 +40,14 @@ export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
           />
           {displayCrt && (
             <svg
-              cursor={`${isBitSet(BitPosition.FLAG_CRT) ? 'default' : 'pointer'}`}
+              cursor={`${isBitSet(GameStateFlags.FLAG_CRT) ? 'default' : 'pointer'}`}
               onClick={() => {
                 if (
-                  isBitSet(BitPosition.FLAG_STARS_ALIGN) &&
-                  isBitSet(BitPosition.FLAG_LEND_A_HAND) &&
-                  isBitSet(BitPosition.FLAG_CONNECTION)
+                  isBitSet(GameStateFlags.FLAG_STARS_ALIGN) &&
+                  isBitSet(GameStateFlags.FLAG_LEND_A_HAND) &&
+                  isBitSet(GameStateFlags.FLAG_CONNECTION)
                 ) {
-                  setBit(BitPosition.FLAG_CRT);
+                  setBit(GameStateFlags.FLAG_CRT);
                 }
               }}
               viewBox="0 0 960 279.177"
@@ -72,7 +72,7 @@ export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
                   width="123.47222"
                   height="97.013885"
                   preserveAspectRatio="none"
-                  opacity={isBitSet(BitPosition.FLAG_CRT) ? 1 : 0}
+                  opacity={isBitSet(GameStateFlags.FLAG_CRT) ? 1 : 0}
                   xlinkHref={crtScreen}
                   id="screen"
                   x="26.629618"

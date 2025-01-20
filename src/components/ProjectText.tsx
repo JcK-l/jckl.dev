@@ -70,8 +70,8 @@ export const ProjectText = ({title, description, showOnNumber, numbersExclude, i
               x2="1"
               y2="24"
               stroke="var(--color-text-color)"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+              strokeLinecap="round"
+              strokeLinejoin="round"
               />
           </svg>
         )}

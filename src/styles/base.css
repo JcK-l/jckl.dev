@@ -45,6 +45,7 @@
   --color-text-color: #231942;
   --color-bg-color: #231942;
   --color-fg-color: #F7F5FB;
+  --color-fg-color-shade: #CDCBCF;
   --color-title-color: #5e548e; 
   --color-primary: #231942;  
    --color-secondary: #5e548e;
@@ -55,7 +56,9 @@
   --color-white: #F7F5FB;
   --color-white-shade: #CDCBCF;
   --color-yellow: #FFDD4A;
+  --color-yellow-shade: #FFC84A;
   --color-green: #558F54;
+  --color-green-shade: #50864F;
   --color-red: #AC3931;
   --color-red-shade: #802A24;
   --color-transition1: #918ab2;

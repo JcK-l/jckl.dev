@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { usePhoneContext } from '../hooks/useDataContext';
-import { setBit, BitPosition } from '../stores/binaryStateStore';
+import { setBit, GameStateFlags } from '../stores/gameStateStore';
 import { $date } from '../stores/stringStore';
 
 export const Phone = () => {
@@ -43,7 +43,7 @@ export const Phone = () => {
       const isSuccess = pastDate.getFullYear() === 2024;
 
       if (isSuccess) {
-        setBit(BitPosition.FLAG_CONNECTION);
+        setBit(GameStateFlags.FLAG_CONNECTION);
       }
       $date.set(formatDate(pastDate));
     } else {
