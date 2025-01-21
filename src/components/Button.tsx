@@ -15,7 +15,7 @@ export const Button = ({ text, onClick, initial }: ButtonProps) => {
   };
 
   return (
-    <span className="relative small-text 2xl:p-text">
+    <span className="relative small-text xl:p-text">
       <button onClick={handleButtonClick} 
         className={`p-2 button-on ${pressed ? 'disabled:button-pressed' : 'disabled:button-initial'}`} 
         disabled={initial || pressed}

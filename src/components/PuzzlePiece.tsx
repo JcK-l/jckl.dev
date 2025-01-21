@@ -13,7 +13,6 @@ interface PuzzlePieceProps {
   snapPoint: { x: number; y: number };
   startPoint: { x: number; y: number };
   dragConstraints: { top: number; left: number; right: number; bottom: number };
-  hidden: boolean;
 }
 
 const threshold = 50;
@@ -24,11 +23,9 @@ const soundFiles = [
   '/PuzzlePieces/sounds/3.mp3',
   '/PuzzlePieces/sounds/4.mp3',
   '/PuzzlePieces/sounds/5.mp3',
-  // '/PuzzlePieces/sounds/6.mp3'
 ];
 
-export const PuzzlePiece = ({ id, path, puzzlebounds, pieceSize, pieceBox, pieceCoords, snapPoint, startPoint, dragConstraints, hidden } : PuzzlePieceProps) => {
-  if (hidden) return null;
+export const PuzzlePiece = ({ id, path, puzzlebounds, pieceSize, pieceBox, pieceCoords, snapPoint, startPoint, dragConstraints } : PuzzlePieceProps) => {
   const [isHidden, setIsHidden] = useState(false);
   const dragControls = useDragControls();
   const controls = useAnimation();
@@ -74,14 +71,6 @@ export const PuzzlePiece = ({ id, path, puzzlebounds, pieceSize, pieceBox, piece
             damping: 50,
           },
         }).then(() => {
-          // const svgDoc = (puzzlebounds.current as HTMLObjectElement).contentDocument;
-          // if (svgDoc) {
-          //   const pieceId = `b${id}`;
-          //   const element = svgDoc.getElementById(pieceId);
-          //   if (element) {
-          //     element.style.opacity = "0"; // Change the opacity value as needed
-          //   }
-          // }
           const svgImage = document.getElementById(`p${id}`);
           if (svgImage) {
             svgImage.style.opacity = '1'; // Set the desired opacity value

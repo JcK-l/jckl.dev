@@ -25,6 +25,11 @@ const CrtMission = () => {
   const [flags, setFlags] = useState([false, false, false]);
   const controls = useAnimation();
   const sentimentState = useStore($sentimentState);
+  const showMe =
+    (sentimentStateIsBitSet(SentimentStateFlags.FLAG_POSITIVE) ||
+      sentimentStateIsBitSet(SentimentStateFlags.FLAG_NEUTRAL) ||
+      sentimentStateIsBitSet(SentimentStateFlags.FLAG_NEGATIVE)) &&
+    sentimentStateIsBitSet(SentimentStateFlags.FLAG_ACTIVE);
 
   useEffect(() => {
     controls.start({
@@ -36,6 +41,10 @@ const CrtMission = () => {
   useEffect(() => {
     const savedFlags = localStorage.getItem("flags");
     setFlags(JSON.parse(savedFlags || "[]"));
+    if (sentimentStateIsBitSet(SentimentStateFlags.FLAG_ACTIVE)) {
+      setOpacity(0);
+      setOpacitySwitch(0);
+    }
   }, [sentimentState]);
 
   return (
@@ -61,22 +70,20 @@ const CrtMission = () => {
             });
         }, 1000);
       }}
-      renderItem={(shift) =>
-        sentimentStateIsBitSet(SentimentStateFlags.FLAG_NEGATIVE) ? (
-          <div></div>
-        ) : (
+      renderItem={
+        (shift) => (
           <motion.div
             className="relative select-none mix-blend-screen"
             style={{ y: shift }}
           >
-            {isHidden ? null : (
+            {isHidden && !showMe ? null : (
               <motion.svg
                 viewBox="0 0 49.26923 39"
                 fill="none"
                 animate={controls}
                 className="absolute left-[50%]  top-[50%] h-auto w-7/12"
                 style={{ x: "-50%", y: "-50%", transformOrigin: "top" }}
-                visibility={isHidden ? "hidden" : "visible"}
+                // visibility={isHidden ? "hidden" : "visible"}
                 version="1.1"
                 id="svg1"
                 xmlns="http://www.w3.org/2000/svg"
@@ -92,17 +99,35 @@ const CrtMission = () => {
                     id="path1"
                   />
                   <path
-                    style={{ fill: `${flags[SentimentStateFlags.FLAG_NEGATIVE] ? 'var(--color-red-shade)' : 'var(--color-white-shade)'}` }}
+                    style={{
+                      fill: `${
+                        flags[SentimentStateFlags.FLAG_NEGATIVE]
+                          ? "var(--color-red-shade)"
+                          : "var(--color-white-shade)"
+                      }`,
+                    }}
                     d="m 175.95,319.45 h 9.031 c 9.361,0 14.947,-10.684 9.366,-18.2 -3.052,-4.111 -7.642,-7.288 -14.537,-7.288 -8.337,0 -12.554,4.645 -14.648,9.968 -2.937,7.466 2.767,15.52 10.788,15.52 z"
                     id="path2"
                   />
                   <path
-                    style={{ fill: `${flags[SentimentStateFlags.FLAG_NEUTRAL] ? 'var(--color-yellow-shade)' : 'var(--color-white-shade)'}` }}
+                    style={{
+                      fill: `${
+                        flags[SentimentStateFlags.FLAG_NEUTRAL]
+                          ? "var(--color-yellow-shade)"
+                          : "var(--color-white-shade)"
+                      }`,
+                    }}
                     d="m 325.77,365.702 h 9.031 c 9.361,0 14.946,-10.684 9.366,-18.2 -3.052,-4.111 -7.642,-7.288 -14.537,-7.288 -8.337,0 -12.554,4.645 -14.648,9.968 -2.937,7.465 2.766,15.52 10.788,15.52 z"
                     id="path3"
                   />
                   <ellipse
-                    style={{ fill: `${flags[SentimentStateFlags.FLAG_POSITIVE] ? 'var(--color-green)' : 'var(--color-white)'}` }}
+                    style={{
+                      fill: `${
+                        flags[SentimentStateFlags.FLAG_POSITIVE]
+                          ? "var(--color-green)"
+                          : "var(--color-white)"
+                      }`,
+                    }}
                     cx="268.68399"
                     cy="98.792"
                     rx="77.780998"
@@ -112,20 +137,38 @@ const CrtMission = () => {
                   <g id="g5">
                     &#10;{" "}
                     <path
-                      style={{ fill: `${flags[SentimentStateFlags.FLAG_POSITIVE] ? 'var(--color-green-shade)' : 'var(--color-white-shade)'}` }}
+                      style={{
+                        fill: `${
+                          flags[SentimentStateFlags.FLAG_POSITIVE]
+                            ? "var(--color-green-shade)"
+                            : "var(--color-white-shade)"
+                        }`,
+                      }}
                       d="m 268.687,0 c -4.524,0 -8.955,0.496 -13.266,1.437 36.634,7.998 64.51,48.541 64.51,97.359 0,48.818 -27.876,89.361 -64.51,97.359 4.311,0.941 8.743,1.437 13.266,1.437 42.954,0 77.777,-44.233 77.777,-98.797 C 346.464,44.231 311.641,0 268.687,0 Z"
                       id="path4-2"
                     />
                     &#10;{" "}
                     <path
-                      style={{ fill: `${flags[SentimentStateFlags.FLAG_POSITIVE] ? 'var(--color-green-shade)' : 'var(--color-white-shade)'}` }}
+                      style={{
+                        fill: `${
+                          flags[SentimentStateFlags.FLAG_POSITIVE]
+                            ? "var(--color-green-shade)"
+                            : "var(--color-white-shade)"
+                        }`,
+                      }}
                       d="m 195.973,81.912 c -1.322,0 -2.637,0.043 -3.942,0.125 -0.733,5.448 -1.119,11.046 -1.119,16.759 0,54.564 34.822,98.797 77.777,98.797 1.322,0 2.637,-0.043 3.942,-0.125 0.733,-5.448 1.119,-11.046 1.119,-16.759 0,-54.564 -34.822,-98.797 -77.777,-98.797 z"
                       id="path5"
                     />
                     &#10;
                   </g>
                   <ellipse
-                    style={{ fill: `${flags[SentimentStateFlags.FLAG_NEGATIVE] ? 'var(--color-red)' : 'var(--color-white)'}` }}
+                    style={{
+                      fill: `${
+                        flags[SentimentStateFlags.FLAG_NEGATIVE]
+                          ? "var(--color-red)"
+                          : "var(--color-white)"
+                      }`,
+                    }}
                     cx="180.40199"
                     cy="195.16299"
                     rx="77.780998"
@@ -133,12 +176,24 @@ const CrtMission = () => {
                     id="ellipse5"
                   />
                   <path
-                    style={{ fill: `${flags[SentimentStateFlags.FLAG_POSITIVE] ? 'var(--color-green-shade)' : 'var(--color-white-shade)'}` }}
+                    style={{
+                      fill: `${
+                        flags[SentimentStateFlags.FLAG_POSITIVE]
+                          ? "var(--color-green-shade)"
+                          : "var(--color-white-shade)"
+                      }`,
+                    }}
                     d="m 245.933,193.293 c 7.198,2.793 14.838,4.3 22.755,4.3 35.482,0 65.411,-30.182 74.752,-71.436 -7.198,-2.793 -14.838,-4.3 -22.755,-4.3 -35.482,0 -65.411,30.181 -74.752,71.436 z"
                     id="path6"
                   />
                   <ellipse
-                    style={{ fill: `${flags[SentimentStateFlags.FLAG_NEUTRAL] ? 'var(--color-yellow)' : 'var(--color-white)'}` }}
+                    style={{
+                      fill: `${
+                        flags[SentimentStateFlags.FLAG_NEUTRAL]
+                          ? "var(--color-yellow)"
+                          : "var(--color-white)"
+                      }`,
+                    }}
                     cx="331.595"
                     cy="241.422"
                     rx="77.780998"
@@ -146,52 +201,71 @@ const CrtMission = () => {
                     id="ellipse6"
                   />
                   <path
-                    style={{ fill: `${flags[SentimentStateFlags.FLAG_NEGATIVE] ? 'var(--color-red-shade)' : 'var(--color-white-shade)'}` }}
+                    style={{
+                      fill: `${
+                        flags[SentimentStateFlags.FLAG_NEGATIVE]
+                          ? "var(--color-red-shade)"
+                          : "var(--color-white-shade)"
+                      }`,
+                    }}
                     d="m 210.975,104.3 c 14.219,17.903 23.028,42.727 23.028,70.168 0,54.564 -34.822,98.797 -77.776,98.797 -10.854,0 -21.188,-2.829 -30.574,-7.931 14.055,17.696 33.395,28.628 54.747,28.628 42.955,0 77.776,-44.233 77.776,-98.797 0.001,-40.775 -19.447,-75.777 -47.201,-90.865 z"
                     id="path7"
                   />
                   <path
-                    style={{ fill: `${flags[SentimentStateFlags.FLAG_NEUTRAL] ? 'var(--color-yellow-shade)' : 'var(--color-white-shade)'}` }}
+                    style={{
+                      fill: `${
+                        flags[SentimentStateFlags.FLAG_NEUTRAL]
+                          ? "var(--color-yellow-shade)"
+                          : "var(--color-white-shade)"
+                      }`,
+                    }}
                     d="m 362.172,150.551 c 14.219,17.903 23.028,42.727 23.028,70.168 0,54.564 -34.822,98.797 -77.776,98.797 -10.854,0 -21.188,-2.829 -30.574,-7.931 14.055,17.696 33.395,28.628 54.747,28.628 42.955,0 77.776,-44.233 77.776,-98.797 0,-40.774 -19.447,-75.776 -47.201,-90.865 z"
                     id="path8"
                   />
                 </g>
-                <image
-                  width="10.697615"
-                  height="22.317436"
-                  preserveAspectRatio="none"
-                  opacity={opacitySwitch ^ 1}
-                  xlinkHref={`${meImage}`}
-                  id="image1"
-                  x="28.49054"
-                  y="11.719395"
-                />
-                <image
-                  width="10.437182"
-                  height="27.279438"
-                  preserveAspectRatio="none"
-                  opacity={opacitySwitch}
-                  xlinkHref={`${meDown}`}
-                  id="image1-2"
-                  x="28.29455"
-                  y="11.51998"
-                />
-                {/* https://www.pexels.com/photo/an-antique-television-set-on-orange-surface-8058637/ */}
-                <image
-                  width="8.0540342"
-                  height="6.0324798"
-                  preserveAspectRatio="none"
-                  opacity={opactiy}
-                  xlinkHref={`${crtImage}`}
-                  id="image1-0"
-                  x="31.965414"
-                  y="26.777388"
-                />
+
+                {!sentimentStateIsBitSet(SentimentStateFlags.FLAG_NEGATIVE) && (
+                  <>
+                    <image
+                      width="10.697615"
+                      height="22.317436"
+                      preserveAspectRatio="none"
+                      opacity={opacitySwitch ^ 1}
+                      xlinkHref={`${meImage}`}
+                      id="image1"
+                      x="28.49054"
+                      y="11.719395"
+                    />
+                    <image
+                      width="10.437182"
+                      height="27.279438"
+                      preserveAspectRatio="none"
+                      opacity={opacitySwitch}
+                      xlinkHref={`${meDown}`}
+                      id="image1-2"
+                      x="28.29455"
+                      y="11.51998"
+                    />
+                    {/* https://www.pexels.com/photo/an-antique-television-set-on-orange-surface-8058637/ */}
+                    <image
+                      width="8.0540342"
+                      height="6.0324798"
+                      preserveAspectRatio="none"
+                      opacity={opactiy}
+                      xlinkHref={`${crtImage}`}
+                      id="image1-0"
+                      x="31.965414"
+                      y="26.777388"
+                    />
+                  </>
+                )}
               </motion.svg>
             )}
-            <Stars />
+
+            <Stars turnOff={sentimentStateIsBitSet(SentimentStateFlags.FLAG_NEGATIVE)} />
           </motion.div>
         )
+        // )
       }
     />
   );

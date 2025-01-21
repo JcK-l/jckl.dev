@@ -28,11 +28,22 @@ export const Face = () => {
 
       {isBitSet(SentimentStateFlags.FLAG_NEGATIVE) ? (
         <div></div>
+      ) : isBitSet(SentimentStateFlags.FLAG_NEUTRAL) ? (
+        <motion.img
+          style={{ y: layer }}
+          className={"absolute bottom-0 left-0 mix-blend-screen"}
+          src="/jTransparent.avif"
+        />
+      ) : isBitSet(SentimentStateFlags.FLAG_POSITIVE) ? (
+        <motion.img
+          style={{ y: layer }}
+          className={"absolute bottom-0 left-0 mix-blend-screen"}
+          src={"/classicPhone.avif"}
+        />
       ) : (
         <motion.img
           style={{ y: layer }}
           className={"absolute bottom-0 left-0 mix-blend-screen"}
-          // src={"/MeTransparent-l.jpg"}
           srcSet="/MeTransparent-sm.avif 500w, /MeTransparent-md.avif 1000w, /MeTransparent-l.avif 1500w, /MeTransparent-xl.avif 2000w"
           sizes="(max-width: 500px) 500w, (max-width: 1500px) 1000w, (max-width: 2000px) 1500w, 2000w"
           alt="Get a better browser"

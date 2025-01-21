@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+import { forwardRef, useState } from "react";
 import { crtImage, crtScreen } from "../data/crtImage";
 import {
   GameStateFlags,
@@ -9,6 +9,7 @@ import {
   SentimentStateFlags,
   isBitSet as sentimentStateIsBitSet,
 } from "../stores/sentimentStateStore";
+import { getAudioContext } from "../utility/audioContext";
 
 interface SeparatorOutProps {
   isCrt?: boolean;
@@ -16,6 +17,8 @@ interface SeparatorOutProps {
 
 export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
   (props, ref) => {
+    const [isSoundPlaying, setIsSoundPlaying] = useState(false);
+
     const displayCrt =
       props.isCrt &&
       gameStateIsBitSet(GameStateFlags.FLAG_LEND_A_HAND) &&
@@ -24,6 +27,27 @@ export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
           sentimentStateIsBitSet(SentimentStateFlags.FLAG_NEUTRAL)) &&
         sentimentStateIsBitSet(SentimentStateFlags.FLAG_ACTIVE)
       );
+
+    const playSound = async (file: string) => {
+      const audioContext = getAudioContext();
+      const response = await fetch(file);
+      const arrayBuffer = await response.arrayBuffer();
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+      let gainNode: GainNode;
+      gainNode = audioContext.createGain();
+      gainNode.gain.value = 0.25;
+      gainNode.connect(audioContext.destination);
+
+      const source = audioContext.createBufferSource();
+      source.buffer = audioBuffer;
+      source.connect(gainNode);
+      source.start(0);
+      return new Promise<void>((resolve) => {
+        source.onended = () => {
+          resolve();
+        };
+      });
+    };
 
     return (
       <div className="relative" ref={ref}>
@@ -56,18 +80,25 @@ export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
           {displayCrt && (
             <svg
               cursor={`${
-                gameStateIsBitSet(GameStateFlags.FLAG_CRT)
+                (gameStateIsBitSet(GameStateFlags.FLAG_CRT) || isSoundPlaying)
                   ? "default"
                   : "pointer"
               }`}
-              onClick={() => {
+              onClick={async () => {
+                if (isSoundPlaying || sentimentStateIsBitSet(SentimentStateFlags.FLAG_ACTIVE)) return;
+
+                setIsSoundPlaying(true);
                 if (
                   gameStateIsBitSet(GameStateFlags.FLAG_STARS_ALIGN) &&
                   gameStateIsBitSet(GameStateFlags.FLAG_LEND_A_HAND) &&
                   gameStateIsBitSet(GameStateFlags.FLAG_CONNECTION)
                 ) {
                   setBit(GameStateFlags.FLAG_CRT);
+                  await playSound("/tvSounds/on.mp3");
+                } else {
+                  await playSound("/tvSounds/onAndOff.mp3");
                 }
+                setIsSoundPlaying(false);
               }}
               viewBox="0 0 960 279.177"
               version="1.1"

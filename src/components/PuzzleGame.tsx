@@ -18,9 +18,9 @@ const scale = 0.27;
 export const PuzzleGame = () => {
   const puzzlebounds = useRef<SVGSVGElement>(null);
   const [pieceSize, setPieceSize] = useState(originalPieceSize);
-  const [reRender, setReRender] = useState(false);
-  const pieces = useRef(originalPieces);
+  const [pieces, setPieces] = useState(originalPieces);
   const [box, setBox] = useState(originalCoords);
+  const [hiddenPieces, setHiddenPieces] = useState([true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true]);
   const [dragConstraints, setDragConstraints] = useState({
     top: 0,
     left: 0,
@@ -58,7 +58,7 @@ export const PuzzleGame = () => {
           .join(",")
       );
 
-      pieces.current = originalPieces.map((piece, index) => {
+      setPieces(originalPieces.map((piece, index) => {
         const newPolygonCoords = piece.polygonCoords
           .split(",")
           .map((coord, index) => {
@@ -78,12 +78,11 @@ export const PuzzleGame = () => {
 
         return {
           ...piece,
-          hidden: pieces.current[index].hidden,
           polygonCoords: newPolygonCoords,
           snapPoint: newSnapPoint,
           startPoint: newStartPoint,
         };
-      });
+      }));
     }
   };
 
@@ -94,16 +93,16 @@ export const PuzzleGame = () => {
   }, []);
 
   const unhidePieces = (selectedPieces: number[]): void => {
-    selectedPieces.forEach((id) => {
-      pieces.current[id - 1].hidden = false;
-    });
-    setReRender(!reRender);
+    setHiddenPieces(hiddenPieces.map((hidden, index) => {
+      return selectedPieces.includes(index + 1) ? false : hidden;
+    }));
   };
 
   useEffect(() => {
     if (hasMounted.current) {
-      pieces.current[lastPiece - 1].hidden = true;
-      setReRender(!reRender);
+      setHiddenPieces(hiddenPieces.map((hidden, index) => {
+        return index === lastPiece - 1 ? true : hidden;
+      }));
     } else {
       hasMounted.current = true;
     }
@@ -111,7 +110,7 @@ export const PuzzleGame = () => {
 
   return (
     <div
-      className="relative w-full shrink-0 select-none md:w-6/12 2xl:w-5/12"
+      className="relative w-full shrink-0 select-none lg:w-5/12"
       draggable={false}
     >
       <div className="relative mb-4 flex w-full justify-center gap-2">
@@ -137,7 +136,8 @@ export const PuzzleGame = () => {
           }}
         />
       </div>
-      {pieces.current.map((piece, index) => (
+      {pieces.map((piece, index) => (
+        !hiddenPieces[index] && (
         <PuzzlePiece
           key={index}
           id={index + 1}
@@ -149,8 +149,7 @@ export const PuzzleGame = () => {
           snapPoint={piece.snapPoint}
           startPoint={piece.startPoint}
           dragConstraints={dragConstraints}
-          hidden={piece.hidden}
-        />
+        />)
       ))}
       <Puzzle ref={puzzlebounds} />
       <div className="relative mt-4 flex justify-center">

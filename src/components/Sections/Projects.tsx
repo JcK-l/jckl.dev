@@ -14,7 +14,7 @@ const Projects = () => {
   return isBitSet(SentimentStateFlags.FLAG_NEGATIVE) ? (
     <div></div>
   ) : (
-    <div className="page-margins my-4 relative bg-fgColor">
+    <div className="page-margins py-4 relative bg-fgColor">
       <div className="z-10 w-full text-titleColor">
         <h1 className="h2-text mb-8 inline-block w-auto xl:mb-24">
           My Projects{isBitSet(SentimentStateFlags.FLAG_POSITIVE) ? '!' : ''}

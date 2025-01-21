@@ -34,10 +34,13 @@ const Hero = () => {
             I'm Joshua{isBitSet(SentimentStateFlags.FLAG_POSITIVE) ? '!' : ''}
           </h1>
           <p className="p-text mb-10 xl:mb-16">
-            Welcome to my website! Cool that you found it something something{" "}
+            Welcome to my corner of the web—stick around, uncover the hidden, and see where curiosity takes you.
+            <br />
+            Ready to explore?
+            {/* Welcome to my website! Cool that you found it something something{" "}
             <br />
             somethings. cool cool something something. Everthings nice thanks to
-            you &lt;3
+            you &lt;3 */}
           </p>
 
           <a

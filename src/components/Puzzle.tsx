@@ -8,6 +8,7 @@ import {
 } from "framer-motion";
 import { useRef, useState, forwardRef, useEffect } from "react";
 import { usePuzzleContext } from "../hooks/useDataContext";
+import { isBitSet, SentimentStateFlags } from "../stores/sentimentStateStore";
 
 interface PuzzleProps {}
 
@@ -39,8 +40,11 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
   useEffect(() => {
     if (totalPlacedPieces === 16) {
       setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.currentTime = 30;
+        }
         setIsCompleted(true);
-      }, 2000); // Wait for 1 second before setting the boolean
+      }, 2000); 
     }
   }, [totalPlacedPieces]);
 
@@ -77,19 +81,22 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
           ry="0.93354601"
         />
       </svg>
-      {isCompleted && (
-        <motion.video
-          className="pointer-events-none absolute top-[30%] w-full select-none mix-blend-screen"
-          style={{ y: layer }}
-          ref={videoRef}
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          src="/secret.mp4"
-        />
-      )}
+      {isCompleted &&
+        (isBitSet(SentimentStateFlags.FLAG_POSITIVE) ? (
+          <motion.video
+            className="pointer-events-none absolute top-[30%] w-full select-none mix-blend-screen"
+            style={{ y: layer }}
+            ref={videoRef}
+            // autoPlay
+            // loop
+            muted
+            playsInline
+            preload="auto"
+            src="/secret.mp4"
+          />
+        ) : (
+          <></>
+        ))}
       <svg
         className="absolute"
         version="1.0"

@@ -18,6 +18,7 @@ import { useState, useRef, useEffect } from "react";
 import { getAudioContext } from "../../utility/audioContext";
 import { Email, Send } from "../../utility/icons";
 import { toggleThemes } from "../../utility/toggleTheme";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 const Contact = () => {
   const gameState = useStore($gameState);
@@ -122,7 +123,11 @@ const Contact = () => {
   };
 
   useEffect(() => {
-    if (sentimentStateIsBitSet(SentimentStateFlags.FLAG_NEGATIVE)) {
+    console.log("sentimentState:", sentimentState);
+    if (
+      sentimentStateIsBitSet(SentimentStateFlags.FLAG_NEGATIVE) &&
+      sentimentStateIsBitSet(SentimentStateFlags.FLAG_ACTIVE)
+    ) {
       let audioContext: AudioContext;
       let source: AudioBufferSourceNode;
       let gainNode: GainNode;
@@ -138,9 +143,9 @@ const Contact = () => {
         source.loop = true;
 
         gainNode = audioContext.createGain();
-        gainNode.gain.value = 0.02;
+        gainNode.gain.value = 0.09;
 
-        gainNode.connect(audioContext.destination); // Ensure gainNode is connected to destination
+        gainNode.connect(audioContext.destination);
         source.connect(gainNode);
 
         source.start(0);
@@ -157,7 +162,7 @@ const Contact = () => {
         }
       };
     }
-  }, [sentimentStateIsBitSet(SentimentStateFlags.FLAG_ACTIVE)]);
+  }, [sentimentState]);
 
   return (
     <BetweenLands
@@ -258,9 +263,23 @@ const Contact = () => {
                 }
                 type="submit"
               >
-                <div className="flex items-center justify-center gap-1">
-                  Send Message
-                  <Send />
+                <div className="flex items-center justify-center gap-2">
+                  {gameStateIsBitSet(GameStateFlags.FLAG_SECRET) ? (
+                    <>
+                      Sending Message...
+                      <DotLottieReact
+                        src={"/load.lottie"}
+                        autoplay
+                        loop
+                        style={{ width: 24, height: 24 }}
+                      ></DotLottieReact>
+                    </>
+                  ) : (
+                    <>
+                      {gameStateIsBitSet(GameStateFlags.FLAG_CRT) ? "CRT Mode Active" : "Send Message"}
+                      <Send />
+                    </>
+                  )}
                 </div>
               </motion.button>
             </form>

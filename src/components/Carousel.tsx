@@ -66,10 +66,11 @@ export const Carousel = ({imageFolder, numberImages} : CarouselProps) => {
   }, [carouselRef.current]);
 
   return (
-    <div className="relative overflow-hidden w-full md:w-7/12 mx-auto mb-2 select-none">
+    <div className="relative w-full md:w-7/12 mx-auto mb-2 select-none">
       <motion.div
         ref={carouselRef}
-        className={`relative flex items-start cursor-grab active:cursor-grabbing justify-start touch-none`}
+        className={`relative flex items-start cursor-grab active:cursor-grabbing justify-start`}
+        style={{ touchAction: "none" }}
         drag={"x"}
         onDragEnd={onDragEndHandler}
         animate={controls}

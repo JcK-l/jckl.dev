@@ -42,42 +42,99 @@ const About = () => {
   return (
     <>
       {/* <FlyingMan ref={ref} /> */}
-      <div className="page-margins my-4 relative" ref={ref}>
+      <div className="page-margins relative py-4" ref={ref}>
         {sentimentStateIsBitSet(SentimentStateFlags.FLAG_NEGATIVE) ? (
           <div></div>
         ) : (
           <div className="z-10 w-full">
             <h1 className="h2-text mb-8 inline-block text-titleColor xl:mb-24">
-              About Me{sentimentStateIsBitSet(SentimentStateFlags.FLAG_POSITIVE) ? '!' : ''}
+              About Me
+              {sentimentStateIsBitSet(SentimentStateFlags.FLAG_POSITIVE)
+                ? "!"
+                : ""}
             </h1>
           </div>
         )}
 
         <PuzzleProvider>
-          <div className="relative flex flex-col-reverse justify-between gap-2 md:flex-row">
+          <div className="relative flex flex-col-reverse justify-between gap-10 lg:flex-row lg:gap-20">
             <div className="relative flex w-full flex-col gap-2">
               <AboutText
-                text=""
+                renderItem={() => <></>}
                 showRange={{ min: 0, max: 3 }}
                 removeOnNext={true}
                 isAboutText={!isMail}
               />
               <AboutText
-                text={
-                  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis ornare arcu est, nec lobortis purus placerat sed. Ut sed dolor elit. Integer quis est nisl. Curabitur semper lectus sit amet dolor consequat, pellentesque tempor justo venenatis. Nunc ut massa ac tellus aliquet sollicitudin. Mauris erat lorem, convallis quis sapien id, pharetra venenatis mauris. Nunc quis magna justo."
-                }
+                renderItem={() => (
+                  <>
+                    <h5 className="h5-text text-titleColor">
+                      As you might have guessed, I like puzzles...
+                    </h5>
+                    <br />
+                    <p>
+                      Whether it's chess puzzles or solving a Rubik’s Cube, I’ve
+                      always been hooked on challenges. I used to compete in
+                      chess tournaments, learning from every game—win or lose.
+                      Much like the puzzle you’re working on right now, I enjoy
+                      the process of putting the pieces together and watching
+                      everything fall into place.
+                    </p>
+                  </>
+                )}
                 showRange={{ min: 4, max: 7 }}
                 removeOnNext={!isWide}
                 isAboutText={!isMail}
               />
               <AboutText
-                text="In dictum augue efficitur nisi malesuada, nec hendrerit ipsum accumsan. Maecenas volutpat malesuada ante, quis consectetur libero molestie vitae. Integer sit amet mauris rhoncus, pharetra nisi nec, ultricies lacus. Vivamus quis malesuada elit. Aenean scelerisque lorem sed lorem porttitor hendrerit. Maecenas sit amet dictum urna. Nam mollis pharetra rutrum. Sed pharetra ultrices lorem, vitae finibus ex condimentum aliquam."
+                renderItem={() => (
+                  <>
+                    <p>
+                      So, why not keep going? There’s more to discover as you
+                      finish the puzzle!
+                    </p>
+                  </>
+                )}
+                showRange={{ min: 4, max: 7 }}
+                removeOnNext={true}
+                isAboutText={!isMail}
+              />
+              <AboutText
+                renderItem={() => (
+                  <>
+                    <h5 className="h5-text text-titleColor">
+                      Music is my escape...
+                    </h5>
+                    <br />
+                    <p>
+                      I listen to just about every genre—jazz fusion, indie, and
+                      everything in between. It’s all about discovering
+                      something new. I also play the piano; it’s my way of
+                      relaxing and clearing my mind when there’s too much going
+                      on. Just a few notes, and things start to make sense
+                      again.
+                    </p>
+                  </>
+                )}
+                // text="In dictum augue efficitur nisi malesuada, nec hendrerit ipsum accumsan. Maecenas volutpat malesuada ante, quis consectetur libero molestie vitae. Integer sit amet mauris rhoncus, pharetra nisi nec, ultricies lacus. Vivamus quis malesuada elit. Aenean scelerisque lorem sed lorem porttitor hendrerit. Maecenas sit amet dictum urna. Nam mollis pharetra rutrum. Sed pharetra ultrices lorem, vitae finibus ex condimentum aliquam."
+                showRange={{ min: 8, max: 11 }}
+                removeOnNext={true}
+                isAboutText={!isMail}
+              />
+              <AboutText
+                renderItem={() => (
+                  <>
+                    <p> Keep going—you're almost there!</p>
+                  </>
+                )}
+                // text="In dictum augue efficitur nisi malesuada, nec hendrerit ipsum accumsan. Maecenas volutpat malesuada ante, quis consectetur libero molestie vitae. Integer sit amet mauris rhoncus, pharetra nisi nec, ultricies lacus. Vivamus quis malesuada elit. Aenean scelerisque lorem sed lorem porttitor hendrerit. Maecenas sit amet dictum urna. Nam mollis pharetra rutrum. Sed pharetra ultrices lorem, vitae finibus ex condimentum aliquam."
                 showRange={{ min: 8, max: 11 }}
                 removeOnNext={!isWide}
                 isAboutText={!isMail}
               />
               <AboutText
-                text="Suspendisse potenti. Sed in finibus leo, nec hendrerit metus. Integer eleifend interdum elit a ultrices. Maecenas tincidunt sed erat quis aliquet. Pellentesque ac laoreet dolor. Morbi a tortor bibendum, maximus metus non, semper elit. Cras eu suscipit tortor. Aenean faucibus, mauris ut fringilla porttitor, ipsum erat ultricies lacus, et dapibus mauris urna eu libero. Nulla sem ipsum, pellentesque in tincidunt sed, convallis vel justo. Aenean ultrices dapibus diam, sit amet posuere magna posuere ac. Vestibulum eu odio eget neque varius porttitor. Nullam laoreet viverra leo, eu faucibus neque eleifend nec. Sed vel pulvinar dui. Maecenas congue odio eu odio pellentesque, non dapibus purus suscipit. Aenean rhoncus malesuada commodo."
+                renderItem={() => <></>}
+                // text="Suspendisse potenti. Sed in finibus leo, nec hendrerit metus. Integer eleifend interdum elit a ultrices. Maecenas tincidunt sed erat quis aliquet. Pellentesque ac laoreet dolor. Morbi a tortor bibendum, maximus metus non, semper elit. Cras eu suscipit tortor. Aenean faucibus, mauris ut fringilla porttitor, ipsum erat ultricies lacus, et dapibus mauris urna eu libero. Nulla sem ipsum, pellentesque in tincidunt sed, convallis vel justo. Aenean ultrices dapibus diam, sit amet posuere magna posuere ac. Vestibulum eu odio eget neque varius porttitor. Nullam laoreet viverra leo, eu faucibus neque eleifend nec. Sed vel pulvinar dui. Maecenas congue odio eu odio pellentesque, non dapibus purus suscipit. Aenean rhoncus malesuada commodo."
                 showRange={{ min: 12, max: 16 }}
                 removeOnNext={!isWide}
                 isAboutText={!isMail}

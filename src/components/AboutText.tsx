@@ -1,13 +1,14 @@
 import { usePuzzleContext } from "../hooks/useDataContext";
+import type { ReactNode } from 'react';
 
 interface AboutTextProps {
-  text: string;
+  renderItem: () => ReactNode;
   showRange: {min: number, max: number}; // exclusive
   removeOnNext: boolean;
   isAboutText: boolean;
 }
 
-export const AboutText = ({text, showRange, removeOnNext, isAboutText}: AboutTextProps) => {
+export const AboutText = ({renderItem, showRange, removeOnNext, isAboutText}: AboutTextProps) => {
   if (!isAboutText) return null;
 
   const { lastPiece, setLastPiece, totalPlacedPieces, setTotalPlacedPieces  } = usePuzzleContext();
@@ -16,7 +17,7 @@ export const AboutText = ({text, showRange, removeOnNext, isAboutText}: AboutTex
 
   return (
     <div className="relative w-full">
-      {text}
+      {renderItem()}
     </div>
   );
 }

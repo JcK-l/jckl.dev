@@ -41,14 +41,14 @@ const StarConstellation = () => {
     <BetweenLands
       isBackground={true}
       isCrt={false}
-      renderItem={(shift) =>
-        sentimentStateIsBitSet(SentimentStateFlags.FLAG_NEGATIVE) ? (
-          <div></div>
-        ) : (
-          <motion.div
-            className="relative select-none mix-blend-screen"
-            style={{ y: shift }}
-          >
+      renderItem={(shift) => (
+        <motion.div
+          className="relative select-none mix-blend-screen"
+          style={{ y: shift }}
+        >
+          {sentimentStateIsBitSet(SentimentStateFlags.FLAG_NEGATIVE) ? (
+            <div></div>
+          ) : (
             <motion.svg
               className="absolute z-10 mx-auto h-auto w-full lg:w-9/12"
               style={{ left: "50%", top: "50%", y: "-50%", x: "-50%" }}
@@ -144,10 +144,12 @@ const StarConstellation = () => {
                 animate={`${isPressed ? "visible" : ""}`}
               />
             </motion.svg>
-            <Stars />
-          </motion.div>
-        )
-      }
+          )}
+          <Stars
+            turnOff={sentimentStateIsBitSet(SentimentStateFlags.FLAG_NEGATIVE)}
+          />
+        </motion.div>
+      )}
     />
   );
 };
