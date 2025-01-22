@@ -47,6 +47,12 @@
   --color-fg-color: #F7F5FB;
   --color-fg-color-shade: #CDCBCF;
   --color-title-color: #5e548e; 
+  --color-baloon1: #AC3931;
+  --color-baloon1-shade: #802A24;
+  --color-baloon2: #5e548e;
+  --color-baloon2-shade: #423B64;
+  --color-baloon3: #558F54;
+  --color-baloon3-shade: #3C643B;
   --color-primary: #231942;  
   --color-secondary: #5e548e;
   --color-secondary-shade: #423B64;
@@ -82,8 +88,8 @@
   --color-yellow-shade: #D4AF35;
   --color-green: #1B998B;
   --color-green-shade: #146F64;
-  --color-red: #8c2f39;
-  --color-red-shade: #622128;
+  --color-red: #547AA5;
+  --color-red-shade: #3F5B7B;
   --color-transition1: #99333e;
   --color-transition2: #a63743; */
 
@@ -152,6 +158,7 @@
   --color-transition1: #68535a;
   --color-transition2: #5e696e; */
 }
+
 
 
 @keyframes fadeIn {

@@ -7,7 +7,7 @@ import {
   GameStateFlags,
   isBitSet as gameStateIsBitSet,
 } from "../../stores/gameStateStore";
-import { $formData, $date } from "../../stores/stringStore";
+import { $formData, $pastDate } from "../../stores/stringStore";
 import { useStore } from "@nanostores/react";
 import {
   $sentimentState,
@@ -21,7 +21,7 @@ const About = () => {
   const isMail = gameStateIsBitSet(GameStateFlags.FLAG_SECRET);
   const formData = useStore($formData);
   const sentimentState = useStore($sentimentState);
-  const date = useStore($date);
+  const date = useStore($pastDate);
 
   const handleResize = () => {
     if (window.innerWidth >= 768) {
@@ -102,23 +102,23 @@ const About = () => {
               <AboutText
                 renderItem={() => (
                   <>
+                    <br />
                     <h5 className="h5-text text-titleColor">
                       Music is my escape...
                     </h5>
                     <br />
                     <p>
-                      I listen to just about every genre—jazz fusion, indie, and
-                      everything in between. It’s all about discovering
-                      something new. I also play the piano; it’s my way of
-                      relaxing and clearing my mind when there’s too much going
-                      on. Just a few notes, and things start to make sense
-                      again.
+                      I listen to just about every genre—jazz fusion, indie,
+                      classical, city pop, hip-hop, and electro. It’s all about
+                      finding something fresh to get lost in. I also play the
+                      piano; it’s my way of relaxing and clearing my mind when
+                      there’s too much going on. Just a few notes, and things
+                      start to make sense again.
                     </p>
                   </>
                 )}
-                // text="In dictum augue efficitur nisi malesuada, nec hendrerit ipsum accumsan. Maecenas volutpat malesuada ante, quis consectetur libero molestie vitae. Integer sit amet mauris rhoncus, pharetra nisi nec, ultricies lacus. Vivamus quis malesuada elit. Aenean scelerisque lorem sed lorem porttitor hendrerit. Maecenas sit amet dictum urna. Nam mollis pharetra rutrum. Sed pharetra ultrices lorem, vitae finibus ex condimentum aliquam."
                 showRange={{ min: 8, max: 11 }}
-                removeOnNext={true}
+                removeOnNext={!isWide}
                 isAboutText={!isMail}
               />
               <AboutText
@@ -127,16 +127,40 @@ const About = () => {
                     <p> Keep going—you're almost there!</p>
                   </>
                 )}
-                // text="In dictum augue efficitur nisi malesuada, nec hendrerit ipsum accumsan. Maecenas volutpat malesuada ante, quis consectetur libero molestie vitae. Integer sit amet mauris rhoncus, pharetra nisi nec, ultricies lacus. Vivamus quis malesuada elit. Aenean scelerisque lorem sed lorem porttitor hendrerit. Maecenas sit amet dictum urna. Nam mollis pharetra rutrum. Sed pharetra ultrices lorem, vitae finibus ex condimentum aliquam."
                 showRange={{ min: 8, max: 11 }}
+                removeOnNext={true}
+                isAboutText={!isMail}
+              />
+              <AboutText
+                renderItem={() => (
+                  <>
+                    <br />
+                    <h5 className="h5-text text-titleColor">
+                      Computers have always been my thing...
+                    </h5>
+                    <br />
+                    <p>
+                      From building PCs to grinding competitive games, I’ve
+                      always loved testing my skills and pushing limits.
+                      Programming is just another extension of that—it lets me
+                      create, experiment, and bring ideas to life. There’s
+                      something endlessly exciting about turning thoughts into
+                      reality through code.
+                    </p>
+                  </>
+                )}
+                showRange={{ min: 12, max: 16 }}
                 removeOnNext={!isWide}
                 isAboutText={!isMail}
               />
               <AboutText
-                renderItem={() => <></>}
-                // text="Suspendisse potenti. Sed in finibus leo, nec hendrerit metus. Integer eleifend interdum elit a ultrices. Maecenas tincidunt sed erat quis aliquet. Pellentesque ac laoreet dolor. Morbi a tortor bibendum, maximus metus non, semper elit. Cras eu suscipit tortor. Aenean faucibus, mauris ut fringilla porttitor, ipsum erat ultricies lacus, et dapibus mauris urna eu libero. Nulla sem ipsum, pellentesque in tincidunt sed, convallis vel justo. Aenean ultrices dapibus diam, sit amet posuere magna posuere ac. Vestibulum eu odio eget neque varius porttitor. Nullam laoreet viverra leo, eu faucibus neque eleifend nec. Sed vel pulvinar dui. Maecenas congue odio eu odio pellentesque, non dapibus purus suscipit. Aenean rhoncus malesuada commodo."
+                renderItem={() => (
+                  <>
+                    <p>You’re so close now—just a few more pieces to go! </p>
+                  </>
+                )}
                 showRange={{ min: 12, max: 16 }}
-                removeOnNext={!isWide}
+                removeOnNext={true}
                 isAboutText={!isMail}
               />
               <Email

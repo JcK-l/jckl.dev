@@ -83,7 +83,7 @@ const Contact = () => {
     console.log("sentiment:", result.sentiment);
 
     const existingFlags = JSON.parse(
-      localStorage.getItem("flags") || "[false, false, false, false]"
+      sessionStorage.getItem("flags") || "[true, false, false, false]"
     );
 
     if (result.sentiment < 0) {
@@ -97,7 +97,7 @@ const Contact = () => {
       existingFlags[SentimentStateFlags.FLAG_POSITIVE] = true;
     }
 
-    localStorage.setItem("flags", JSON.stringify(existingFlags));
+    sessionStorage.setItem("flags", JSON.stringify(existingFlags));
     toggleThemes();
   };
 
@@ -177,18 +177,32 @@ const Contact = () => {
           <div className="page-margins pointer-events-auto relative z-20 flex flex-col items-center justify-between py-8 sm:flex-row sm:items-start">
             <div className="m-4 w-full text-white sm:w-1/2">
               <h3 className="h3-text sm:h4-text mb-6 font-heading font-bold">
-                Do you want to get in touch?
+                {gameStateIsBitSet(GameStateFlags.FLAG_CRT)
+                  ? "?touch in get to want you Do"
+                  : "Do you want to get in touch?"}
               </h3>
 
               <p className="font-sans leading-[16px] ">
-                Then you can fill out this form or <br />
+                {gameStateIsBitSet(GameStateFlags.FLAG_CRT)
+                  ? "or form this out fill can you Then"
+                  : "Then you can fill out this form or"}
+                <br />
                 <br />
                 <span className="flex items-center justify-start gap-1">
-                  <Email />
-                  mail@jckl.dev
+                  {gameStateIsBitSet(GameStateFlags.FLAG_CRT) ? (
+                    <>
+                      dev.jckl@mail <Email />
+                    </>
+                  ) : (
+                    <>
+                      <Email /> mail@jckl.dev
+                    </>
+                  )}
                 </span>
                 <br />
-                I'm thrilled to hear from you!
+                {gameStateIsBitSet(GameStateFlags.FLAG_CRT)
+                  ? "!you from hear to thrilled am I"
+                  : "I am thrilled to hear from you!"}
               </p>
             </div>
 
@@ -266,7 +280,7 @@ const Contact = () => {
                 <div className="flex items-center justify-center gap-2">
                   {gameStateIsBitSet(GameStateFlags.FLAG_SECRET) ? (
                     <>
-                      Sending Message...
+                      Sending D-Mail...
                       <DotLottieReact
                         src={"/load.lottie"}
                         autoplay
@@ -276,7 +290,9 @@ const Contact = () => {
                     </>
                   ) : (
                     <>
-                      {gameStateIsBitSet(GameStateFlags.FLAG_CRT) ? "CRT Mode Active" : "Send Message"}
+                      {gameStateIsBitSet(GameStateFlags.FLAG_CRT)
+                        ? "Send D-Mail"
+                        : "Send Message"}
                       <Send />
                     </>
                   )}

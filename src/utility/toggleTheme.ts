@@ -17,6 +17,12 @@ const applyTheme = (theme: Themes | null) => {
     root.style.setProperty("--color-bg-color", "#212529");
     root.style.setProperty("--color-fg-color", "#495057");
     root.style.setProperty("--color-title-color", "#E9ECEF");
+    root.style.setProperty("--color-baloon1", "#AC3931");
+    root.style.setProperty("--color-baloon1-shade", "#802A24");
+    root.style.setProperty("--color-baloon2", "#5e548e");
+    root.style.setProperty("--color-baloon2-shade", "#423B64");
+    root.style.setProperty("--color-baloon3", "#558F54");
+    root.style.setProperty("--color-baloon3-shade", "#3C643B");
     root.style.setProperty("--color-primary", "#212529");
     root.style.setProperty("--color-secondary", "#343A40");
     root.style.setProperty("--color-secondary-shade", "#2D3237");
@@ -39,6 +45,12 @@ const applyTheme = (theme: Themes | null) => {
     root.style.setProperty("--color-fg-color", "#F1FAEE");
     root.style.setProperty("--color-fg-color-shade", "#c8cfc5");
     root.style.setProperty("--color-title-color", "#457B9D");
+    root.style.setProperty("--color-baloon1", "#e63946");
+    root.style.setProperty("--color-baloon1-shade", "#bb2f3a");
+    root.style.setProperty("--color-baloon2", "#457b9d");
+    root.style.setProperty("--color-baloon2-shade", "#335B74");
+    root.style.setProperty("--color-baloon3", "#018e42");
+    root.style.setProperty("--color-baloon3-shade", "#01642f");
     root.style.setProperty("--color-primary", "#1D3557  ");
     root.style.setProperty("--color-secondary", "#457b9d");
     root.style.setProperty("--color-secondary-shade", "#427596");
@@ -56,12 +68,17 @@ const applyTheme = (theme: Themes | null) => {
     root.style.setProperty("--color-transition1", "#7ea5b8");
     root.style.setProperty("--color-transition2", "#b7cfd3");
   } else if (Themes.FLAG_POSITIVE === theme) {
-
     root.style.setProperty("--color-text-color", "#FAF3DD");
     root.style.setProperty("--color-bg-color", "#461220");
     root.style.setProperty("--color-fg-color", "#b23a48");
     root.style.setProperty("--color-fg-color-shade", "#882D38");
     root.style.setProperty("--color-title-color", "#FAF3DD");
+    root.style.setProperty("--color-baloon1", "#8c2f39");
+    root.style.setProperty("--color-baloon1-shade", "#622128");
+    root.style.setProperty("--color-baloon2", "#547AA5");
+    root.style.setProperty("--color-baloon2-shade", "#3F5B7B");
+    root.style.setProperty("--color-baloon3", "#1B998B");
+    root.style.setProperty("--color-baloon3-shade", "#146F64");
     root.style.setProperty("--color-primary", "#461220");
     root.style.setProperty("--color-secondary", "#8c2f39");
     root.style.setProperty("--color-secondary-shade", "#622128");
@@ -74,8 +91,8 @@ const applyTheme = (theme: Themes | null) => {
     root.style.setProperty("--color-yellow-shade", "#D4AF35");
     root.style.setProperty("--color-green", "#1B998B");
     root.style.setProperty("--color-green-shade", "#146F64");
-    root.style.setProperty("--color-red", "#8c2f39");
-    root.style.setProperty("--color-red-shade", "#622128");
+    root.style.setProperty("--color-red", "#547AA5");
+    root.style.setProperty("--color-red-shade", "#3F5B7B");
     root.style.setProperty("--color-transition1", "#99333e");
     root.style.setProperty("--color-transition2", "#a63743");
   } else if (Themes.FLAG_ORIGINAL === theme) {
@@ -84,6 +101,12 @@ const applyTheme = (theme: Themes | null) => {
     root.style.setProperty("--color-fg-color", "#F7F5FB");
     root.style.setProperty("--color-fg-color-shade", "#CDCBCF");
     root.style.setProperty("--color-title-color", "#5e548e ");
+    root.style.setProperty("--color-baloon1", "#AC3931");
+    root.style.setProperty("--color-baloon1-shade", "#802A24");
+    root.style.setProperty("--color-baloon2", "#5e548e");
+    root.style.setProperty("--color-baloon2-shade", "#423B64");
+    root.style.setProperty("--color-baloon3", "#558F54");
+    root.style.setProperty("--color-baloon3-shade", "#3C643B");
     root.style.setProperty("--color-primary", "#231942  ");
     root.style.setProperty("--color-secondary", "#5e548e");
     root.style.setProperty("--color-secondary-shade", "#423B64");

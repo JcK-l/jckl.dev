@@ -36,10 +36,10 @@ const CrtMission = () => {
       rotate: [0, 2, -2, 0],
       transition: { duration: 10, repeat: Infinity, ease: "easeInOut" },
     });
-  }, []);
+  }, [showMe]);
 
   useEffect(() => {
-    const savedFlags = localStorage.getItem("flags");
+    const savedFlags = sessionStorage.getItem("flags");
     setFlags(JSON.parse(savedFlags || "[]"));
     if (sentimentStateIsBitSet(SentimentStateFlags.FLAG_ACTIVE)) {
       setOpacity(0);
@@ -102,7 +102,7 @@ const CrtMission = () => {
                     style={{
                       fill: `${
                         flags[SentimentStateFlags.FLAG_NEGATIVE]
-                          ? "var(--color-red-shade)"
+                          ? "var(--color-baloon1-shade)"
                           : "var(--color-white-shade)"
                       }`,
                     }}
@@ -113,7 +113,7 @@ const CrtMission = () => {
                     style={{
                       fill: `${
                         flags[SentimentStateFlags.FLAG_NEUTRAL]
-                          ? "var(--color-yellow-shade)"
+                          ? "var(--color-baloon2-shade)"
                           : "var(--color-white-shade)"
                       }`,
                     }}
@@ -124,7 +124,7 @@ const CrtMission = () => {
                     style={{
                       fill: `${
                         flags[SentimentStateFlags.FLAG_POSITIVE]
-                          ? "var(--color-green)"
+                          ? "var(--color-baloon3)"
                           : "var(--color-white)"
                       }`,
                     }}
@@ -134,13 +134,26 @@ const CrtMission = () => {
                     ry="98.792"
                     id="ellipse3"
                   />
+                  <text
+                    x="268.68399"
+                    y="98.792"
+                    textAnchor="middle"
+                    alignmentBaseline="middle"
+                    style={{
+                      fill: "var(--color-white)",
+                      fontSize: "4rem",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    1
+                  </text>
                   <g id="g5">
                     &#10;{" "}
                     <path
                       style={{
                         fill: `${
                           flags[SentimentStateFlags.FLAG_POSITIVE]
-                            ? "var(--color-green-shade)"
+                            ? "var(--color-baloon3-shade)"
                             : "var(--color-white-shade)"
                         }`,
                       }}
@@ -152,7 +165,7 @@ const CrtMission = () => {
                       style={{
                         fill: `${
                           flags[SentimentStateFlags.FLAG_POSITIVE]
-                            ? "var(--color-green-shade)"
+                            ? "var(--color-baloon3-shade)"
                             : "var(--color-white-shade)"
                         }`,
                       }}
@@ -165,7 +178,7 @@ const CrtMission = () => {
                     style={{
                       fill: `${
                         flags[SentimentStateFlags.FLAG_NEGATIVE]
-                          ? "var(--color-red)"
+                          ? "var(--color-baloon1)"
                           : "var(--color-white)"
                       }`,
                     }}
@@ -175,11 +188,24 @@ const CrtMission = () => {
                     ry="98.792"
                     id="ellipse5"
                   />
+                  <text
+                    x="180.40199"
+                    y="195.16299"
+                    textAnchor="middle"
+                    alignmentBaseline="middle"
+                    style={{
+                      fill: "var(--color-white)",
+                      fontSize: "4rem",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    4
+                  </text>
                   <path
                     style={{
                       fill: `${
                         flags[SentimentStateFlags.FLAG_POSITIVE]
-                          ? "var(--color-green-shade)"
+                          ? "var(--color-baloon3-shade)"
                           : "var(--color-white-shade)"
                       }`,
                     }}
@@ -190,7 +216,7 @@ const CrtMission = () => {
                     style={{
                       fill: `${
                         flags[SentimentStateFlags.FLAG_NEUTRAL]
-                          ? "var(--color-yellow)"
+                          ? "var(--color-baloon2)"
                           : "var(--color-white)"
                       }`,
                     }}
@@ -200,11 +226,24 @@ const CrtMission = () => {
                     ry="98.792"
                     id="ellipse6"
                   />
+                  <text
+                    x="331.595"
+                    y="241.422"
+                    textAnchor="middle"
+                    alignmentBaseline="middle"
+                    style={{
+                      fill: "var(--color-white)",
+                      fontSize: "4rem",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    8
+                  </text>
                   <path
                     style={{
                       fill: `${
                         flags[SentimentStateFlags.FLAG_NEGATIVE]
-                          ? "var(--color-red-shade)"
+                          ? "var(--color-baloon1-shade)"
                           : "var(--color-white-shade)"
                       }`,
                     }}
@@ -215,7 +254,7 @@ const CrtMission = () => {
                     style={{
                       fill: `${
                         flags[SentimentStateFlags.FLAG_NEUTRAL]
-                          ? "var(--color-yellow-shade)"
+                          ? "var(--color-baloon2-shade)"
                           : "var(--color-white-shade)"
                       }`,
                     }}
@@ -262,7 +301,11 @@ const CrtMission = () => {
               </motion.svg>
             )}
 
-            <Stars turnOff={sentimentStateIsBitSet(SentimentStateFlags.FLAG_NEGATIVE)} />
+            <Stars
+              turnOff={sentimentStateIsBitSet(
+                SentimentStateFlags.FLAG_NEGATIVE
+              )}
+            />
           </motion.div>
         )
         // )

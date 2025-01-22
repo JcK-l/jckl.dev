@@ -110,7 +110,7 @@ export const PuzzleGame = () => {
 
   return (
     <div
-      className="relative w-full shrink-0 select-none lg:w-5/12"
+      className="relative w-full shrink-0 select-none lg:w-5/12 my-auto"
       draggable={false}
     >
       <div className="relative mb-4 flex w-full justify-center gap-2">
@@ -154,7 +154,7 @@ export const PuzzleGame = () => {
       <Puzzle ref={puzzlebounds} />
       <div className="relative mt-4 flex justify-center">
         <Button
-          text={`${totalPlacedPieces < 12 ? "???" : "Turn on the old tv and..."}`}
+          text={`${(totalPlacedPieces >= 12 || isBitSet(GameStateFlags.FLAG_SECRET)) ? "Turn on the CRT..." : "???"}`}
           initial={!isBitSet(GameStateFlags.FLAG_SECRET)}
           onClick={() => {
             unhidePieces([9, 7, 6, 14]);

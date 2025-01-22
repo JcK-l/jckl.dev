@@ -2,7 +2,7 @@
 import "/src/styles/base.css";
 
 import Head from "../layouts/Head.astro";
-import Footer from "../layouts/Footer.astro";
+import { Footer } from "../components/Footer";
 export interface Props {
   title: string;
 }
@@ -17,6 +17,6 @@ const { title } = Astro.props;
     class="bg-fgColor text-textColor antialiased selection:bg-secondary selection:text-white p-text"
   >
     <slot />
-    <Footer />
+    <Footer client:idle />
   </body>
 </html>

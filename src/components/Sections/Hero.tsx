@@ -11,6 +11,15 @@ import { useEffect, useState } from "react";
 const Hero = () => {
   const sentimentState = useStore($sentimentState);
 
+  useEffect(() => {
+    const existingFlags = JSON.parse(
+      sessionStorage.getItem("flags") || "[true, false, false, false]"
+    );
+
+    sessionStorage.setItem("flags", JSON.stringify(existingFlags));
+  }, []);
+
+
   const scrollToSection = (
     event: React.MouseEvent<HTMLAnchorElement, MouseEvent>
   ) => {

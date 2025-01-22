@@ -1,6 +1,7 @@
 import { atom } from 'nanostores';
 
-export const $date = atom<string>('');
+export const $pastDate = atom<string>('');
+export const $currentDate = atom<string>('');
 
 export const $formData = atom({
   name: '',

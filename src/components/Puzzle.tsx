@@ -40,11 +40,8 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
   useEffect(() => {
     if (totalPlacedPieces === 16) {
       setTimeout(() => {
-        if (videoRef.current) {
-          videoRef.current.currentTime = 30;
-        }
         setIsCompleted(true);
-      }, 2000); 
+      }, 2000);
     }
   }, [totalPlacedPieces]);
 
@@ -84,21 +81,46 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
       {isCompleted &&
         (isBitSet(SentimentStateFlags.FLAG_POSITIVE) ? (
           <motion.video
-            className="pointer-events-none absolute top-[30%] w-full select-none mix-blend-screen"
+            className="absolute top-[30%] w-full cursor-pointer select-none mix-blend-screen"
             style={{ y: layer }}
             ref={videoRef}
-            // autoPlay
-            // loop
+            autoPlay
+            loop
             muted
             playsInline
             preload="auto"
-            src="/secret.mp4"
+            src="/secret-SG.mp4"
+            onClick={() => location.reload()}
+          />
+        ) : isBitSet(SentimentStateFlags.FLAG_NEGATIVE) ? (
+          <motion.video
+            className="absolute top-[30%] w-full cursor-pointer select-none mix-blend-screen"
+            style={{ y: layer }}
+            ref={videoRef}
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            src="/secret-negative.mp4"
+            onClick={() => location.reload()}
           />
         ) : (
-          <></>
+          <motion.video
+            className="absolute top-[30%] w-full cursor-pointer select-none mix-blend-screen"
+            style={{ y: layer }}
+            ref={videoRef}
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            src="/secret-neutral.mp4"
+            onClick={() => location.reload()}
+          />
         ))}
       <svg
-        className="absolute"
+        className="pointer-events-none absolute"
         version="1.0"
         viewBox="0 0 300 300"
         xmlns="http://www.w3.org/2000/svg"
@@ -297,7 +319,7 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
         />
       </svg>
       <svg
-        className="absolute"
+        className="pointer-events-none absolute"
         version="1.0"
         viewBox="0 0 300 300"
         id="svg1"
@@ -313,6 +335,7 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
           y="-0.018753052"
         />
         <image
+          className="pointer-events-auto"
           width="72.231247"
           height="74.083336"
           preserveAspectRatio="none"
@@ -323,6 +346,7 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
           y="187.19006"
         />
         <image
+          className="pointer-events-auto"
           width="54.768749"
           height="53.445835"
           preserveAspectRatio="none"
@@ -333,6 +357,7 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
           y="198.93782"
         />
         <image
+          className="pointer-events-auto"
           width="61.912498"
           height="63.5"
           preserveAspectRatio="none"
@@ -343,6 +368,7 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
           y="187.77029"
         />
         <image
+          className="pointer-events-auto"
           width="76.729164"
           height="52.916668"
           preserveAspectRatio="none"
@@ -353,6 +379,7 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
           y="197.7144"
         />
         <image
+          className="pointer-events-auto"
           width="75.935417"
           height="53.445835"
           preserveAspectRatio="none"
@@ -363,6 +390,7 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
           y="48.765617"
         />
         <image
+          className="pointer-events-auto"
           width="62.970833"
           height="52.652084"
           preserveAspectRatio="none"
@@ -373,6 +401,7 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
           y="48.82859"
         />
         <image
+          className="pointer-events-auto"
           width="52.916668"
           height="53.445835"
           preserveAspectRatio="none"
@@ -383,6 +412,7 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
           y="49.246632"
         />
         <image
+          className="pointer-events-auto"
           width="78.316666"
           height="54.768749"
           preserveAspectRatio="none"
