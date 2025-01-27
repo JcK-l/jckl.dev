@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface ButtonProps {
   text: string;
@@ -13,6 +13,10 @@ export const Button = ({ text, onClick, initial }: ButtonProps) => {
     setPressed(true);
     onClick();
   };
+
+  useEffect(() => {
+    console.log(initial);
+  }, []);
 
   return (
     <span className="relative small-text xl:p-text">

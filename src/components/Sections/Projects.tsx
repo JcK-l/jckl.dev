@@ -96,8 +96,7 @@ const Projects = () => {
                     <p>
                       418. You cracked the code, reached the end of this
                       experiment, and I couldn't be more grateful. This site was
-                      never just about me—it was about creating an experience, a
-                      place to connect, spark curiosity, and maybe even inspire
+                      never just about me—it was about creating an experience, spark curiosity, and maybe even inspire
                       a little madness, much like a certain lab I admire.
                     </p>
                     <p>
@@ -111,7 +110,6 @@ const Projects = () => {
                       So, whether you're here for inspiration, curiosity, or
                       just stumbled in by accident—know this: you’ve left your
                       mark on this site, and in my heart. Welcome to the lab.
-                      {/* You’re one of us now.El Psy Kongroo. */}
                     </p>
                     <p>This is the choice of Steins Gate.</p>
                     <p style={{ textAlign: "right" }}>- Joshua</p>

@@ -11,27 +11,27 @@ import CrtMission from "../components/Sections/CrtMission";
 <Layout title="Welcome to my site!">
   <main>
     <section class="bg-fgColor" id="hero">
-      <Hero client:idle/>
+      <Hero client:load />
     </section>
 
     <section class="" id="starConstellation">
-      <StarConstellation client:idle />
+      <StarConstellation client:load />
     </section>
 
     <section class="bg-fgColor" id="about">
-      <About client:idle />
+      <About client:only="react" />
     </section>
 
     <section class="" id="crtMission">
-      <CrtMission client:idle />
+      <CrtMission client:load />
     </section>
 
     <section class="bg-fgColor" id="projects">
-      <Projects client:idle />
+      <Projects client:load />
     </section>
 
     <section class="" id="contact">
-      <Contact client:idle/>
+      <Contact client:idle />
     </section>
   </main>
 </Layout>
