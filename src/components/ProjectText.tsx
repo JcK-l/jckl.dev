@@ -1,6 +1,6 @@
 import { usePhoneContext } from "../hooks/useDataContext";
 import { Carousel } from "./Carousel";
-import { GitHub } from "../utility/icons";
+import { GitHub, Youtube, Code } from "../utility/icons";
 import type { ReactNode } from "react";
 // <div className="relative w-full">
 //   {renderItem()}
@@ -14,6 +14,8 @@ interface ProjectTextProps {
   imageFolder?: string;
   numberImages?: number;
   githubLink?: string;
+  youtubeLink?: string;
+  demoLink?: string;
   renderItem?: () => ReactNode;
 }
 
@@ -25,6 +27,8 @@ export const ProjectText = ({
   imageFolder,
   numberImages,
   githubLink,
+  youtubeLink,
+  demoLink,
   renderItem,
 }: ProjectTextProps) => {
   const { number, setNumber, timer, setTimer } = usePhoneContext();
@@ -37,7 +41,7 @@ export const ProjectText = ({
     return null;
   }
 
-  const anyLink = githubLink ? true : false;
+  const anyLink = githubLink || youtubeLink || demoLink ? true : false;
 
   return renderItem ? (
     renderItem()
@@ -63,11 +67,23 @@ export const ProjectText = ({
             />
           </svg>
         )}
-        {!githubLink ? null : (
-          <a href={githubLink} target="_blank" rel="noreferrer noopener">
-            <GitHub />
-          </a>
-        )}
+        <div className="flex gap-2">
+          {!githubLink ? null : (
+            <a href={githubLink} target="_blank" rel="noreferrer noopener">
+              <GitHub />
+            </a>
+          )}
+          {!youtubeLink ? null : (
+            <a href={youtubeLink} target="_blank" rel="noreferrer noopener">
+              <Youtube />
+            </a>
+          )}
+          {!demoLink ? null : (
+            <a href={demoLink} target="_blank" rel="noreferrer noopener">
+              <Code />
+            </a>
+          )}
+        </div>
       </div>
       <p className="p-text mx-auto mb-4 w-full text-center md:w-2/3">
         {description}

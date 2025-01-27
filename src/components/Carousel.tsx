@@ -19,10 +19,24 @@ export const Carousel = ({ imageFolder, numberImages }: CarouselProps) => {
   const carouselRef = useRef<HTMLDivElement>(null);
   const positionRef = useRef(0);
   const controls = useAnimation();
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const images = Array.from(
     { length: numberImages },
     (_, index) => `${imageFolder}/${index + 1}.avif`
   );
+
+
+  const handleImageClick = (src: string) => {
+    setSelectedImage(src);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setSelectedImage(null);
+    setIsModalOpen(false);
+  };
+
 
   const onDragEndHandler: DragHandlers["onDragEnd"] = (event, info) => {
     const offset = info.offset.x;
@@ -64,6 +78,8 @@ export const Carousel = ({ imageFolder, numberImages }: CarouselProps) => {
   }, [carouselRef.current]);
 
   useEffect(() => {
+    if (isModalOpen) return;
+
     const interval = setInterval(() => {
       if (carouselRef.current) {
         const newPosition = (positionRef.current + 1) % images.length;
@@ -77,7 +93,7 @@ export const Carousel = ({ imageFolder, numberImages }: CarouselProps) => {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [carouselRef.current]);
+  }, [carouselRef.current, isModalOpen]);
 
   return (
     <div className="relative mx-auto mb-2 w-full select-none overflow-hidden md:w-7/12">
@@ -90,22 +106,36 @@ export const Carousel = ({ imageFolder, numberImages }: CarouselProps) => {
         // dragConstraints={carouselRef}
       >
         {images.map((src, index) => (
-          <ProjectCards key={index} src={src} />
+          <ProjectCards key={index} src={src} onClick={() => handleImageClick(src)} />
         ))}
       </motion.div>
+      {selectedImage && (
+        <Modal src={selectedImage} onClose={closeModal} />
+      )}
     </div>
   );
 };
 
-const ProjectCards = ({ src }: { src: string }) => {
+const ProjectCards = ({ src, onClick }: { src: string, onClick: () => void }) => {
   return (
-    <div className="relative w-full shrink-0">
+    <div className="relative w-full shrink-0 cursor-pointer" onClick={onClick}>
       <img
-        className={"pointer-events-none relative w-full mix-blend-multiply"}
+        className={"pointer-events-none relative w-fullmix-blend-multiply"}
         src={src}
         loading="lazy"
         alt="Get a better browser!"
       />
+    </div>
+  );
+};
+
+const Modal = ({ src, onClose }: { src: string, onClose: () => void }) => {
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75" onClick={onClose}>
+      <div className="relative w-full h-full flex items-center justify-center">
+        <img src={src} className="max-w-full max-h-full" alt="Preview" onClick={(e) => e.stopPropagation()} />
+      </div>
     </div>
   );
 };

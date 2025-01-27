@@ -45,6 +45,8 @@ const Projects = () => {
                 imageFolder={project.imageFolder}
                 numberImages={project.numberImages}
                 githubLink={project.githubLink}
+                youtubeLink={project.youtubeLink}
+                demoLink={project.demoLink}
                 key={index}
               />
             ))}
