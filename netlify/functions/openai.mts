@@ -36,7 +36,8 @@ export const handler: Handler = async (
     });
 
     const completion = await client.beta.chat.completions.parse({
-      model: "gpt-4.1",
+      model: "o4-mini",
+      // model: "gpt-4.1",
       messages: [
         {
           role: "system",
