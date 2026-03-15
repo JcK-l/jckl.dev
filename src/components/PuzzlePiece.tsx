@@ -12,7 +12,6 @@ interface PuzzlePieceProps {
   path: string;
   puzzlebounds: React.RefObject<SVGSVGElement>;
   pieceSize: { width: number; height: number };
-  pieceBox: string;
   pieceCoords: string;
   snapPoint: { x: number; y: number };
   startPoint: { x: number; y: number };
@@ -28,13 +27,25 @@ const soundFiles = [
   "/PuzzlePieces/sounds/4.mp3",
   "/PuzzlePieces/sounds/5.mp3",
 ];
+let nextPieceZIndex = 30;
+
+const toPolygonClipPath = (coords: string) =>
+  `polygon(${coords
+    .split(",")
+    .reduce<string[]>((points, value, index, values) => {
+      if (index % 2 === 0) {
+        points.push(`${value}px ${values[index + 1]}px`);
+      }
+
+      return points;
+    }, [])
+    .join(", ")})`;
 
 export const PuzzlePiece = ({
   id,
   path,
   puzzlebounds,
   pieceSize,
-  pieceBox,
   pieceCoords,
   snapPoint,
   startPoint,
@@ -43,12 +54,15 @@ export const PuzzlePiece = ({
   const [isHidden, setIsHidden] = useState(false);
   const [isNearSnap, setIsNearSnap] = useState(false);
   const [isPlaced, setIsPlaced] = useState(false);
-  const dragControls = useDragControls();
+  const [zIndex, setZIndex] = useState(() => {
+    nextPieceZIndex += 1;
+    return nextPieceZIndex;
+  });
   const controls = useAnimation();
+  const dragControls = useDragControls();
   const pieceRef = useRef<HTMLDivElement>(null);
   const hasAnimatedInRef = useRef(false);
   const isMountedRef = useRef(true);
-  const mapName = `image-map-${id}`;
 
   const { setLastPiece, setTotalPlacedPieces } = usePuzzleContext();
 
@@ -60,6 +74,8 @@ export const PuzzlePiece = ({
   ) => {
     return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
   };
+
+  const clipPath = toPolygonClipPath(pieceCoords);
 
   const getRelativePieceMetrics = () => {
     if (!pieceRef.current || !puzzlebounds.current) {
@@ -150,6 +166,16 @@ export const PuzzlePiece = ({
 
   const handleDragStart = () => {
     void resumeAudioContext();
+  };
+
+  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (isPlaced) {
+      return;
+    }
+
+    nextPieceZIndex += 1;
+    setZIndex(nextPieceZIndex);
+    dragControls.start(event);
   };
 
   const handleDragEnd = async () => {
@@ -269,43 +295,80 @@ export const PuzzlePiece = ({
   }
 
   return (
-    <>
+    <motion.div
+      ref={pieceRef}
+      className="pointer-events-none absolute select-none"
+      drag={!isPlaced}
+      dragControls={dragControls}
+      dragListener={false}
+      dragTransition={{ power: 0 }}
+      dragConstraints={dragConstraints}
+      dragElastic={0}
+      dragMomentum={false}
+      onDrag={handleDrag}
+      onDragEnd={() => {
+        void handleDragEnd();
+      }}
+      onDragStart={handleDragStart}
+      style={{
+        width: `${pieceSize.width}px`,
+        height: `${pieceSize.height}px`,
+        zIndex,
+        touchAction: "none",
+      }}
+      animate={controls}
+    >
       <motion.div
-        ref={pieceRef}
-        className="absolute z-30 select-none"
-        drag
-        dragListener={false}
-        dragTransition={{ power: 0 }}
-        dragControls={dragControls}
-        dragConstraints={dragConstraints}
-        dragElastic={0}
-        dragMomentum={false}
-        onDrag={handleDrag}
-        onDragEnd={() => {
-          void handleDragEnd();
-        }}
-        onDragStart={handleDragStart}
+        className={`pointer-events-auto relative h-full w-full ${
+          isPlaced ? "cursor-default" : "cursor-grab active:cursor-grabbing"
+        }`}
+        animate={
+          isNearSnap && !isPlaced
+            ? {
+                rotate: [0, -2, 2, -2, 0],
+                scale: [1, 1.02, 1],
+              }
+            : {
+                rotate: 0,
+                scale: 1,
+              }
+        }
+        transition={
+          isNearSnap && !isPlaced
+            ? {
+                duration: 0.38,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }
+            : {
+                duration: 0.18,
+                ease: "easeOut",
+              }
+        }
         style={{
-          width: `${pieceSize.width}px`,
-          height: `${pieceSize.height}px`,
+          clipPath,
+          WebkitClipPath: clipPath,
+          filter: "drop-shadow(0px 4px 4px rgba(35, 25, 66, 0.20))",
           touchAction: "none",
+          transformOrigin: "50% 50%",
         }}
-        animate={controls}
+        onPointerDown={handlePointerDown}
       >
         <motion.img
-          className="h-full w-full cursor-default select-none"
+          className="h-full w-full select-none"
           src={path}
-          useMap={`#${mapName}`}
           draggable={false}
           animate={
             isNearSnap && !isPlaced
               ? {
-                  rotate: [0, -2, 2, -2, 0],
-                  scale: [1, 1.02, 1],
+                  filter: [
+                    "brightness(1) saturate(1)",
+                    "brightness(1.12) saturate(1.18)",
+                    "brightness(1) saturate(1)",
+                  ],
                 }
               : {
-                  rotate: 0,
-                  scale: 1,
+                  filter: "brightness(1) saturate(1)",
                 }
           }
           transition={
@@ -321,28 +384,41 @@ export const PuzzlePiece = ({
                 }
           }
           style={{
-            filter: isNearSnap
-              ? "drop-shadow(0px 0px 12px rgba(224, 177, 203, 0.85)) drop-shadow(0px 4px 4px rgba(35, 25, 66, 0.20))"
-              : "drop-shadow(0px 4px 4px rgba(35, 25, 66, 0.20))",
+            pointerEvents: "none",
+          }}
+        />
+        <motion.div
+          className="pointer-events-none absolute inset-0"
+          animate={
+            isNearSnap && !isPlaced
+              ? {
+                  opacity: [0.16, 0.36, 0.16],
+                }
+              : {
+                  opacity: 0,
+                }
+          }
+          transition={
+            isNearSnap && !isPlaced
+              ? {
+                  duration: 0.38,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }
+              : {
+                  duration: 0.18,
+                  ease: "easeOut",
+                }
+          }
+          style={{
+            background:
+              "radial-gradient(circle at 50% 45%, rgba(255, 235, 244, 0.72) 0%, rgba(224, 177, 203, 0.42) 38%, rgba(224, 177, 203, 0.08) 68%, rgba(224, 177, 203, 0) 82%)",
+            boxShadow:
+              "inset 0 0 22px rgba(224, 177, 203, 0.42), inset 0 0 0 1px rgba(255, 230, 241, 0.22)",
+            mixBlendMode: "screen",
           }}
         />
       </motion.div>
-
-      <map className="select-none" name={mapName} draggable={false}>
-        <area
-          className="cursor-grab touch-none active:cursor-grabbing"
-          onPointerDown={(event) => {
-            if (isPlaced) {
-              return;
-            }
-
-            dragControls.start(event);
-          }}
-          coords={pieceCoords}
-          shape="poly"
-        />
-        <area coords={pieceBox} shape="rect" />
-      </map>
-    </>
+    </motion.div>
   );
 };
