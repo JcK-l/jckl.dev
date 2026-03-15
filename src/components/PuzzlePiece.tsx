@@ -41,6 +41,18 @@ const toPolygonClipPath = (coords: string) =>
     }, [])
     .join(", ")})`;
 
+const toSvgPolygonPoints = (coords: string) =>
+  coords
+    .split(",")
+    .reduce<string[]>((points, value, index, values) => {
+      if (index % 2 === 0) {
+        points.push(`${value},${values[index + 1]}`);
+      }
+
+      return points;
+    }, [])
+    .join(" ");
+
 export const PuzzlePiece = ({
   id,
   path,
@@ -76,6 +88,7 @@ export const PuzzlePiece = ({
   };
 
   const clipPath = toPolygonClipPath(pieceCoords);
+  const polygonPoints = toSvgPolygonPoints(pieceCoords);
 
   const getRelativePieceMetrics = () => {
     if (!pieceRef.current || !puzzlebounds.current) {
@@ -318,6 +331,25 @@ export const PuzzlePiece = ({
       }}
       animate={controls}
     >
+      <svg
+        className="pointer-events-none absolute inset-0 h-full w-full"
+        viewBox={`0 0 ${pieceSize.width} ${pieceSize.height}`}
+        preserveAspectRatio="none"
+        style={{ overflow: "visible" }}
+      >
+        <polygon
+          points={polygonPoints}
+          fill="rgba(16, 10, 30, 0.14)"
+          transform="translate(0 10)"
+          style={{ filter: "blur(7px)" }}
+        />
+        <polygon
+          points={polygonPoints}
+          fill="rgba(22, 15, 39, 0.16)"
+          transform="translate(0 4)"
+          style={{ filter: "blur(2.4px)" }}
+        />
+      </svg>
       <motion.div
         className={`pointer-events-auto relative h-full w-full ${
           isPlaced ? "cursor-default" : "cursor-grab active:cursor-grabbing"
@@ -348,7 +380,7 @@ export const PuzzlePiece = ({
         style={{
           clipPath,
           WebkitClipPath: clipPath,
-          filter: "drop-shadow(0px 4px 4px rgba(35, 25, 66, 0.20))",
+          isolation: "isolate",
           touchAction: "none",
           transformOrigin: "50% 50%",
         }}
@@ -385,37 +417,6 @@ export const PuzzlePiece = ({
           }
           style={{
             pointerEvents: "none",
-          }}
-        />
-        <motion.div
-          className="pointer-events-none absolute inset-0"
-          animate={
-            isNearSnap && !isPlaced
-              ? {
-                  opacity: [0.16, 0.36, 0.16],
-                }
-              : {
-                  opacity: 0,
-                }
-          }
-          transition={
-            isNearSnap && !isPlaced
-              ? {
-                  duration: 0.38,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }
-              : {
-                  duration: 0.18,
-                  ease: "easeOut",
-                }
-          }
-          style={{
-            background:
-              "radial-gradient(circle at 50% 45%, rgba(255, 235, 244, 0.72) 0%, rgba(224, 177, 203, 0.42) 38%, rgba(224, 177, 203, 0.08) 68%, rgba(224, 177, 203, 0) 82%)",
-            boxShadow:
-              "inset 0 0 22px rgba(224, 177, 203, 0.42), inset 0 0 0 1px rgba(255, 230, 241, 0.22)",
-            mixBlendMode: "screen",
           }}
         />
       </motion.div>
