@@ -14,6 +14,21 @@ import {
   isBitSet as sentimentStateIsBitSet,
   SentimentStateFlags,
 } from "../../stores/sentimentStateStore";
+import { $gameState } from "../../stores/gameStateStore";
+import { puzzleGroups } from "../../data/puzzleGroups";
+import {
+  $hasSeenAbout,
+  $isAboutInView,
+  markAboutSeen,
+  setAboutInView,
+} from "../../stores/sectionStateStore";
+
+const ABOUT_VIEW_THRESHOLD = 0.35;
+const AUTO_SCROLL_DELAY_MS = 550;
+const ENABLE_PUZZLE_RETURN_SCROLL = false;
+const puzzleCompletionMask = puzzleGroups.reduce((mask, group) => {
+  return mask | (1 << group.flag);
+}, 0);
 
 const About = () => {
   const ref = useRef<HTMLDivElement>(null);
@@ -22,6 +37,10 @@ const About = () => {
   const formData = useStore($formData);
   const sentimentState = useStore($sentimentState);
   const date = useStore($pastDate);
+  const binaryState = useStore($gameState);
+  const hasSeenAbout = useStore($hasSeenAbout);
+  const isAboutInView = useStore($isAboutInView);
+  const lastPuzzleStateRef = useRef(binaryState & puzzleCompletionMask);
 
   const handleResize = () => {
     if (window.innerWidth >= 768) {
@@ -38,6 +57,73 @@ const About = () => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+
+  useEffect(() => {
+    const aboutSection = document.getElementById("about");
+
+    if (!aboutSection) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const nextIsInView = entry.isIntersecting;
+
+        setAboutInView(nextIsInView);
+
+        if (nextIsInView) {
+          markAboutSeen();
+        }
+      },
+      {
+        threshold: ABOUT_VIEW_THRESHOLD,
+      }
+    );
+
+    observer.observe(aboutSection);
+
+    return () => {
+      observer.disconnect();
+      setAboutInView(false);
+    };
+  }, []);
+
+  useEffect(() => {
+    const currentPuzzleState = binaryState & puzzleCompletionMask;
+    const previousPuzzleState = lastPuzzleStateRef.current;
+    const newlyCompletedMask = currentPuzzleState & ~previousPuzzleState;
+
+    lastPuzzleStateRef.current = currentPuzzleState;
+
+    if (
+      !ENABLE_PUZZLE_RETURN_SCROLL ||
+      !hasSeenAbout ||
+      isAboutInView ||
+      newlyCompletedMask === 0
+    ) {
+      return;
+    }
+
+    const aboutSection = document.getElementById("about");
+
+    if (!aboutSection) {
+      return;
+    }
+
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+    const timeoutId = window.setTimeout(() => {
+      aboutSection.scrollIntoView({
+        behavior: prefersReducedMotion ? "auto" : "smooth",
+        block: "start",
+      });
+    }, AUTO_SCROLL_DELAY_MS);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [binaryState, hasSeenAbout, isAboutInView]);
 
   return (
     <>
