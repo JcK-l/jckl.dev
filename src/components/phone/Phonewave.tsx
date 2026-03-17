@@ -1,23 +1,23 @@
 import { useEffect, useMemo, useState } from "react";
 import { useStore } from "@nanostores/react";
-import { setBit, isBitSet, GameStateFlags } from "../stores/gameStateStore";
-import { $pastDate, $currentDate } from "../stores/stringStore";
+import { setBit, isBitSet, GameStateFlags } from "../../stores/gameStateStore";
+import { $pastDate, $currentDate } from "../../stores/stringStore";
 import {
-  setPhoneConnectionResult,
+  setPhonewaveResult,
   $phoneCurrentTimestamp,
   $phonePastTimestamp,
   $phoneResultMode,
   $phoneTimer,
-} from "../stores/phoneStore";
-import { ApplianceShell } from "./ApplianceShell";
-import { ConnectionScreen, type ConnectionLine } from "./ConnectionScreen";
-import { ConnectionTimerControls } from "./ConnectionTimerControls";
-import { formatDate } from "../utility/formatDate";
+} from "../../stores/phoneStore";
+import { ApplianceShell } from "../ApplianceShell";
+import { PhonewaveScreen, type PhonewaveLine } from "./PhonewaveScreen";
+import { PhonewaveTimerControls } from "./PhonewaveTimerControls";
+import { formatDate } from "../../utility/formatDate";
 import {
   getPhoneTargetEnd,
   isInPhoneTargetWindow,
   PHONE_TARGET_LABEL,
-} from "../utility/phoneTargetDate";
+} from "../../utility/phoneTargetDate";
 import {
   EMPTY_TIMER_VALUES,
   buildPastDate,
@@ -26,21 +26,21 @@ import {
   getTimerStatus,
   type TimerFieldKey,
   type TimerValues,
-} from "../utility/phoneTimer";
+} from "../../utility/phoneTimer";
 
-type ConnectionVariant = "idle" | "result";
+type PhonewaveVariant = "idle" | "result";
 
 const getCorrectionHint = (pastDate: Date) =>
   pastDate.getTime() > getPhoneTargetEnd().getTime()
     ? "offset not far enough"
     : "offset overshot target";
 
-export const Connection = ({
+export const Phonewave = ({
   className = "",
   variant = "result",
 }: {
   className?: string;
-  variant?: ConnectionVariant;
+  variant?: PhonewaveVariant;
 }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [timerValues, setTimerValues] = useState<TimerValues>(EMPTY_TIMER_VALUES);
@@ -78,7 +78,7 @@ export const Connection = ({
     const pastDate = buildPastDate(timerValues, currentDate);
     const isSuccess = isInPhoneTargetWindow(pastDate);
 
-    setPhoneConnectionResult(
+    setPhonewaveResult(
       formatTimerSummary(timerValues),
       currentDate.getTime(),
       pastDate.getTime()
@@ -96,7 +96,7 @@ export const Connection = ({
   const pastDate = pastTimestamp === null ? null : new Date(pastTimestamp);
   const isSuccess = pastDate !== null && isInPhoneTargetWindow(pastDate);
 
-  const lines = useMemo<ConnectionLine[]>(() => {
+  const lines = useMemo<PhonewaveLine[]>(() => {
     if (variant === "idle") {
       return [
         {
@@ -213,14 +213,14 @@ export const Connection = ({
         />
         <div className="relative flex flex-1 flex-col">
           <div className="grid flex-1 gap-4 lg:grid-cols-[minmax(0,1fr)_17.25rem] lg:gap-5">
-            <ConnectionScreen
+            <PhonewaveScreen
               animate={variant === "result"}
               className="lg:mr-1"
               currentStep={currentStep}
               lines={lines}
               onStepComplete={setCurrentStep}
             />
-            <ConnectionTimerControls
+            <PhonewaveTimerControls
               onBack={handleBack}
               onDigit={handleDigit}
               onSelect={setSelectedField}

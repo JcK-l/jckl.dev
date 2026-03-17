@@ -21,7 +21,7 @@ export const setPhoneNumberResult = (number: number) => {
   $phoneNumber.set(number);
 };
 
-export const setPhoneConnectionResult = (
+export const setPhonewaveResult = (
   timer: string,
   currentTimestamp: number,
   pastTimestamp: number

@@ -16,6 +16,8 @@ interface BetweenLandsProps {
   isCrt: boolean;
   crtCallback?: () => void;
   renderItem: (shift: MotionValue<string>) => ReactNode;
+  separatorOutMiddleLayer?: ReactNode;
+  separatorOutMiddleLayerClassName?: string;
 }
 
 const originalImgWidth = 500;
@@ -28,6 +30,8 @@ export const BetweenLands = ({
   isCrt,
   crtCallback,
   renderItem,
+  separatorOutMiddleLayer,
+  separatorOutMiddleLayerClassName,
 }: BetweenLandsProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const separatorInRef = useRef<HTMLDivElement>(null);
@@ -126,7 +130,12 @@ export const BetweenLands = ({
       <SeparatorIn ref={separatorInRef} />
 
       {isBackground ? renderItem(layer) : renderItem(zeroPx)}
-      <SeparatorOut ref={separatorOutRef} isCrt={isCrt} />
+      <SeparatorOut
+        ref={separatorOutRef}
+        isCrt={isCrt}
+        middleLayer={separatorOutMiddleLayer}
+        middleLayerClassName={separatorOutMiddleLayerClassName}
+      />
     </div>
   );
 };

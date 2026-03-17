@@ -1,34 +1,34 @@
-import { TypingText } from "./TypingText";
+import { TypingText } from "../TypingText";
 
-export type ConnectionTone = "neutral" | "success" | "failure" | "muted";
-export type ConnectionLine = {
+export type PhonewaveTone = "neutral" | "success" | "failure" | "muted";
+export type PhonewaveLine = {
   label: string;
-  tone?: ConnectionTone;
+  tone?: PhonewaveTone;
   value: string;
 };
 
-const toneClassNames: Record<ConnectionTone, string> = {
+const toneClassNames: Record<PhonewaveTone, string> = {
   neutral: "text-[var(--color-appliance-screen-text)]",
   success: "text-[var(--color-green)]",
   failure: "text-[var(--color-baloon1)]",
   muted: "text-[var(--color-appliance-screen-muted)]",
 };
 
-const formatConnectionLine = ({ label, value }: ConnectionLine) =>
+const formatPhonewaveLine = ({ label, value }: PhonewaveLine) =>
   `[${label}] ${value}`;
 
-const renderStaticLine = (line: ConnectionLine, index: number) => (
+const renderStaticLine = (line: PhonewaveLine, index: number) => (
   <p
     key={`${line.label}-${index}`}
     className={`font-mono text-[0.72rem] uppercase tracking-[0.18em] sm:text-[0.82rem] ${
       toneClassNames[line.tone ?? "neutral"]
     }`}
   >
-    {formatConnectionLine(line)}
+    {formatPhonewaveLine(line)}
   </p>
 );
 
-export const ConnectionScreen = ({
+export const PhonewaveScreen = ({
   animate,
   className = "",
   currentStep,
@@ -38,7 +38,7 @@ export const ConnectionScreen = ({
   animate: boolean;
   className?: string;
   currentStep: number;
-  lines: ConnectionLine[];
+  lines: PhonewaveLine[];
   onStepComplete: (step: number) => void;
 }) => {
   const shouldAnimate = animate && currentStep < lines.length;
@@ -89,7 +89,7 @@ export const ConnectionScreen = ({
                   className={`font-mono text-[0.72rem] uppercase tracking-[0.18em] sm:text-[0.82rem] ${
                     toneClassNames[line.tone ?? "neutral"]
                   }`}
-                  text={formatConnectionLine(line)}
+                  text={formatPhonewaveLine(line)}
                   onComplete={() => {
                     if (index === lines.length - 1) {
                       onStepComplete(lines.length);

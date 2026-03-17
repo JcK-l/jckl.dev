@@ -4,8 +4,8 @@ import Contact from "../components/Sections/Contact";
 import Hero from "../components/Sections/Hero";
 import About from "../components/Sections/About";
 import Projects from "../components/Sections/Projects";
-import TransitionSection from "../components/Sections/TransitionSection";
-import PhoneResults from "../components/Sections/PhoneResults";
+import Connection from "../components/Sections/Connection";
+import Call from "../components/Sections/Call";
 import StarConstellation from "../components/Sections/StarConstellation";
 import CrtMission from "../components/Sections/CrtMission";
 import { ThemeDebugToggle } from "../components/ThemeDebugToggle";
@@ -36,12 +36,12 @@ const showThemeDebugToggle = import.meta.env.DEV;
       <Projects client:load />
     </section>
 
-    <section class="" id="phoneTransition">
-      <TransitionSection client:load />
+    <section class="" id="connection">
+      <Connection client:load />
     </section>
 
-    <section class="bg-fgColor" id="phone">
-      <PhoneResults client:load />
+    <section class="bg-fgColor" id="call">
+      <Call client:load />
     </section>
 
     <section class="" id="contact">

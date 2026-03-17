@@ -1,7 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useStore } from "@nanostores/react";
-import { Connection } from "../Connection";
-import { Phone } from "../Phone";
+import { Phone } from "../phone/Phone";
 import { ProjectText } from "../ProjectText";
 import { projects } from "../../data/ProjectData";
 import { $offScriptCount } from "../../stores/offScriptCountStore";
@@ -36,7 +35,7 @@ const ResultBlock = ({
   </div>
 );
 
-const PhoneResults = () => {
+const Call = () => {
   const sentimentState = useStore($sentimentState);
   const mode = useStore($phoneResultMode);
   const phoneNumber = useStore($phoneNumber);
@@ -62,6 +61,10 @@ const PhoneResults = () => {
   const hasConnectionUnlocked =
     (gameState & (1 << GameStateFlags.FLAG_CONNECTION)) !== 0;
   const shouldShowPhone = isFinal && hasConnectionUnlocked;
+
+  if (!shouldShowPhone && mode !== "number") {
+    return null;
+  }
 
   const renderNumberResult = () => {
     if (project) {
@@ -223,7 +226,7 @@ const PhoneResults = () => {
       return renderNumberResult();
     }
 
-    if (hasConnectionUnlocked && isFinal && mode === "idle") {
+    if (shouldShowPhone) {
       return (
         <div className="p-text rounded-[2rem] bg-white/30 px-5 py-6 text-center text-titleColor md:px-8 lg:text-left">
           Dial a number on the phone to reveal a result.
@@ -231,7 +234,7 @@ const PhoneResults = () => {
       );
     }
 
-    return <Connection variant={mode === "connection" ? "result" : "idle"} />;
+    return null;
   };
 
   return (
@@ -258,4 +261,4 @@ const PhoneResults = () => {
   );
 };
 
-export default PhoneResults;
+export default Call;

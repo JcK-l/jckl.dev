@@ -1,4 +1,4 @@
-import { forwardRef, useState } from "react";
+import { forwardRef, useState, type ReactNode } from "react";
 import { crtImage, crtScreen } from "../data/crtImage";
 import {
   GameStateFlags,
@@ -13,6 +13,8 @@ import { getAudioContext } from "../utility/audioContext";
 
 interface SeparatorOutProps {
   isCrt?: boolean;
+  middleLayer?: ReactNode;
+  middleLayerClassName?: string;
 }
 
 export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
@@ -50,9 +52,14 @@ export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
     };
 
     return (
-      <div className="relative overflow-hidden" ref={ref}>
+      <div
+        className={`relative ${
+          displayCrt || props.middleLayer ? "overflow-visible" : "overflow-hidden"
+        }`}
+        ref={ref}
+      >
         <svg
-          className="relative z-10 block h-auto w-full translate-y-px"
+          className="relative z-0 block h-auto w-full translate-y-px"
           viewBox="0 0 960 279.177"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -77,66 +84,87 @@ export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
             pointerEvents="none"
             d="m 1e-5,119.16224 26.7,-13.00001 c 26.6,-13.000008 80,-39.000028 133.3,-59.000038 53.3,-20.00001 106.7,-34.00002 160,-11.50001 53.3,22.50002 106.7,81.500058 160,96.200068 53.3,14.60001 106.7,-15.00001 160,-45.200028 53.3,-30.20002 106.7,-60.80004 160,-59.70004 53.3,1.2 106.7,34.20002 133.3,50.70003 l 26.7,16.50001 V 251.16233 h -26.7 c -26.6,0 -80,0 -133.3,0 -53.3,0 -106.7,0 -160,0 -53.3,0 -106.7,0 -160,0 -53.3,0 -106.7,0 -160,0 -53.3,0 -106.7,0 -160,0 -53.3,0 -106.7,0 -133.3,0 h -26.7 z"
           />
-          {displayCrt && (
-            <svg
-              className="block h-auto w-full"
-              cursor={`${
-                gameStateIsBitSet(GameStateFlags.FLAG_CRT) || isSoundPlaying
-                  ? "default"
-                  : "pointer"
-              }`}
-              onClick={async () => {
-                if (
-                  isSoundPlaying ||
-                  sentimentStateIsBitSet(SentimentStateFlags.FLAG_ACTIVE)
-                ) {
-                  return;
-                }
+        </svg>
+        {(displayCrt || props.middleLayer) && (
+          <div
+            className={`pointer-events-none absolute inset-0 z-10 ${
+              props.middleLayerClassName ?? ""
+            }`}
+          >
+            {displayCrt && (
+              <svg
+                className="pointer-events-auto absolute inset-0 block h-full w-full"
+                cursor={`${
+                  gameStateIsBitSet(GameStateFlags.FLAG_CRT) || isSoundPlaying
+                    ? "default"
+                    : "pointer"
+                }`}
+                onClick={async () => {
+                  if (
+                    isSoundPlaying ||
+                    sentimentStateIsBitSet(SentimentStateFlags.FLAG_ACTIVE)
+                  ) {
+                    return;
+                  }
 
-                setIsSoundPlaying(true);
-                if (
-                  gameStateIsBitSet(GameStateFlags.FLAG_STARS_ALIGN) &&
-                  gameStateIsBitSet(GameStateFlags.FLAG_LEND_A_HAND) &&
-                  gameStateIsBitSet(GameStateFlags.FLAG_CONNECTION)
-                ) {
-                  setBit(GameStateFlags.FLAG_CRT);
-                  await playSound("/tvSounds/on.mp3");
-                } else {
-                  await playSound("/tvSounds/onAndOff.mp3");
-                }
-                setIsSoundPlaying(false);
-              }}
-              viewBox="0 0 960 279.177"
-              version="1.1"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <defs id="defs1" />
-              <g
-                id="layer1"
-                transform="matrix(0.72152775,-0.06209045,0.06209045,0.72152775,479.11345,-77.145299)"
+                  setIsSoundPlaying(true);
+                  if (
+                    gameStateIsBitSet(GameStateFlags.FLAG_STARS_ALIGN) &&
+                    gameStateIsBitSet(GameStateFlags.FLAG_LEND_A_HAND) &&
+                    gameStateIsBitSet(GameStateFlags.FLAG_CONNECTION)
+                  ) {
+                    setBit(GameStateFlags.FLAG_CRT);
+                    await playSound("/tvSounds/on.mp3");
+                  } else {
+                    await playSound("/tvSounds/onAndOff.mp3");
+                  }
+                  setIsSoundPlaying(false);
+                }}
+                viewBox="0 0 960 279.177"
+                version="1.1"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                <image
-                  width="176.3889"
-                  height="132.29167"
-                  preserveAspectRatio="none"
-                  xlinkHref={crtImage}
-                  id="tv"
-                  x="14.018737"
-                  y="123.32362"
-                />
-                <image
-                  width="123.47222"
-                  height="97.013885"
-                  preserveAspectRatio="none"
-                  opacity={gameStateIsBitSet(GameStateFlags.FLAG_CRT) ? 1 : 0}
-                  xlinkHref={crtScreen}
-                  id="screen"
-                  x="26.629618"
-                  y="136.32681"
-                />
-              </g>
-            </svg>
-          )}
+                <defs id="defs1" />
+                <g
+                  id="layer1"
+                  transform="matrix(0.72152775,-0.06209045,0.06209045,0.72152775,479.11345,-77.145299)"
+                >
+                  <image
+                    width="176.3889"
+                    height="132.29167"
+                    preserveAspectRatio="none"
+                    xlinkHref={crtImage}
+                    id="tv"
+                    x="14.018737"
+                    y="123.32362"
+                  />
+                  <image
+                    width="123.47222"
+                    height="97.013885"
+                    preserveAspectRatio="none"
+                    opacity={gameStateIsBitSet(GameStateFlags.FLAG_CRT) ? 1 : 0}
+                    xlinkHref={crtScreen}
+                    id="screen"
+                    x="26.629618"
+                    y="136.32681"
+                  />
+                </g>
+              </svg>
+            )}
+            {props.middleLayer ? (
+              <div className="pointer-events-auto absolute inset-0">
+                {props.middleLayer}
+              </div>
+            ) : null}
+          </div>
+        )}
+        <svg
+          className="pointer-events-none absolute inset-0 z-20 block h-full w-full translate-y-px"
+          viewBox="0 0 960 279.177"
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
           <path
             style={{
               fill: "var(--color-transition2)",

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { resetPhoneResult, setPhoneNumberResult } from "../stores/phoneStore";
+import { resetPhoneResult, setPhoneNumberResult } from "../../stores/phoneStore";
 import { PhonePad } from "./PhonePad";
 
 const formatPhoneDisplay = (input: string) => {

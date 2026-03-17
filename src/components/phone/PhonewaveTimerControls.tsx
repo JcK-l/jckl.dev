@@ -4,7 +4,7 @@ import {
   type TimerFieldKey,
   type TimerStatusMode,
   type TimerValues,
-} from "../utility/phoneTimer";
+} from "../../utility/phoneTimer";
 
 const timerStatusLabels: Record<TimerStatusMode, string> = {
   "not-enough": "NOT ENOUGH",
@@ -14,7 +14,7 @@ const timerStatusLabels: Record<TimerStatusMode, string> = {
 
 const keypadDigits = ["1", "2", "3", "4", "5", "6", "7", "8", "9"] as const;
 
-export const ConnectionTimerControls = ({
+export const PhonewaveTimerControls = ({
   onBack,
   onDigit,
   onSelect,
