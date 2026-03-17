@@ -1,13 +1,10 @@
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useStore } from "@nanostores/react";
 import { Connection } from "../Connection";
 import { ProjectText } from "../ProjectText";
 import { projects } from "../../data/ProjectData";
 import { $offScriptCount } from "../../stores/offScriptCountStore";
-import {
-  $phoneNumber,
-  $phoneResultMode,
-} from "../../stores/phoneStore";
+import { $phoneNumber, $phoneResultMode } from "../../stores/phoneStore";
 import {
   $sentimentState,
   isBitSet,
@@ -42,9 +39,11 @@ const PhoneResults = () => {
   const mode = useStore($phoneResultMode);
   const phoneNumber = useStore($phoneNumber);
   const offScriptCount = useStore($offScriptCount);
+  const [isFinal, setIsFinal] = useState(false);
 
   useEffect(() => {
     $offScriptCount.set(getStoredOffScriptCount());
+    setIsFinal(hasUnlockedAllFlags());
   }, [sentimentState]);
 
   if (
@@ -53,8 +52,6 @@ const PhoneResults = () => {
   ) {
     return <div></div>;
   }
-
-  const isFinal = hasUnlockedAllFlags();
   const project =
     phoneNumber === null
       ? undefined
@@ -219,7 +216,11 @@ const PhoneResults = () => {
     if (mode === "idle") {
       return (
         <ResultBlock title="Phone Results">
-          <p>Dial a number on the phone to reveal a result.</p>
+          <p>
+            {isFinal
+              ? "Dial a number on the phone to reveal a result."
+              : "Set the timer on the phone and press # to trace the connection."}
+          </p>
         </ResultBlock>
       );
     }

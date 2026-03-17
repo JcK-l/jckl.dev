@@ -2,26 +2,39 @@ import { TypingText } from "./TypingText";
 import { useEffect, useState } from "react";
 import { useStore } from "@nanostores/react";
 import { formatDate } from "../utility/formatDate";
-import { $phoneResultMode, $phoneTimer } from "../stores/phoneStore";
+import {
+  isInPhoneTargetWindow,
+  PHONE_TARGET_LABEL,
+} from "../utility/phoneTargetDate";
+import {
+  $phoneCurrentTimestamp,
+  $phonePastTimestamp,
+  $phoneResultMode,
+  $phoneTimer,
+} from "../stores/phoneStore";
 
 export const Connection = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const mode = useStore($phoneResultMode);
   const timer = useStore($phoneTimer);
-
-  const currentDate = new Date();
-  const pastDate = new Date(currentDate.getTime() - timer * 60 * 60 * 1000);
-
-  const isSuccess = pastDate.getFullYear() === 2024;
+  const currentTimestamp = useStore($phoneCurrentTimestamp);
+  const pastTimestamp = useStore($phonePastTimestamp);
 
   useEffect(() => {
-    // Reset the connection when any of the values change, except when isSuccess is true
     setCurrentStep(0);
-  }, [timer]);
+  }, [currentTimestamp, pastTimestamp, timer]);
 
-  if (mode !== "connection") {
+  if (
+    mode !== "connection" ||
+    currentTimestamp === null ||
+    pastTimestamp === null
+  ) {
     return null;
   }
+
+  const currentDate = new Date(currentTimestamp);
+  const pastDate = new Date(pastTimestamp);
+  const isSuccess = isInPhoneTargetWindow(pastDate);
 
   return (
     <div className="relative mx-auto w-10/12 sm:w-7/12 h-[10rem]">
@@ -41,7 +54,7 @@ export const Connection = () => {
       )}
       {currentStep >= 2 && (
         <TypingText
-          text={`TARGET YEAR: 2024`}
+          text={`TARGET WINDOW: ${PHONE_TARGET_LABEL}`}
           onComplete={() => setCurrentStep(3)}
         />
       )}
@@ -53,21 +66,29 @@ export const Connection = () => {
       )}
       {currentStep >= 4 && (
         <TypingText
-          text={`DATE ${timer} HOURS AGO: ${formatDate(pastDate, true)}`}
+          text={`TIMER SET: ${timer}`}
           onComplete={() => setCurrentStep(5)}
           onCompleteDelay={1500}
         />
       )}
       {currentStep >= 5 &&
+        (
+          <TypingText
+            text={`PAST DATE: ${formatDate(pastDate, true)}`}
+            onComplete={() => setCurrentStep(6)}
+            onCompleteDelay={1500}
+          />
+        )}
+      {currentStep >= 6 &&
         (isSuccess ? (
           <TypingText
-            text="SUCCESS: The past date is in the year 2024."
-            onComplete={() => setCurrentStep(6)}
+            text={`SUCCESS: The past date is inside ${PHONE_TARGET_LABEL}.`}
+            onComplete={() => setCurrentStep(7)}
           />
         ) : (
           <TypingText
-            text={`FAILURE: The past date is in the year ${pastDate.getFullYear()}.`}
-            onComplete={() => setCurrentStep(6)}
+            text={`FAILURE: The past date is outside ${PHONE_TARGET_LABEL}.`}
+            onComplete={() => setCurrentStep(7)}
           />
         ))}
     </div>
