@@ -1,11 +1,13 @@
 import { TypingText } from "./TypingText";
 import { useEffect, useState } from "react";
-import { usePhoneContext } from "../hooks/useDataContext";
+import { useStore } from "@nanostores/react";
 import { formatDate } from "../utility/formatDate";
+import { $phoneResultMode, $phoneTimer } from "../stores/phoneStore";
 
 export const Connection = () => {
   const [currentStep, setCurrentStep] = useState(0);
-  const { number, setNumber, timer, setTimer } = usePhoneContext();
+  const mode = useStore($phoneResultMode);
+  const timer = useStore($phoneTimer);
 
   const currentDate = new Date();
   const pastDate = new Date(currentDate.getTime() - timer * 60 * 60 * 1000);
@@ -17,7 +19,7 @@ export const Connection = () => {
     setCurrentStep(0);
   }, [timer]);
 
-  if (number !== -1) {
+  if (mode !== "connection") {
     return null;
   }
 

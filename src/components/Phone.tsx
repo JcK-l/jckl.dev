@@ -1,33 +1,31 @@
 import { useState, useEffect } from "react";
-import { usePhoneContext } from "../hooks/useDataContext";
 import { setBit, isBitSet, GameStateFlags } from "../stores/gameStateStore";
 import { $sentimentState } from "../stores/sentimentStateStore";
 import { $pastDate, $currentDate } from "../stores/stringStore";
 import { $offScriptCount } from "../stores/offScriptCountStore";
+import {
+  setPhoneConnectionResult,
+  setPhoneNumberResult,
+  resetPhoneResult,
+} from "../stores/phoneStore";
 import { formatDate } from "../utility/formatDate";
+import {
+  hasUnlockedAllFlags,
+  incrementStoredOffScriptCount,
+} from "../utility/phoneProgress";
 import { useStore } from "@nanostores/react";
 
 export const Phone = () => {
-  const [input, setInput] = useState("*0");
-  const { number, setNumber, timer, setTimer } = usePhoneContext();
+  const [input, setInput] = useState("");
   const sentimentState = useStore($sentimentState);
   const [isFinal, setIsFinal] = useState(false);
 
   useEffect(() => {
-    const savedFlags = sessionStorage.getItem("flags");
-    const flags = JSON.parse(savedFlags || "[]");
-    const allFlagsTrue: boolean = flags.every((flag: boolean) => flag === true);
-    setIsFinal(allFlagsTrue);
+    setIsFinal(hasUnlockedAllFlags());
   }, [sentimentState]);
 
   const handleButtonClick = (number: string) => {
-    if (input.startsWith("*")) {
-      const newInput = `*${number}`;
-      setInput(newInput);
-      setNumber(Number(number));
-    } else {
-      setInput((prevInput) => prevInput + number);
-    }
+    setInput((prevInput) => prevInput + number);
   };
 
   const handleCancelClick = () => {
@@ -35,40 +33,53 @@ export const Phone = () => {
   };
 
   const handleCallClick = () => {
+    if (input === "") {
+      resetPhoneResult();
+      return;
+    }
+
     setInput("");
-    if (input.endsWith("#") && !isBitSet(GameStateFlags.FLAG_CONNECTION)) {
+
+    if (input.endsWith("#")) {
       console.log(`Input timer ${input}...`);
-      setNumber(-1);
       const time = Number(input.slice(0, -1));
-      setTimer(time);
+
+      if (!Number.isFinite(time)) {
+        resetPhoneResult();
+        return;
+      }
+
+      setPhoneConnectionResult(time);
       const currentDate = new Date();
       const pastDate = new Date(currentDate.getTime() - time * 60 * 60 * 1000);
       const isSuccess = pastDate.getFullYear() === 2024;
 
-      if (isSuccess) {
+      if (isSuccess && !isBitSet(GameStateFlags.FLAG_CONNECTION)) {
         setBit(GameStateFlags.FLAG_CONNECTION);
       }
       $currentDate.set(formatDate(currentDate));
       $pastDate.set(formatDate(pastDate));
-    } else {
-      console.log(`Calling ${input}... Not really`);
-      const inputNumber = getInputAsNumber();
-      setNumber(inputNumber);
-      if (inputNumber === 418 && !isFinal) {
-        const offScriptCount = JSON.parse(
-          sessionStorage.getItem("offScriptCount") || "0"
-        );
-        sessionStorage.setItem(
-          "offScriptCount",
-          JSON.stringify(offScriptCount + 1)
-        );
-        $offScriptCount.set(offScriptCount + 1);
-      }
+      return;
+    }
+
+    console.log(`Calling ${input}... Not really`);
+    const inputNumber = getInputAsNumber();
+
+    if (inputNumber === null) {
+      resetPhoneResult();
+      return;
+    }
+
+    setPhoneNumberResult(inputNumber);
+
+    if (inputNumber === 418 && !isFinal) {
+      $offScriptCount.set(incrementStoredOffScriptCount());
     }
   };
 
   const getInputAsNumber = () => {
-    return Number(input);
+    const digitsOnly = input.replace(/\D/g, "");
+    return digitsOnly === "" ? null : Number(digitsOnly);
   };
 
   const numberStyle = {

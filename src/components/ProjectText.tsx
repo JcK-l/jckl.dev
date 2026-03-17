@@ -1,51 +1,28 @@
-import { usePhoneContext } from "../hooks/useDataContext";
 import { Carousel } from "./Carousel";
 import { GitHub, Youtube, Code } from "../utility/icons";
-import type { ReactNode } from "react";
-// <div className="relative w-full">
-//   {renderItem()}
-// </div>
 
 interface ProjectTextProps {
   title: string;
   description: string;
-  showOnNumbers: number[];
-  numbersExclude?: number[];
   imageFolder?: string;
   numberImages?: number;
   githubLink?: string;
   youtubeLink?: string;
   demoLink?: string;
-  renderItem?: () => ReactNode;
 }
 
 export const ProjectText = ({
   title,
   description,
-  showOnNumbers,
-  numbersExclude,
   imageFolder,
   numberImages,
   githubLink,
   youtubeLink,
   demoLink,
-  renderItem,
 }: ProjectTextProps) => {
-  const { number, setNumber, timer, setTimer } = usePhoneContext();
+  const anyLink = Boolean(githubLink || youtubeLink || demoLink);
 
-  if (numbersExclude && numbersExclude.length > 0) {
-    if (numbersExclude.includes(number)) {
-      return null;
-    }
-  } else if (!showOnNumbers.includes(number)) {
-    return null;
-  }
-
-  const anyLink = githubLink || youtubeLink || demoLink ? true : false;
-
-  return renderItem ? (
-    renderItem()
-  ) : (
+  return (
     <div className="relative my-auto w-full sm:h-auto">
       {imageFolder && numberImages ? (
         <Carousel imageFolder={imageFolder} numberImages={numberImages} />
