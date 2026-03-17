@@ -1,22 +1,58 @@
-import { useEffect, useState } from "react";
-import { useStore } from "@nanostores/react";
-import { $sentimentState } from "../stores/sentimentStateStore";
-import { $gameState, GameStateFlags } from "../stores/gameStateStore";
-import { hasUnlockedAllFlags } from "../utility/phoneProgress";
-import { NumberPhone } from "./NumberPhone";
-import { TimerPhone } from "./TimerPhone";
+import { useState } from "react";
+import { resetPhoneResult, setPhoneNumberResult } from "../stores/phoneStore";
+import { PhonePad } from "./PhonePad";
+
+const formatPhoneDisplay = (input: string) => {
+  if (input === "") {
+    return "";
+  }
+
+  if (!/^\d+$/.test(input)) {
+    return input;
+  }
+
+  return input.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+};
 
 export const Phone = () => {
-  const sentimentState = useStore($sentimentState);
-  const gameState = useStore($gameState);
-  const [isFinal, setIsFinal] = useState(false);
+  const [input, setInput] = useState("");
 
-  useEffect(() => {
-    setIsFinal(hasUnlockedAllFlags());
-  }, [sentimentState]);
+  const handleDigit = (digit: string) => {
+    setInput((currentInput) => currentInput + digit);
+  };
 
-  const shouldShowNumberPhone =
-    isFinal && (gameState & (1 << GameStateFlags.FLAG_CONNECTION)) !== 0;
+  const handleCancel = () => {
+    setInput((currentInput) => currentInput.slice(0, -1));
+  };
 
-  return shouldShowNumberPhone ? <NumberPhone /> : <TimerPhone />;
+  const handleCall = () => {
+    if (input === "") {
+      resetPhoneResult();
+      return;
+    }
+
+    const digitsOnly = input.replace(/\D/g, "");
+    const inputNumber = digitsOnly === "" ? null : Number(digitsOnly);
+
+    if (inputNumber === null) {
+      resetPhoneResult();
+      return;
+    }
+
+    setInput("");
+    setPhoneNumberResult(inputNumber);
+  };
+
+  return (
+    <PhonePad
+      display={formatPhoneDisplay(input)}
+      onBottomLeft={() => handleDigit("*")}
+      onBottomRight={() => handleDigit("#")}
+      onCall={handleCall}
+      onCancel={handleCancel}
+      onDigit={handleDigit}
+      showCallButton={true}
+      showCancelButton={input !== ""}
+    />
+  );
 };

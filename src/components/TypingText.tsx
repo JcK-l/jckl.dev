@@ -1,16 +1,23 @@
 import { useState, useEffect } from "react";
 
 export const TypingText = ({
+  className,
   text,
   onComplete,
   onCompleteDelay = 600,
 }: {
+  className?: string;
   text: string;
   onComplete: () => void;
   onCompleteDelay?: number;
 }) => {
   const [displayedText, setDisplayedText] = useState("");
   const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    setDisplayedText("");
+    setIndex(0);
+  }, [text]);
 
   useEffect(() => {
     if (index < text.length) {
@@ -23,7 +30,7 @@ export const TypingText = ({
       const completeTimeout = setTimeout(onComplete, onCompleteDelay); // Small delay before triggering onComplete
       return () => clearTimeout(completeTimeout);
     }
-  }, [index]);
+  }, [index, onComplete, onCompleteDelay, text]);
 
-  return <p>{displayedText}</p>;
+  return <p className={className}>{displayedText}</p>;
 };

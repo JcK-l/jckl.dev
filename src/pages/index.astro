@@ -4,13 +4,17 @@ import Contact from "../components/Sections/Contact";
 import Hero from "../components/Sections/Hero";
 import About from "../components/Sections/About";
 import Projects from "../components/Sections/Projects";
-import PhoneSection from "../components/Sections/PhoneSection";
+import TransitionSection from "../components/Sections/TransitionSection";
 import PhoneResults from "../components/Sections/PhoneResults";
 import StarConstellation from "../components/Sections/StarConstellation";
 import CrtMission from "../components/Sections/CrtMission";
+import { ThemeDebugToggle } from "../components/ThemeDebugToggle";
+
+const showThemeDebugToggle = import.meta.env.DEV;
 ---
 
 <Layout title="Welcome to my site!">
+  {showThemeDebugToggle ? <ThemeDebugToggle client:load /> : null}
   <main>
     <section class="bg-fgColor" id="hero">
       <Hero client:load />
@@ -32,11 +36,11 @@ import CrtMission from "../components/Sections/CrtMission";
       <Projects client:load />
     </section>
 
-    <section class="" id="phone">
-      <PhoneSection client:load />
+    <section class="" id="phoneTransition">
+      <TransitionSection client:load />
     </section>
 
-    <section class="bg-fgColor" id="phoneResults">
+    <section class="bg-fgColor" id="phone">
       <PhoneResults client:load />
     </section>
 

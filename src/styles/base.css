@@ -69,6 +69,38 @@
   --color-red-shade: #802A24;
   --color-transition1: #918ab2;
   --color-transition2: #c4c0d6;
+  --color-appliance-shell-top: #F6F1EA;
+  --color-appliance-shell-bottom: #ECE6DF;
+  --color-appliance-shell-border: #4036572E;
+  --color-appliance-shell-pattern: radial-gradient(circle at 16% 14%, rgba(190,149,196,0.16), transparent 24%), radial-gradient(circle at 84% 8%, rgba(224,177,203,0.18), transparent 30%), repeating-linear-gradient(0deg, rgba(94,84,142,0.032) 0px, rgba(94,84,142,0.032) 1px, transparent 1px, transparent 9px), repeating-linear-gradient(90deg, rgba(224,177,203,0.05) 0px, rgba(224,177,203,0.05) 1px, transparent 1px, transparent 14px);
+  --color-appliance-shell-vent: repeating-linear-gradient(90deg, rgba(35,25,66,0.16) 0px, rgba(35,25,66,0.16) 5px, transparent 5px, transparent 9px);
+  --color-appliance-panel-top: #F5EFE8;
+  --color-appliance-panel-bottom: #EBE5DD;
+  --color-appliance-panel-border: #4036571F;
+  --color-appliance-panel-highlight: #FFFFFF66;
+  --color-appliance-panel-pattern: repeating-radial-gradient(circle at 0 0, rgba(94,84,142,0.04) 0 1px, transparent 1px 14px), repeating-linear-gradient(180deg, rgba(224,177,203,0.08) 0 1px, transparent 1px 6px);
+  --color-appliance-screen-bg: #322746;
+  --color-appliance-screen-border: #4036572E;
+  --color-appliance-screen-pattern: repeating-linear-gradient(180deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 5px), radial-gradient(circle at 18% 16%, rgba(190,149,196,0.18), transparent 24%);
+  --color-appliance-screen-text: #F7F5FB;
+  --color-appliance-screen-muted: #E0B1CB;
+  --color-appliance-control-pattern: repeating-linear-gradient(90deg, rgba(94,84,142,0.06) 0px, rgba(94,84,142,0.06) 1px, transparent 1px, transparent 10px), radial-gradient(circle at 14% 18%, rgba(224,177,203,0.26), transparent 22%);
+  --color-appliance-control-vent: repeating-linear-gradient(180deg, rgba(35,25,66,0.12) 0px, rgba(35,25,66,0.12) 2px, transparent 2px, transparent 6px);
+  --color-appliance-control-panel-top: #FFFFFF;
+  --color-appliance-control-panel-bottom: #F4EEF7;
+  --color-appliance-control-panel-border: #2319421A;
+  --color-appliance-control-button-top: #FFFFFF;
+  --color-appliance-control-button-bottom: #F5F0F9;
+  --color-appliance-control-button-border: #2319421A;
+  --color-appliance-control-danger-top: #FFFFFF;
+  --color-appliance-control-danger-bottom: #F9EEEE;
+  --color-appliance-control-danger-border: #AC39312E;
+  --color-appliance-status-ready-bg: #558F541F;
+  --color-appliance-status-ready-border: #558F5438;
+  --color-appliance-status-too-much-bg: #AC39311F;
+  --color-appliance-status-too-much-border: #AC393138;
+  --color-appliance-status-not-enough-bg: #5E548E1F;
+  --color-appliance-status-not-enough-border: #5E548E38;
 
   /* fourth theme */
   /* --color-text-color: #FAF3DD;
@@ -174,7 +206,7 @@
   animation: fadeIn 1s forwards;
 }
 
-@keyframes phoneTimerWiggle {
+@keyframes applianceWiggle {
   0%,
   100% {
     transform: translateX(0);
@@ -187,8 +219,8 @@
   }
 }
 
-.phone-timer-wiggle {
-  animation: phoneTimerWiggle 220ms ease-in-out 2;
+.appliance-wiggle {
+  animation: applianceWiggle 220ms ease-in-out 2;
 }
 
 .phone-pad-button circle,
@@ -349,3 +381,4 @@ html {
   font-weight: 900;
   font-style: italic;
 }
+

@@ -1,13 +1,12 @@
 import { useStore } from "@nanostores/react";
 import { BetweenLands } from "../BetweenLands";
-import { Phone } from "../Phone";
 import {
   $sentimentState,
   isBitSet,
   SentimentStateFlags,
 } from "../../stores/sentimentStateStore";
 
-const PhoneSection = () => {
+const TransitionSection = () => {
   useStore($sentimentState);
 
   if (
@@ -21,17 +20,9 @@ const PhoneSection = () => {
     <BetweenLands
       isBackground={false}
       isCrt={false}
-      renderItem={() => (
-        <div className="page-margins pointer-events-auto relative z-20 py-10 text-white">
-          <div className="mx-auto flex max-w-5xl items-center justify-center">
-            <div className="flex w-full justify-center">
-              <Phone />
-            </div>
-          </div>
-        </div>
-      )}
+      renderItem={() => <div className="h-20 md:h-28" />}
     />
   );
 };
 
-export default PhoneSection;
+export default TransitionSection;

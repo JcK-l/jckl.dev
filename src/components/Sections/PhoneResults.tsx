@@ -1,10 +1,12 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useStore } from "@nanostores/react";
 import { Connection } from "../Connection";
+import { Phone } from "../Phone";
 import { ProjectText } from "../ProjectText";
 import { projects } from "../../data/ProjectData";
 import { $offScriptCount } from "../../stores/offScriptCountStore";
 import { $phoneNumber, $phoneResultMode } from "../../stores/phoneStore";
+import { $gameState, GameStateFlags } from "../../stores/gameStateStore";
 import {
   $sentimentState,
   isBitSet,
@@ -24,7 +26,7 @@ const ResultBlock = ({
   title?: string;
   children: ReactNode;
 }) => (
-  <div className="rounded-[2rem] border border-titleColor/10 bg-white/40 p-5 md:p-8">
+  <div className="rounded-[2rem] bg-white/40 p-5 md:p-8">
     {!title ? null : (
       <h5 className="h4-text mb-4 text-center font-bold text-titleColor">
         {title}
@@ -39,6 +41,7 @@ const PhoneResults = () => {
   const mode = useStore($phoneResultMode);
   const phoneNumber = useStore($phoneNumber);
   const offScriptCount = useStore($offScriptCount);
+  const gameState = useStore($gameState);
   const [isFinal, setIsFinal] = useState(false);
 
   useEffect(() => {
@@ -56,11 +59,14 @@ const PhoneResults = () => {
     phoneNumber === null
       ? undefined
       : projects.find((entry) => entry.id === phoneNumber);
+  const hasConnectionUnlocked =
+    (gameState & (1 << GameStateFlags.FLAG_CONNECTION)) !== 0;
+  const shouldShowPhone = isFinal && hasConnectionUnlocked;
 
   const renderNumberResult = () => {
     if (project) {
       return (
-        <div className="rounded-[2rem] border border-titleColor/10 bg-white/40 p-5 md:p-8">
+        <div className="rounded-[2rem] bg-white/40 p-5 md:p-8">
           <ProjectText
             title={project.title}
             description={project.description}
@@ -78,7 +84,7 @@ const PhoneResults = () => {
       return (
         <a
           href="https://steins-gate.fandom.com/wiki/Divergence_Meter"
-          className="mx-auto block w-full rounded-[2rem] border border-titleColor/10 bg-white/40 p-5 md:w-7/12 md:p-8"
+          className="mx-auto block w-full rounded-[2rem] bg-white/40 p-5 md:w-7/12 md:p-8"
           target="_blank"
           rel="noreferrer noopener"
         >
@@ -194,7 +200,7 @@ const PhoneResults = () => {
 
       if (offScriptCount >= 6) {
         return (
-          <div className="rounded-[2rem] border border-titleColor/10 bg-white/40 p-5 md:p-8">
+          <div className="rounded-[2rem] bg-white/40 p-5 md:p-8">
             <img
               src="/areYouSerious.avif"
               alt="..."
@@ -213,37 +219,41 @@ const PhoneResults = () => {
   };
 
   const renderContent = () => {
-    if (mode === "idle") {
-      return (
-        <ResultBlock title="Phone Results">
-          <p>
-            {isFinal
-              ? "Dial a number on the phone to reveal a result."
-              : "Set the timer on the phone and press # to trace the connection."}
-          </p>
-        </ResultBlock>
-      );
+    if (mode === "number") {
+      return renderNumberResult();
     }
 
-    if (mode === "connection") {
+    if (hasConnectionUnlocked && isFinal && mode === "idle") {
       return (
-        <div className="rounded-[2rem] border border-titleColor/10 bg-white/40 p-5 md:p-8">
-          <Connection />
+        <div className="p-text rounded-[2rem] bg-white/30 px-5 py-6 text-center text-titleColor md:px-8 lg:text-left">
+          Dial a number on the phone to reveal a result.
         </div>
       );
     }
 
-    return renderNumberResult();
+    return <Connection variant={mode === "connection" ? "result" : "idle"} />;
   };
 
   return (
     <div className="page-margins relative bg-fgColor py-4">
-      <div className="z-10 w-full text-titleColor">
-        <h2 className="h2-text mb-8 inline-block w-auto xl:mb-16">
-          Phone Results{isBitSet(SentimentStateFlags.FLAG_POSITIVE) ? "!" : ""}
-        </h2>
+      <div
+        className={
+          shouldShowPhone
+            ? "grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,22rem)] lg:items-stretch lg:gap-10"
+            : "mx-auto max-w-[58rem]"
+        }
+      >
+        <div className={shouldShowPhone ? "order-2 min-w-0 lg:order-1 lg:flex" : ""}>
+          <div className={shouldShowPhone ? "w-full lg:h-full" : "w-full"}>
+            {renderContent()}
+          </div>
+        </div>
+        {!shouldShowPhone ? null : (
+          <div className="order-1 flex justify-center lg:order-2 lg:justify-end">
+            <Phone />
+          </div>
+        )}
       </div>
-      {renderContent()}
     </div>
   );
 };
