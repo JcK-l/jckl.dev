@@ -8,6 +8,8 @@ import { puzzleGroups, type DispensedGroups } from "../data/puzzleGroups";
 import { usePuzzleContext } from "../hooks/useDataContext";
 import { $gameState } from "../stores/gameStateStore";
 import { $dispensedGroups } from "../stores/puzzleDispenseStore";
+import { setPuzzlePieceSize } from "../stores/puzzleLayoutStore";
+import { preloadPieceImages } from "../utility/pieceImages";
 
 const originalPieceSize = { width: 300, height: 300 };
 const scale = 0.27;
@@ -71,6 +73,7 @@ export const PuzzleGame = () => {
       const scaleFactor = scaledPieceSize / originalPieceSize.width;
 
       setPieceSize({ width: scaledPieceSize, height: scaledPieceSize });
+      setPuzzlePieceSize(scaledPieceSize);
 
       setDragConstraints({
         top: 0,
@@ -86,7 +89,11 @@ export const PuzzleGame = () => {
   useEffect(() => {
     updatePieceSize();
     window.addEventListener("resize", updatePieceSize);
-    return () => window.removeEventListener("resize", updatePieceSize);
+
+    return () => {
+      window.removeEventListener("resize", updatePieceSize);
+      setPuzzlePieceSize(0);
+    };
   }, []);
 
   useEffect(() => {
@@ -100,6 +107,22 @@ export const PuzzleGame = () => {
       })
     );
   }, [lastPiece]);
+
+  useEffect(() => {
+    const dispensedPiecePaths = puzzleGroups.flatMap((group) => {
+      if (!dispensedGroups[group.key]) {
+        return [];
+      }
+
+      return group.pieces.map((pieceId) => originalPieces[pieceId - 1].path);
+    });
+
+    if (dispensedPiecePaths.length === 0) {
+      return;
+    }
+
+    void preloadPieceImages(dispensedPiecePaths);
+  }, [dispensedGroups]);
 
   return (
     <div

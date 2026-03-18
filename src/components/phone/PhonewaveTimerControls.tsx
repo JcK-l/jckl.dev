@@ -90,6 +90,8 @@ export const PhonewaveTimerControls = ({
             background:
               "linear-gradient(180deg, var(--color-appliance-control-panel-top), var(--color-appliance-control-panel-bottom))",
             borderColor: "var(--color-appliance-control-panel-border)",
+            boxShadow:
+              "inset 0 1px 0 rgba(255,255,255,0.9), inset 0 -0.85rem 1.15rem rgba(94,84,142,0.08), 0 0.9rem 1.4rem rgba(35,25,66,0.1)",
           }}
         >
           <div className="mb-3 flex items-center justify-between gap-2">
@@ -124,6 +126,9 @@ export const PhonewaveTimerControls = ({
                     borderColor: isSelected
                       ? statusColor
                       : "var(--color-appliance-control-panel-border)",
+                    boxShadow: isSelected
+                      ? `inset 0 1px 0 rgba(255,255,255,0.28), 0 0.7rem 1.1rem ${statusColor}33`
+                      : "inset 0 1px 0 rgba(255,255,255,0.92), 0 0.55rem 0.9rem rgba(35,25,66,0.08)",
                   }}
                 >
                   <span
@@ -161,6 +166,8 @@ export const PhonewaveTimerControls = ({
                 background:
                   "linear-gradient(180deg, var(--color-appliance-control-button-top), var(--color-appliance-control-button-bottom))",
                 borderColor: "var(--color-appliance-control-button-border)",
+                boxShadow:
+                  "inset 0 1px 0 rgba(255,255,255,0.92), 0 0.55rem 0.9rem rgba(35,25,66,0.08)",
               }}
             >
               {digit}
@@ -174,6 +181,8 @@ export const PhonewaveTimerControls = ({
               background:
                 "linear-gradient(180deg, var(--color-appliance-control-danger-top), var(--color-appliance-control-danger-bottom))",
               borderColor: "var(--color-appliance-control-danger-border)",
+              boxShadow:
+                "inset 0 1px 0 rgba(255,255,255,0.85), 0 0.55rem 0.9rem rgba(172,57,49,0.14)",
             }}
           >
             BKSP
@@ -186,6 +195,8 @@ export const PhonewaveTimerControls = ({
               background:
                 "linear-gradient(180deg, var(--color-appliance-control-button-top), var(--color-appliance-control-button-bottom))",
               borderColor: "var(--color-appliance-control-button-border)",
+              boxShadow:
+                "inset 0 1px 0 rgba(255,255,255,0.92), 0 0.55rem 0.9rem rgba(35,25,66,0.08)",
             }}
           >
             0
@@ -197,6 +208,7 @@ export const PhonewaveTimerControls = ({
             style={{
               background: statusColor,
               borderColor: statusColor,
+              boxShadow: `inset 0 1px 0 rgba(255,255,255,0.2), 0 0.7rem 1.1rem ${statusColor}3d`,
             }}
           >
             START

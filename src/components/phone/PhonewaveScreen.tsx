@@ -54,8 +54,17 @@ export const PhonewaveScreen = ({
       style={{
         backgroundColor: "var(--color-appliance-screen-bg)",
         borderColor: "var(--color-appliance-screen-border)",
+        boxShadow:
+          "inset 0 1px 0 rgba(255,255,255,0.05), inset 0 -0.9rem 1.2rem rgba(10,8,18,0.24), 0 0.9rem 1.4rem rgba(35,25,66,0.12)",
       }}
     >
+      <div
+        className="pointer-events-none absolute inset-x-4 top-3 h-3 rounded-full opacity-55 blur-md"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0))",
+        }}
+      />
       <div
         className="pointer-events-none absolute inset-0 opacity-80"
         style={{ backgroundImage: "var(--color-appliance-screen-pattern)" }}

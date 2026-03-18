@@ -26,9 +26,9 @@ import { useStore } from "@nanostores/react";
 const handPieceIds =
   puzzleGroups.find((group) => group.key === "hand")?.pieces ?? [];
 const CRT_SEQUENCE_DELAY_MS = 550;
-const CRT_DROP_DELAY_MS = 0.5;
-const CRT_TRANSFER_LAUNCH_DELAY_MS = 450;
-const CRT_HIDE_AFTER_TRANSFER_MS = 120;
+const CRT_DROP_DELAY_S = 0.6;
+const CRT_TRANSFER_AFTER_DROP_START_MS = 500 
+const CRT_HIDE_AFTER_TRANSFER_MS = 200;
 const CRT_TRANSFER_SOURCE_ANCHOR = { x: 0.56, y: -0.5 };
 
 const CrtMission = () => {
@@ -109,24 +109,24 @@ const CrtMission = () => {
           if (shouldTransfer) {
             transferTimeoutRef.current = window.setTimeout(() => {
               setTransferKey((currentKey) => currentKey + 1);
-            }, CRT_DROP_DELAY_MS * 1000 + CRT_TRANSFER_LAUNCH_DELAY_MS);
+            }, CRT_DROP_DELAY_S * 1000 + CRT_TRANSFER_AFTER_DROP_START_MS);
+
+            hideTimeoutRef.current = window.setTimeout(() => {
+              setIsHidden(true);
+            }, CRT_DROP_DELAY_S * 1000 + CRT_TRANSFER_AFTER_DROP_START_MS + CRT_HIDE_AFTER_TRANSFER_MS);
           }
 
           controls
             .start({
               y: 0,
               transition: {
-                delay: CRT_DROP_DELAY_MS,
+                delay: CRT_DROP_DELAY_S,
                 type: "inertia",
                 velocity: 350,
               },
             })
             .then(() => {
               if (shouldTransfer) {
-                hideTimeoutRef.current = window.setTimeout(() => {
-                  setIsHidden(true);
-                }, CRT_HIDE_AFTER_TRANSFER_MS);
-
                 return;
               }
 

@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { pieces as puzzlePieces } from "../data/PuzzleData";
+import { $puzzlePieceSize } from "../stores/puzzleLayoutStore";
+import { preloadPieceImages } from "../utility/pieceImages";
 
 type TransferDirection = "up" | "down";
 
@@ -23,15 +25,24 @@ type PuzzlePieceTransferProps = {
 const LAUNCH_DURATION_MS = 2900;
 const PIECE_STAGGER_MS = 140;
 const SETTLE_BUFFER_MS = 140;
+const TRANSFER_PIECE_BASE_SIZE_PX = 100;
 const pieceOffsets = [
   { startX: -34, startY: 12, spreadX: -82, spreadY: -34, rotate: -18 },
   { startX: 28, startY: -10, spreadX: 64, spreadY: -56, rotate: 16 },
   { startX: -18, startY: -30, spreadX: -46, spreadY: -88, rotate: -10 },
   { startX: 36, startY: 18, spreadX: 88, spreadY: -14, rotate: 22 },
 ];
-
 const clamp = (value: number, min: number, max: number) => {
   return Math.min(Math.max(value, min), max);
+};
+
+const getTransferPieceSize = (
+  viewportWidth: number,
+  viewportHeight: number
+) => {
+  const viewportBasis = Math.min(viewportWidth, viewportHeight);
+
+  return clamp(viewportBasis * 0.11, 82, 124);
 };
 
 export const PuzzlePieceTransfer = ({
@@ -57,11 +68,25 @@ export const PuzzlePieceTransfer = ({
       return;
     }
 
+    let isCancelled = false;
     const prefersReducedMotion =
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    const startTransfer = () => {
+    const startTransfer = async () => {
+      if (prefersReducedMotion) {
+        onCompleteRef.current?.();
+        return;
+      }
+
+      await preloadPieceImages(
+        pieceIds.map((pieceId) => puzzlePieces[pieceId - 1].path)
+      );
+
+      if (isCancelled) {
+        return;
+      }
+
       const overlay = overlayRef.current;
       const sourceElement = sourceRef.current;
 
@@ -86,16 +111,15 @@ export const PuzzlePieceTransfer = ({
         x: clamp(sourcePoint.x, 108, overlayBounds.width - 108),
         y: direction === "up" ? 56 : overlayBounds.height - 56,
       };
-      const pieceSize = clamp(sourceBounds.width * 0.16, 84, 118);
+      const currentPuzzlePieceSize = $puzzlePieceSize.get();
+      const pieceSize =
+        currentPuzzlePieceSize > 0
+          ? currentPuzzlePieceSize
+          : getTransferPieceSize(window.innerWidth, window.innerHeight);
       const totalDuration =
         LAUNCH_DURATION_MS +
         Math.max(pieceIds.length - 1, 0) * PIECE_STAGGER_MS +
         SETTLE_BUFFER_MS;
-
-      if (prefersReducedMotion) {
-        onCompleteRef.current?.();
-        return;
-      }
 
       setBurst({
         id: triggerKey,
@@ -116,6 +140,8 @@ export const PuzzlePieceTransfer = ({
     frameRef.current = window.requestAnimationFrame(startTransfer);
 
     return () => {
+      isCancelled = true;
+
       if (frameRef.current !== null) {
         window.cancelAnimationFrame(frameRef.current);
       }
@@ -143,15 +169,18 @@ export const PuzzlePieceTransfer = ({
         : pieceIds.map((pieceId, index) => {
             const piece = puzzlePieces[pieceId - 1];
             const offset = pieceOffsets[index % pieceOffsets.length];
+            const offsetScale = burst.pieceSize / TRANSFER_PIECE_BASE_SIZE_PX;
             const sourceLeft = burst.sourcePoint.x - burst.pieceSize / 2;
             const sourceTop = burst.sourcePoint.y - burst.pieceSize / 2;
             const targetLeft =
-              burst.targetPoint.x - burst.pieceSize / 2 + offset.spreadX * 0.18;
+              burst.targetPoint.x -
+              burst.pieceSize / 2 +
+              offset.spreadX * 0.18 * offsetScale;
             const targetTop =
               burst.targetPoint.y -
               burst.pieceSize / 2 +
               (direction === "up" ? -18 : 18) +
-              offset.spreadY * 0.08;
+              offset.spreadY * 0.08 * offsetScale;
 
             return (
               <motion.img
@@ -170,8 +199,8 @@ export const PuzzlePieceTransfer = ({
                   opacity: 0,
                   rotate: offset.rotate * 0.45,
                   scale: 0.78,
-                  x: sourceLeft + offset.startX,
-                  y: sourceTop + offset.startY,
+                  x: sourceLeft + offset.startX * offsetScale,
+                  y: sourceTop + offset.startY * offsetScale,
                 }}
                 animate={{
                   filter: [
@@ -189,15 +218,15 @@ export const PuzzlePieceTransfer = ({
                   ],
                   scale: [0.78, 1, 0.92, 0.3],
                   x: [
-                    sourceLeft + offset.startX,
-                    sourceLeft + offset.spreadX,
-                    sourceLeft + offset.spreadX * 0.45,
+                    sourceLeft + offset.startX * offsetScale,
+                    sourceLeft + offset.spreadX * offsetScale,
+                    sourceLeft + offset.spreadX * 0.45 * offsetScale,
                     targetLeft,
                   ],
                   y: [
-                    sourceTop + offset.startY,
-                    sourceTop + offset.spreadY,
-                    sourceTop + offset.spreadY * 0.7,
+                    sourceTop + offset.startY * offsetScale,
+                    sourceTop + offset.spreadY * offsetScale,
+                    sourceTop + offset.spreadY * 0.7 * offsetScale,
                     targetTop,
                   ],
                 }}
