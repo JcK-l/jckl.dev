@@ -10,6 +10,25 @@ const { title } = Astro.props;
   <meta charset="UTF-8" />
   <meta name="description" content="Astro description" />
   <meta name="viewport" content="width=device-width" />
+  <script is:inline>
+    if ("scrollRestoration" in history) {
+      history.scrollRestoration = "manual";
+    }
+
+    const navigationEntries =
+      typeof performance.getEntriesByType === "function"
+        ? performance.getEntriesByType("navigation")
+        : [];
+    const firstNavigationEntry = navigationEntries[0];
+    const isReload =
+      firstNavigationEntry && "type" in firstNavigationEntry
+        ? firstNavigationEntry.type === "reload"
+        : performance.navigation?.type === 1;
+
+    if (isReload && !window.location.hash) {
+      window.scrollTo(0, 0);
+    }
+  </script>
   <!-- <script>
       if (!window.location.hostname.includes('localhost')) {
         const script = document.createElement('script');

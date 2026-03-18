@@ -21,15 +21,14 @@ export const SeparatorIn = forwardRef<HTMLDivElement, SeparatorInProps>(
           </div>
         ) : null}
         <svg
-          className="relative z-40 block h-auto w-full -translate-y-px"
+          className="relative z-40 -mb-px block h-auto w-full"
           version="1.1"
           viewBox="0 0 960 279.177"
           xmlns="http://www.w3.org/2000/svg"
+          overflow="visible"
         >
           <path
             style={{
-              filter:
-                "drop-shadow(0 15px 15px rgba(35, 25, 66, 0.00)) drop-shadow(0 8px 5px rgba(35, 25, 66, 0.0))",
               fill: "var(--color-secondary)",
               strokeLinecap: "round",
               strokeLinejoin: "miter",
@@ -39,8 +38,6 @@ export const SeparatorIn = forwardRef<HTMLDivElement, SeparatorInProps>(
           />
           <path
             style={{
-              filter:
-                "drop-shadow(0 15px 15px rgba(35, 25, 66, 0.00)) drop-shadow(0 8px 5px rgba(35, 25, 66, 0.0))",
               fill: "var(--color-transition1)",
               strokeLinecap: "round",
               strokeLinejoin: "miter",
@@ -50,8 +47,6 @@ export const SeparatorIn = forwardRef<HTMLDivElement, SeparatorInProps>(
           />
           <path
             style={{
-              filter:
-                "drop-shadow(0 15px 15px rgba(35, 25, 66, 0.00)) drop-shadow(0 8px 5px rgba(35, 25, 66, 0.0))",
               fill: "var(--color-transition2)",
               strokeLinecap: "round",
               strokeLinejoin: "miter",
@@ -61,8 +56,6 @@ export const SeparatorIn = forwardRef<HTMLDivElement, SeparatorInProps>(
           />
           <path
             style={{
-              filter:
-                "drop-shadow(0 15px 15px rgba(35, 25, 66, 0.00)) drop-shadow(0 8px 5px rgba(35, 25, 66, 0.0))",
               fill: "var(--color-fg-color)",
               strokeLinecap: "round",
               strokeLinejoin: "miter",
