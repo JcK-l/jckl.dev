@@ -1,16 +1,21 @@
 import { BetweenLands } from "../BetweenLands";
 import { motion, useAnimation } from "framer-motion";
+import { PuzzlePieceTransfer } from "../PuzzlePieceTransfer";
 import { meImage, meDown } from "../../data/meImage";
 import { crtImage } from "../../data/crtImage";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { puzzleGroups } from "../../data/puzzleGroups";
 import {
   setBit as gameStateSetBit,
   isBitSet as gameStateIsBitSet,
   GameStateFlags,
 } from "../../stores/gameStateStore";
 import {
+  $dispensedGroups,
+  markPuzzleGroupDispensed,
+} from "../../stores/puzzleDispenseStore";
+import {
   $sentimentState,
-  setBit as sentimentStateSetBit,
   isBitSet as sentimentStateIsBitSet,
   SentimentStateFlags,
 } from "../../stores/sentimentStateStore";
@@ -18,13 +23,27 @@ import { Stars } from "../Stars";
 import { useStore } from "@nanostores/react";
 
 //https://www.svgrepo.com/svg/237627/balloons-balloon
+const handPieceIds =
+  puzzleGroups.find((group) => group.key === "hand")?.pieces ?? [];
+const CRT_SEQUENCE_DELAY_MS = 550;
+const CRT_DROP_DELAY_MS = 0.5;
+const CRT_TRANSFER_LAUNCH_DELAY_MS = 450;
+const CRT_HIDE_AFTER_TRANSFER_MS = 120;
+const CRT_TRANSFER_SOURCE_ANCHOR = { x: 0.56, y: -0.5 };
+
 const CrtMission = () => {
   const [opactiy, setOpacity] = useState(0);
   const [opacitySwitch, setOpacitySwitch] = useState(0);
   const [isHidden, setIsHidden] = useState(false);
   const [flags, setFlags] = useState([false, false, false]);
+  const [transferKey, setTransferKey] = useState(0);
   const controls = useAnimation();
   const sentimentState = useStore($sentimentState);
+  const dispensedGroups = useStore($dispensedGroups);
+  const missionRef = useRef<SVGSVGElement>(null);
+  const sequenceTimeoutRef = useRef<number | null>(null);
+  const transferTimeoutRef = useRef<number | null>(null);
+  const hideTimeoutRef = useRef<number | null>(null);
   const showMe =
     (sentimentStateIsBitSet(SentimentStateFlags.FLAG_POSITIVE) ||
       sentimentStateIsBitSet(SentimentStateFlags.FLAG_NEUTRAL) ||
@@ -47,28 +66,73 @@ const CrtMission = () => {
     }
   }, [sentimentState]);
 
+  useEffect(() => {
+    return () => {
+      if (sequenceTimeoutRef.current !== null) {
+        window.clearTimeout(sequenceTimeoutRef.current);
+      }
+
+      if (transferTimeoutRef.current !== null) {
+        window.clearTimeout(transferTimeoutRef.current);
+      }
+
+      if (hideTimeoutRef.current !== null) {
+        window.clearTimeout(hideTimeoutRef.current);
+      }
+    };
+  }, []);
+
   return (
     <BetweenLands
       isBackground={true}
       isCrt={!gameStateIsBitSet(GameStateFlags.FLAG_LEND_A_HAND)}
+      separatorInMiddleLayer={
+        <PuzzlePieceTransfer
+          direction="up"
+          onComplete={() => {
+            markPuzzleGroupDispensed("hand");
+          }}
+          pieceIds={handPieceIds}
+          sourceAnchor={CRT_TRANSFER_SOURCE_ANCHOR}
+          sourceRef={missionRef}
+          triggerKey={transferKey}
+        />
+      }
       crtCallback={() => {
         setOpacity(1);
-        setTimeout(() => {
+        sequenceTimeoutRef.current = window.setTimeout(() => {
+          const shouldTransfer = !dispensedGroups.hand;
+
           setOpacitySwitch(1);
           gameStateSetBit(GameStateFlags.FLAG_LEND_A_HAND);
+
+          if (shouldTransfer) {
+            transferTimeoutRef.current = window.setTimeout(() => {
+              setTransferKey((currentKey) => currentKey + 1);
+            }, CRT_DROP_DELAY_MS * 1000 + CRT_TRANSFER_LAUNCH_DELAY_MS);
+          }
+
           controls
             .start({
               y: 0,
               transition: {
-                delay: 0.5,
+                delay: CRT_DROP_DELAY_MS,
                 type: "inertia",
                 velocity: 350,
               },
             })
             .then(() => {
+              if (shouldTransfer) {
+                hideTimeoutRef.current = window.setTimeout(() => {
+                  setIsHidden(true);
+                }, CRT_HIDE_AFTER_TRANSFER_MS);
+
+                return;
+              }
+
               setIsHidden(true);
             });
-        }, 1000);
+        }, CRT_SEQUENCE_DELAY_MS);
       }}
       renderItem={
         (shift) => (
@@ -78,6 +142,7 @@ const CrtMission = () => {
           >
             {isHidden && !showMe ? null : (
               <motion.svg
+                ref={missionRef}
                 viewBox="0 0 49.26923 39"
                 fill="none"
                 animate={controls}

@@ -1,8 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { useStore } from "@nanostores/react";
 import { BetweenLands } from "../BetweenLands";
+import { PuzzlePieceTransfer } from "../PuzzlePieceTransfer";
 import { Phonewave } from "../phone/Phonewave";
+import { puzzleGroups } from "../../data/puzzleGroups";
 import { $phoneResultMode } from "../../stores/phoneStore";
+import {
+  $dispensedGroups,
+  markPuzzleGroupDispensed,
+} from "../../stores/puzzleDispenseStore";
+import { $gameState, GameStateFlags } from "../../stores/gameStateStore";
 import {
   $sentimentState,
   isBitSet,
@@ -17,11 +24,26 @@ const BREAKPOINTS = {
   desk: 1900,
 } as const;
 
+const CONNECTION_TRANSFER_DELAY_MS = 220;
+
+const connectionPieceIds =
+  puzzleGroups.find((group) => group.key === "connection")?.pieces ?? [];
+
 const Connection = () => {
   useStore($sentimentState);
+  const binaryState = useStore($gameState);
+  const dispensedGroups = useStore($dispensedGroups);
   const mode = useStore($phoneResultMode);
   const phonewaveRef = useRef<HTMLDivElement>(null);
   const [reservedHeight, setReservedHeight] = useState(420);
+  const [transferKey, setTransferKey] = useState(0);
+  const [pendingConnectionTransfer, setPendingConnectionTransfer] =
+    useState(false);
+  const [isPhonewaveSequenceComplete, setIsPhonewaveSequenceComplete] =
+    useState(false);
+  const hasConnectionUnlocked =
+    (binaryState & (1 << GameStateFlags.FLAG_CONNECTION)) !== 0;
+  const hasTriggeredTransferRef = useRef(hasConnectionUnlocked);
 
   useEffect(() => {
     const element = phonewaveRef.current;
@@ -36,14 +58,14 @@ const Connection = () => {
         window.innerWidth < BREAKPOINTS.sm
           ? 24
           : window.innerWidth < BREAKPOINTS.tablet
-            ? 40
+          ? 40
           : window.innerWidth < BREAKPOINTS.lg
-              ? 88
-              : window.innerWidth < BREAKPOINTS.xl
-                ? 128
-                : window.innerWidth < BREAKPOINTS.desk
-                  ? 156
-                  : 196;
+          ? 88
+          : window.innerWidth < BREAKPOINTS.xl
+          ? 128
+          : window.innerWidth < BREAKPOINTS.desk
+          ? 156
+          : 196;
 
       // Small screens keep the card mostly above the separator to avoid
       // colliding with the section above; larger screens can sink deeper.
@@ -67,6 +89,49 @@ const Connection = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const hasJustUnlocked =
+      hasConnectionUnlocked && !hasTriggeredTransferRef.current;
+
+    hasTriggeredTransferRef.current = hasConnectionUnlocked;
+
+    if (!hasJustUnlocked || dispensedGroups.connection) {
+      return;
+    }
+
+    setPendingConnectionTransfer(true);
+    setIsPhonewaveSequenceComplete(false);
+  }, [dispensedGroups.connection, hasConnectionUnlocked]);
+
+  useEffect(() => {
+    if (mode !== "connection") {
+      setIsPhonewaveSequenceComplete(false);
+    }
+  }, [mode]);
+
+  useEffect(() => {
+    if (
+      !pendingConnectionTransfer ||
+      !isPhonewaveSequenceComplete ||
+      dispensedGroups.connection
+    ) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setTransferKey((currentKey) => currentKey + 1);
+      setPendingConnectionTransfer(false);
+    }, CONNECTION_TRANSFER_DELAY_MS);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [
+    dispensedGroups.connection,
+    isPhonewaveSequenceComplete,
+    pendingConnectionTransfer,
+  ]);
+
   if (
     isBitSet(SentimentStateFlags.FLAG_NEGATIVE) &&
     isBitSet(SentimentStateFlags.FLAG_ACTIVE)
@@ -84,7 +149,17 @@ const Connection = () => {
           style={{ height: `${reservedHeight}px` }}
         />
       )}
-      separatorOutMiddleLayerClassName="overflow-visible"
+      separatorInMiddleLayer={
+        <PuzzlePieceTransfer
+          direction="up"
+          onComplete={() => {
+            markPuzzleGroupDispensed("connection");
+          }}
+          pieceIds={connectionPieceIds}
+          sourceRef={phonewaveRef}
+          triggerKey={transferKey}
+        />
+      }
       separatorOutMiddleLayer={
         <div
           ref={phonewaveRef}
@@ -93,6 +168,9 @@ const Connection = () => {
         >
           <Phonewave
             className="w-full"
+            onSequenceComplete={() => {
+              setIsPhonewaveSequenceComplete(true);
+            }}
             variant={mode === "connection" ? "result" : "idle"}
           />
         </div>

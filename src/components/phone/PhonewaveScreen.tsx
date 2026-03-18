@@ -17,6 +17,11 @@ const toneClassNames: Record<PhonewaveTone, string> = {
 const formatPhonewaveLine = ({ label, value }: PhonewaveLine) =>
   `[${label}] ${value}`;
 
+const PHONEWAVE_TYPING_DELAY_MS = 16;
+const PHONEWAVE_TYPING_DELAY_JITTER_MS = 3;
+const PHONEWAVE_BOOT_SETTLE_MS = 520;
+const PHONEWAVE_LINE_SETTLE_MS = 180;
+
 const renderStaticLine = (line: PhonewaveLine, index: number) => (
   <p
     key={`${line.label}-${index}`}
@@ -90,6 +95,8 @@ export const PhonewaveScreen = ({
                     toneClassNames[line.tone ?? "neutral"]
                   }`}
                   text={formatPhonewaveLine(line)}
+                  typingDelay={PHONEWAVE_TYPING_DELAY_MS}
+                  typingDelayJitter={PHONEWAVE_TYPING_DELAY_JITTER_MS}
                   onComplete={() => {
                     if (index === lines.length - 1) {
                       onStepComplete(lines.length);
@@ -98,7 +105,11 @@ export const PhonewaveScreen = ({
 
                     onStepComplete(index + 1);
                   }}
-                  onCompleteDelay={line.label === "boot" ? 900 : 350}
+                  onCompleteDelay={
+                    line.label === "boot"
+                      ? PHONEWAVE_BOOT_SETTLE_MS
+                      : PHONEWAVE_LINE_SETTLE_MS
+                  }
                 />
               );
             })

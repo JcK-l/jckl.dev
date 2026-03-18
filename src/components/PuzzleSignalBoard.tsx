@@ -2,26 +2,20 @@ import {
   puzzleGroups,
   getNextPuzzleHint,
   type DispensedGroups,
-  type PuzzleGroupKey,
 } from "../data/puzzleGroups";
 import { ApplianceShell } from "./ApplianceShell";
 
 interface PuzzleSignalBoardProps {
-  activeDispenseKey: PuzzleGroupKey | null;
   binaryState: number;
   dispensedGroups: DispensedGroups;
   totalPlacedPieces: number;
 }
 
 export const PuzzleSignalBoard = ({
-  activeDispenseKey,
   binaryState,
   dispensedGroups,
   totalPlacedPieces,
 }: PuzzleSignalBoardProps) => {
-  const activeDispenseGroup = puzzleGroups.find((group) => {
-    return group.key === activeDispenseKey;
-  });
   const nextHint = getNextPuzzleHint(binaryState, totalPlacedPieces);
 
   return (
@@ -39,15 +33,14 @@ export const PuzzleSignalBoard = ({
           </div>
           <div className="flex gap-3">
             {puzzleGroups.map((group) => {
-              const isActive = activeDispenseKey === group.key;
-              const isOn = dispensedGroups[group.key] || isActive;
+              const isOn = dispensedGroups[group.key];
 
               return (
-                <div key={group.key} className="flex flex-col items-center gap-1">
+                <div
+                  key={group.key}
+                  className="flex flex-col items-center gap-1"
+                >
                   <span className="relative flex h-3 w-3">
-                    {isActive && (
-                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-extra1 opacity-70"></span>
-                    )}
                     <span
                       className={`relative inline-flex h-3 w-3 rounded-full transition-all duration-300 ${
                         isOn ? "bg-extra2" : "bg-primary opacity-40"
@@ -81,26 +74,10 @@ export const PuzzleSignalBoard = ({
             style={{ backgroundImage: "var(--color-appliance-screen-pattern)" }}
           />
           <p
-            className={`small-text relative transition-all duration-500 ${
-              activeDispenseGroup
-                ? "translate-y-2 opacity-0"
-                : "translate-y-0 opacity-100"
-            }`}
+            className="small-text relative"
             style={{ color: "var(--color-appliance-screen-text)" }}
           >
             {nextHint}
-          </p>
-          <p
-            className={`small-text absolute inset-0 px-3 py-3 transition-all duration-500 ${
-              activeDispenseGroup
-                ? "translate-y-0 opacity-100"
-                : "-translate-y-2 opacity-0"
-            }`}
-            style={{ color: "var(--color-appliance-screen-muted)" }}
-          >
-            {activeDispenseGroup
-              ? `Dispensing pieces from ${activeDispenseGroup.label}...`
-              : ""}
           </p>
         </div>
       </div>

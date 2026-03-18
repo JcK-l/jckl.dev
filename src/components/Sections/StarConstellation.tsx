@@ -1,10 +1,17 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { BetweenLands } from "../BetweenLands";
+import { PuzzlePieceTransfer } from "../PuzzlePieceTransfer";
+import { puzzleGroups } from "../../data/puzzleGroups";
 import {
+  $gameState,
   setBit as gameStateSetBit,
   GameStateFlags,
 } from "../../stores/gameStateStore";
+import {
+  $dispensedGroups,
+  markPuzzleGroupDispensed,
+} from "../../stores/puzzleDispenseStore";
 import { Stars } from "../Stars";
 import {
   $sentimentState,
@@ -70,10 +77,40 @@ const getStarStyle = (strokeWidth: number) => ({
   fill: "var(--color-yellow)",
 });
 
+const starsPieceIds =
+  puzzleGroups.find((group) => group.key === "stars")?.pieces ?? [];
+
 const StarConstellation = () => {
   const [isPressed, setIsPressed] = useState<boolean>(false);
   const [isHovered, setIsHovered] = useState<boolean>(false);
+  const [transferKey, setTransferKey] = useState(0);
+  const constellationRef = useRef<SVGSVGElement>(null);
   const sentimentState = useStore($sentimentState);
+  const binaryState = useStore($gameState);
+  const dispensedGroups = useStore($dispensedGroups);
+  const hasStarsUnlocked =
+    (binaryState & (1 << GameStateFlags.FLAG_STARS_ALIGN)) !== 0;
+  const hasTriggeredTransferRef = useRef(hasStarsUnlocked);
+
+  useEffect(() => {
+    if (hasStarsUnlocked) {
+      setIsPressed(true);
+    }
+  }, [hasStarsUnlocked]);
+
+  useEffect(() => {
+    const hasJustUnlocked =
+      hasStarsUnlocked && !hasTriggeredTransferRef.current;
+
+    hasTriggeredTransferRef.current = hasStarsUnlocked;
+
+    if (!hasJustUnlocked || dispensedGroups.stars) {
+      return;
+    }
+
+    setTransferKey((currentKey) => currentKey + 1);
+  }, [dispensedGroups.stars, hasStarsUnlocked]);
+
   const pathVariants = {
     hidden: {
       strokeDashoffset: 0,
@@ -110,6 +147,17 @@ const StarConstellation = () => {
     <BetweenLands
       isBackground={true}
       isCrt={false}
+      separatorOutUnderLayer={
+        <PuzzlePieceTransfer
+          direction="down"
+          onComplete={() => {
+            markPuzzleGroupDispensed("stars");
+          }}
+          pieceIds={starsPieceIds}
+          sourceRef={constellationRef}
+          triggerKey={transferKey}
+        />
+      }
       renderItem={(shift) => (
         <motion.div
           className="relative select-none mix-blend-screen"
@@ -119,6 +167,7 @@ const StarConstellation = () => {
             <div></div>
           ) : (
             <motion.svg
+              ref={constellationRef}
               className="absolute z-10 mx-auto h-auto w-full lg:w-9/12"
               style={{ left: "50%", top: "50%", y: "-50%", x: "-50%" }}
               viewBox="0 0 59.26923 36"

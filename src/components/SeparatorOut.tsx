@@ -13,8 +13,8 @@ import { getAudioContext } from "../utility/audioContext";
 
 interface SeparatorOutProps {
   isCrt?: boolean;
+  underLayer?: ReactNode;
   middleLayer?: ReactNode;
-  middleLayerClassName?: string;
 }
 
 export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
@@ -54,12 +54,21 @@ export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
     return (
       <div
         className={`relative ${
-          displayCrt || props.middleLayer ? "overflow-visible" : "overflow-hidden"
+          displayCrt || props.middleLayer || props.underLayer
+            ? "overflow-visible"
+            : "overflow-hidden"
         }`}
         ref={ref}
       >
+        {props.underLayer ? (
+          <div className="pointer-events-none absolute inset-0 z-0">
+            <div className="pointer-events-auto absolute inset-0">
+              {props.underLayer}
+            </div>
+          </div>
+        ) : null}
         <svg
-          className="relative z-0 block h-auto w-full translate-y-px"
+          className="relative z-10 block h-auto w-full translate-y-px"
           viewBox="0 0 960 279.177"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -86,11 +95,7 @@ export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
           />
         </svg>
         {(displayCrt || props.middleLayer) && (
-          <div
-            className={`pointer-events-none absolute inset-0 z-10 ${
-              props.middleLayerClassName ?? ""
-            }`}
-          >
+          <div className="pointer-events-none absolute inset-0 z-20">
             {displayCrt && (
               <svg
                 className="pointer-events-auto absolute inset-0 block h-full w-full"
@@ -159,7 +164,7 @@ export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
           </div>
         )}
         <svg
-          className="pointer-events-none absolute inset-0 z-20 block h-full w-full translate-y-px"
+          className="pointer-events-none absolute inset-0 z-30 block h-full w-full translate-y-px"
           viewBox="0 0 960 279.177"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"

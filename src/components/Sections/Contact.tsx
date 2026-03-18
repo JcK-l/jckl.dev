@@ -5,6 +5,10 @@ import {
   isBitSet as gameStateIsBitSet,
   setBit as gameStateSetBit,
 } from "../../stores/gameStateStore";
+import {
+  $dispensedGroups,
+  markPuzzleGroupDispensed,
+} from "../../stores/puzzleDispenseStore";
 import { $formData } from "../../stores/stringStore";
 import {
   $sentimentState,
@@ -22,10 +26,12 @@ import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 const Contact = () => {
   const gameState = useStore($gameState);
-  const formData = useStore($formData);
+  const dispensedGroups = useStore($dispensedGroups);
   const sentimentState = useStore($sentimentState);
-  const [showIcon, setShowIcon] = useState(true);
   const [openaiResponse, setOpenaiResponse] = useState("");
+  const hasSecretUnlocked =
+    (gameState & (1 << GameStateFlags.FLAG_SECRET)) !== 0;
+  const hasTriggeredTransferRef = useRef(hasSecretUnlocked);
 
   interface FormData {
     name: string;
@@ -80,7 +86,6 @@ const Contact = () => {
 
     const result: FetchCompletionResponse = await response.json();
     setOpenaiResponse(result.message);
-    console.log("sentiment:", result.sentiment);
 
     const existingFlags = JSON.parse(
       sessionStorage.getItem("flags") || "[true, false, false, false]"
@@ -114,7 +119,6 @@ const Contact = () => {
       if (validateMessage(data.message, form.elements.message)) {
         fetchOpenAI(data.message);
         $formData.set(data);
-        console.log("Form data saved:", data);
         gameStateSetBit(GameStateFlags.FLAG_SECRET);
       }
     } else {
@@ -123,7 +127,6 @@ const Contact = () => {
   };
 
   useEffect(() => {
-    console.log("sentimentState:", sentimentState);
     if (
       sentimentStateIsBitSet(SentimentStateFlags.FLAG_NEGATIVE) &&
       sentimentStateIsBitSet(SentimentStateFlags.FLAG_ACTIVE)
@@ -163,6 +166,19 @@ const Contact = () => {
       };
     }
   }, [sentimentState]);
+
+  useEffect(() => {
+    const hasJustUnlocked =
+      hasSecretUnlocked && !hasTriggeredTransferRef.current;
+
+    hasTriggeredTransferRef.current = hasSecretUnlocked;
+
+    if (!hasJustUnlocked || dispensedGroups.crt) {
+      return;
+    }
+
+    markPuzzleGroupDispensed("crt");
+  }, [dispensedGroups.crt, hasSecretUnlocked]);
 
   return (
     <BetweenLands

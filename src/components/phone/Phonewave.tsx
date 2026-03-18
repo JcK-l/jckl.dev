@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useStore } from "@nanostores/react";
 import { setBit, isBitSet, GameStateFlags } from "../../stores/gameStateStore";
 import { $pastDate, $currentDate } from "../../stores/stringStore";
@@ -38,13 +38,17 @@ const getCorrectionHint = (pastDate: Date) =>
 export const Phonewave = ({
   className = "",
   variant = "result",
+  onSequenceComplete,
 }: {
   className?: string;
+  onSequenceComplete?: () => void;
   variant?: PhonewaveVariant;
 }) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [timerValues, setTimerValues] = useState<TimerValues>(EMPTY_TIMER_VALUES);
+  const [timerValues, setTimerValues] =
+    useState<TimerValues>(EMPTY_TIMER_VALUES);
   const [selectedField, setSelectedField] = useState<TimerFieldKey>("years");
+  const hasNotifiedSequenceCompleteRef = useRef(false);
   const mode = useStore($phoneResultMode);
   const timer = useStore($phoneTimer);
   const currentTimestamp = useStore($phoneCurrentTimestamp);
@@ -53,6 +57,7 @@ export const Phonewave = ({
 
   useEffect(() => {
     setCurrentStep(0);
+    hasNotifiedSequenceCompleteRef.current = false;
   }, [currentTimestamp, pastTimestamp, timer, variant]);
 
   const handleDigit = (digit: string) => {
@@ -92,7 +97,8 @@ export const Phonewave = ({
     $pastDate.set(formatDate(pastDate));
   };
 
-  const currentDate = currentTimestamp === null ? null : new Date(currentTimestamp);
+  const currentDate =
+    currentTimestamp === null ? null : new Date(currentTimestamp);
   const pastDate = pastTimestamp === null ? null : new Date(pastTimestamp);
   const isSuccess = pastDate !== null && isInPhoneTargetWindow(pastDate);
 
@@ -156,6 +162,20 @@ export const Phonewave = ({
     ];
   }, [currentDate, isSuccess, pastDate, timer, variant]);
 
+  useEffect(() => {
+    if (
+      variant !== "result" ||
+      lines.length === 0 ||
+      currentStep !== lines.length ||
+      hasNotifiedSequenceCompleteRef.current
+    ) {
+      return;
+    }
+
+    hasNotifiedSequenceCompleteRef.current = true;
+    onSequenceComplete?.();
+  }, [currentStep, lines.length, onSequenceComplete, variant]);
+
   if (variant === "result" && mode !== "connection") {
     return null;
   }
@@ -166,7 +186,7 @@ export const Phonewave = ({
 
   return (
     <ApplianceShell
-      className={`mx-auto flex w-full min-h-[24rem] flex-col px-5 py-5 md:px-7 lg:h-full ${className}`}
+      className={`mx-auto flex min-h-[24rem] w-full flex-col px-5 py-5 md:px-7 lg:h-full ${className}`}
       radius="2rem"
       showHighlight
       ventClassName="right-7 top-[5.2rem] h-3.5 w-24"
@@ -203,8 +223,7 @@ export const Phonewave = ({
           background:
             "linear-gradient(180deg, var(--color-appliance-panel-top), var(--color-appliance-panel-bottom))",
           borderColor: "var(--color-appliance-panel-border)",
-          boxShadow:
-            "inset 0 0 0 1px var(--color-appliance-panel-highlight)",
+          boxShadow: "inset 0 0 0 1px var(--color-appliance-panel-highlight)",
         }}
       >
         <div
