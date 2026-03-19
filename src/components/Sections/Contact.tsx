@@ -13,6 +13,7 @@ import { $formData } from "../../stores/stringStore";
 import {
   $sentimentState,
   SentimentStateFlags,
+  clearBit as sentimentStateClearBit,
   isBitSet as sentimentStateIsBitSet,
   setBit as sentimentStateSetBit,
 } from "../../stores/sentimentStateStore";
@@ -28,7 +29,9 @@ const Contact = () => {
   const gameState = useStore($gameState);
   const dispensedGroups = useStore($dispensedGroups);
   const sentimentState = useStore($sentimentState);
-  const [openaiResponse, setOpenaiResponse] = useState("");
+  const [submissionStatus, setSubmissionStatus] = useState("");
+  const [submitError, setSubmitError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const hasSecretUnlocked =
     (gameState & (1 << GameStateFlags.FLAG_SECRET)) !== 0;
   const hasTriggeredTransferRef = useRef(hasSecretUnlocked);
@@ -65,36 +68,28 @@ const Contact = () => {
     }
   };
 
-  interface FetchCompletionResponse {
-    message: string;
-    sentiment: number;
+  type SentimentLabel = "negative" | "neutral" | "positive";
+
+  interface FetchSentimentResponse {
+    sentiment: SentimentLabel;
   }
 
-  const apiUrl =
-    process.env.NODE_ENV === "development"
-      ? "http://localhost:8888/.netlify/functions/openai"
-      : "/.netlify/functions/openai";
+  const apiUrl = "/api/openai";
 
-  const fetchOpenAI = async (message: string): Promise<void> => {
-    const response: Response = await fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ message: message }),
-    });
-
-    const result: FetchCompletionResponse = await response.json();
-    setOpenaiResponse(result.message);
+  const setSentiment = (sentiment: SentimentLabel) => {
+    sentimentStateClearBit(SentimentStateFlags.FLAG_ACTIVE);
+    sentimentStateClearBit(SentimentStateFlags.FLAG_NEGATIVE);
+    sentimentStateClearBit(SentimentStateFlags.FLAG_NEUTRAL);
+    sentimentStateClearBit(SentimentStateFlags.FLAG_POSITIVE);
 
     const existingFlags = JSON.parse(
       sessionStorage.getItem("flags") || "[true, false, false, false]"
     );
 
-    if (result.sentiment < 0) {
+    if (sentiment === "negative") {
       sentimentStateSetBit(SentimentStateFlags.FLAG_NEGATIVE);
       existingFlags[SentimentStateFlags.FLAG_NEGATIVE] = true;
-    } else if (result.sentiment === 0) {
+    } else if (sentiment === "neutral") {
       sentimentStateSetBit(SentimentStateFlags.FLAG_NEUTRAL);
       existingFlags[SentimentStateFlags.FLAG_NEUTRAL] = true;
     } else {
@@ -106,7 +101,52 @@ const Contact = () => {
     toggleThemes();
   };
 
-  const handleSubmit = (event: React.FormEvent<FormElement>) => {
+  const fetchSentiment = async (message: string): Promise<void> => {
+    const response: Response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ message }),
+    });
+
+    const responseText = await response.text();
+    let result: FetchSentimentResponse | { error?: string } = {};
+
+    if (responseText) {
+      try {
+        result = JSON.parse(responseText) as
+          | FetchSentimentResponse
+          | { error?: string };
+      } catch {
+        result = {};
+      }
+    }
+
+    if (!response.ok) {
+      const errorMessage =
+        result && "error" in result && typeof result.error === "string"
+          ? result.error
+          : "Failed to analyze sentiment";
+
+      throw new Error(errorMessage);
+    }
+
+    if (
+      result &&
+      "sentiment" in result &&
+      (result.sentiment === "negative" ||
+        result.sentiment === "neutral" ||
+        result.sentiment === "positive")
+    ) {
+      setSentiment(result.sentiment);
+      return;
+    }
+
+    throw new Error("Received an invalid sentiment response");
+  };
+
+  const handleSubmit = async (event: React.FormEvent<FormElement>) => {
     event.preventDefault();
     const form = event.currentTarget;
     const data: FormData = {
@@ -117,9 +157,21 @@ const Contact = () => {
 
     if (gameStateIsBitSet(GameStateFlags.FLAG_CRT)) {
       if (validateMessage(data.message, form.elements.message)) {
-        fetchOpenAI(data.message);
-        $formData.set(data);
-        gameStateSetBit(GameStateFlags.FLAG_SECRET);
+        setSubmitError("");
+        setIsSubmitting(true);
+
+        try {
+          await fetchSentiment(data.message);
+          setSubmissionStatus("D-Mail delivered.");
+          $formData.set(data);
+          gameStateSetBit(GameStateFlags.FLAG_SECRET);
+        } catch (error) {
+          setSubmitError(
+            error instanceof Error ? error.message : "Failed to send D-Mail"
+          );
+        } finally {
+          setIsSubmitting(false);
+        }
       }
     } else {
       form.submit();
@@ -187,7 +239,7 @@ const Contact = () => {
       renderItem={(shift) =>
         sentimentStateIsBitSet(SentimentStateFlags.FLAG_ACTIVE) ? (
           <div className="h5-text page-margins relative py-24 text-center text-white">
-            {openaiResponse}
+            {submissionStatus || "D-Mail delivered."}
           </div>
         ) : (
           <div className="page-margins pointer-events-auto relative z-20 flex flex-col items-center justify-between py-8 sm:flex-row sm:items-start">
@@ -270,9 +322,12 @@ const Contact = () => {
                 name="message"
                 onChange={(event) => {
                   if (gameStateIsBitSet(GameStateFlags.FLAG_CRT)) {
-                    const length = event.target.value.length;
+                    const encoder = new TextEncoder();
+                    const byteLength = encoder.encode(
+                      event.target.value
+                    ).length;
 
-                    if (length > 36) {
+                    if (byteLength > 36) {
                       event.target.setCustomValidity(
                         "Can only send 36 bytes to the target year."
                       );
@@ -291,12 +346,13 @@ const Contact = () => {
                     ? { rotate: [0, 1, -1, 0] }
                     : {}
                 }
+                disabled={isSubmitting || hasSecretUnlocked}
                 type="submit"
               >
                 <div className="flex items-center justify-center gap-2">
-                  {gameStateIsBitSet(GameStateFlags.FLAG_SECRET) ? (
+                  {isSubmitting ? (
                     <>
-                      Sending D-Mail...
+                      Analyzing D-Mail...
                       <DotLottieReact
                         src={"/load.lottie"}
                         autoplay
@@ -304,6 +360,8 @@ const Contact = () => {
                         style={{ width: 24, height: 24 }}
                       ></DotLottieReact>
                     </>
+                  ) : hasSecretUnlocked ? (
+                    <>D-Mail queued...</>
                   ) : (
                     <>
                       {gameStateIsBitSet(GameStateFlags.FLAG_CRT)
@@ -314,6 +372,11 @@ const Contact = () => {
                   )}
                 </div>
               </motion.button>
+              {submitError ? (
+                <p className="mt-3 text-center text-sm text-red">
+                  {submitError}
+                </p>
+              ) : null}
             </form>
           </div>
         )
