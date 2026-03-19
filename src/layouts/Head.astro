@@ -4,6 +4,7 @@ export interface Props {
 }
 
 const { title } = Astro.props;
+const isDebug = import.meta.env.DEV;
 ---
 
 <head>
@@ -29,13 +30,15 @@ const { title } = Astro.props;
       window.scrollTo(0, 0);
     }
   </script>
-  <!-- <script>
-      if (!window.location.hostname.includes('localhost')) {
-        const script = document.createElement('script');
-        script.src = 'https://unpkg.com/react-scan/dist/auto.global.js';
+  {
+    isDebug && (
+      <script is:inline>
+        const script = document.createElement("script");
+        script.src = "https://unpkg.com/react-scan/dist/auto.global.js";
         document.head.appendChild(script);
-      }
-  </script> -->
+      </script>
+    )
+  }
   <link rel="icon" type="image/svg+xml" href="/favicon_io/favicon.ico" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

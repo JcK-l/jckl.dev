@@ -77,12 +77,52 @@ const getStarStyle = (strokeWidth: number) => ({
   fill: "var(--color-yellow)",
 });
 
+const constellationPrimaryConnectionPath =
+  "M 24.934566,33.675624 25.51444,31.076931 36.918621,26.674187 42.008623,12.929034 32.42997,2.7919841 l -6.8511,8.1182309 -6.593378,3.071183";
+
+const constellationSecondaryConnectionPath =
+  "M 36.902931,26.674897 32.432655,2.8376223";
+
+const constellationHitAreaPath = `${constellationPrimaryConnectionPath} ${constellationSecondaryConnectionPath}`;
+
+const connectionPathVariants = {
+  hidden: {
+    strokeDashoffset: 0,
+    opacity: 0,
+  },
+  hint: {
+    strokeDashoffset: 1,
+    opacity: 0.18,
+    transition: {
+      strokeDashoffset: { duration: 0.65, ease: "easeInOut" },
+      opacity: { duration: 0.2 },
+    },
+  },
+  visible: {
+    strokeDashoffset: 1,
+    opacity: 0.5,
+    transition: {
+      strokeDashoffset: { type: "spring", duration: 1.5, bounce: 0 },
+      opacity: { duration: 0.2 },
+    },
+  },
+};
+
+const connectionPathStyle = {
+  fill: "none",
+  fillRule: "evenodd" as const,
+  stroke: "var(--color-yellow)",
+  strokeWidth: 0.21,
+  strokeLinecap: "round" as const,
+  strokeLinejoin: "round" as const,
+  strokeDasharray: "0,1,0",
+};
+
 const starsPieceIds =
   puzzleGroups.find((group) => group.key === "stars")?.pieces ?? [];
 
 const StarConstellation = () => {
   const [isPressed, setIsPressed] = useState<boolean>(false);
-  const [isHovered, setIsHovered] = useState<boolean>(false);
   const [transferKey, setTransferKey] = useState(0);
   const constellationRef = useRef<SVGSVGElement>(null);
   const sentimentState = useStore($sentimentState);
@@ -111,37 +151,9 @@ const StarConstellation = () => {
     setTransferKey((currentKey) => currentKey + 1);
   }, [dispensedGroups.stars, hasStarsUnlocked]);
 
-  const pathVariants = {
-    hidden: {
-      strokeDashoffset: 0,
-      opacity: 0,
-    },
-    hint: {
-      strokeDashoffset: 1,
-      opacity: 0.18,
-      transition: {
-        strokeDashoffset: { duration: 0.65, ease: "easeInOut" },
-        opacity: { duration: 0.2 },
-      },
-    },
-    visible: {
-      strokeDashoffset: 1,
-      opacity: 0.5,
-      transition: {
-        strokeDashoffset: { type: "spring", duration: 1.5, bounce: 0 },
-        opacity: { duration: 0.2 },
-      },
-    },
-  };
-  const connectionAnimation = isPressed
-    ? "visible"
-    : isHovered
-    ? "hint"
-    : "hidden";
   const handleActivate = () => {
     gameStateSetBit(GameStateFlags.FLAG_STARS_ALIGN);
     setIsPressed(true);
-    setIsHovered(false);
   };
   return (
     <BetweenLands
@@ -260,73 +272,45 @@ const StarConstellation = () => {
                 </motion.g>
               ))}
 
-              <motion.path
-                style={{
-                  fill: "none",
-                  fillRule: "evenodd",
-                  stroke: "var(--color-yellow)",
-                  strokeWidth: 0.21,
-                  strokeLinecap: "round",
-                  strokeLinejoin: "round",
-                  strokeDasharray: "0,1,0",
-                  pointerEvents: "none",
-                }}
-                d="M 24.934566,33.675624 25.51444,31.076931 36.918621,26.674187 42.008623,12.929034 32.42997,2.7919841 l -6.8511,8.1182309 -6.593378,3.071183"
-                pathLength={1}
-                variants={pathVariants}
+              <motion.g
                 initial="hidden"
-                animate={connectionAnimation}
-              />
-              <motion.path
-                style={{
-                  fill: "none",
-                  fillRule: "evenodd",
-                  stroke: "var(--color-yellow)",
-                  strokeWidth: 0.21,
-                  strokeLinecap: "round",
-                  strokeLinejoin: "round",
-                  strokeDasharray: "0,1,0",
-                }}
-                d="M 36.902931,26.674897 32.432655,2.8376223"
-                pathLength={1}
-                variants={pathVariants}
-                initial="hidden"
-                animate={connectionAnimation}
-              />
-              <path
-                className={`${
-                  !isPressed ? "cursor-pointer" : "cursor-default"
-                }`}
-                style={{
-                  fill: "none",
-                  stroke: "transparent",
-                  strokeWidth: 1.2,
-                  strokeLinecap: "round",
-                  strokeLinejoin: "round",
-                  pointerEvents: isPressed ? "none" : "stroke",
-                }}
-                d="M 24.934566,33.675624 25.51444,31.076931 36.918621,26.674187 42.008623,12.929034 32.42997,2.7919841 l -6.8511,8.1182309 -6.593378,3.071183"
-                onClick={handleActivate}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-              />
-              <path
-                className={`${
-                  !isPressed ? "cursor-pointer" : "cursor-default"
-                }`}
-                style={{
-                  fill: "none",
-                  stroke: "transparent",
-                  strokeWidth: 1.2,
-                  strokeLinecap: "round",
-                  strokeLinejoin: "round",
-                  pointerEvents: isPressed ? "none" : "stroke",
-                }}
-                d="M 36.902931,26.674897 32.432655,2.8376223"
-                onClick={handleActivate}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-              />
+                animate={isPressed ? "visible" : "hidden"}
+                whileHover={!isPressed ? "hint" : undefined}
+              >
+                <motion.path
+                  style={{
+                    ...connectionPathStyle,
+                    pointerEvents: "none",
+                  }}
+                  d={constellationPrimaryConnectionPath}
+                  pathLength={1}
+                  variants={connectionPathVariants}
+                />
+                <motion.path
+                  style={{
+                    ...connectionPathStyle,
+                    pointerEvents: "none",
+                  }}
+                  d={constellationSecondaryConnectionPath}
+                  pathLength={1}
+                  variants={connectionPathVariants}
+                />
+                <path
+                  className={`${
+                    !isPressed ? "cursor-pointer" : "cursor-default"
+                  }`}
+                  style={{
+                    fill: "none",
+                    stroke: "transparent",
+                    strokeWidth: 1.2,
+                    strokeLinecap: "round",
+                    strokeLinejoin: "round",
+                    pointerEvents: isPressed ? "none" : "stroke",
+                  }}
+                  d={constellationHitAreaPath}
+                  onClick={handleActivate}
+                />
+              </motion.g>
             </motion.svg>
           )}
           <Stars
