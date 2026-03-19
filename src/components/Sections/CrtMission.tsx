@@ -199,19 +199,6 @@ const CrtMission = () => {
                     ry="98.792"
                     id="ellipse3"
                   />
-                  <text
-                    x="268.68399"
-                    y="98.792"
-                    textAnchor="middle"
-                    alignmentBaseline="middle"
-                    style={{
-                      fill: "var(--color-white)",
-                      fontSize: "4rem",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    1
-                  </text>
                   <g id="g5">
                     &#10;{" "}
                     <path
@@ -253,19 +240,6 @@ const CrtMission = () => {
                     ry="98.792"
                     id="ellipse5"
                   />
-                  <text
-                    x="180.40199"
-                    y="195.16299"
-                    textAnchor="middle"
-                    alignmentBaseline="middle"
-                    style={{
-                      fill: "var(--color-white)",
-                      fontSize: "4rem",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    4
-                  </text>
                   <path
                     style={{
                       fill: `${
@@ -291,19 +265,6 @@ const CrtMission = () => {
                     ry="98.792"
                     id="ellipse6"
                   />
-                  <text
-                    x="331.595"
-                    y="241.422"
-                    textAnchor="middle"
-                    alignmentBaseline="middle"
-                    style={{
-                      fill: "var(--color-white)",
-                      fontSize: "4rem",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    8
-                  </text>
                   <path
                     style={{
                       fill: `${

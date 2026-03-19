@@ -25,7 +25,7 @@ export const PuzzleSignalBoard = ({
           <div>
             <p
               className="text-[10px] uppercase tracking-[0.24em]"
-              style={{ color: "var(--color-title-color)" }}
+              style={{ color: "var(--color-appliance-label)" }}
             >
               Signal Board
             </p>
@@ -54,7 +54,7 @@ export const PuzzleSignalBoard = ({
                   </span>
                   <span
                     className="text-[10px] uppercase tracking-[0.18em]"
-                    style={{ color: "var(--color-title-color)" }}
+                    style={{ color: "var(--color-appliance-label)" }}
                   >
                     {group.lightLabel}
                   </span>

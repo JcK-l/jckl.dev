@@ -69,7 +69,7 @@ export const PhonewaveTimerControls = ({
           <div className="space-y-1">
             <p
               className="font-mono text-[0.56rem] uppercase tracking-[0.32em]"
-              style={{ color: "var(--color-title-color)" }}
+              style={{ color: "var(--color-appliance-label)" }}
             >
               phone microwave
             </p>
@@ -97,7 +97,7 @@ export const PhonewaveTimerControls = ({
           <div className="mb-3 flex items-center justify-between gap-2">
             <p
               className="font-mono text-[0.54rem] uppercase tracking-[0.28em]"
-              style={{ color: "var(--color-title-color)" }}
+              style={{ color: "var(--color-appliance-label)" }}
             >
               time setting
             </p>
@@ -144,7 +144,7 @@ export const PhonewaveTimerControls = ({
                     style={{
                       color: isSelected
                         ? "var(--color-white-shade)"
-                        : "var(--color-title-color)",
+                        : "var(--color-appliance-label)",
                     }}
                   >
                     {shortLabel}

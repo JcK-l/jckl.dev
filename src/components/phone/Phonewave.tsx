@@ -198,7 +198,7 @@ export const Phonewave = ({
         <div className="space-y-1.5">
           <p
             className="font-mono text-[0.56rem] uppercase tracking-[0.3em]"
-            style={{ color: "var(--color-title-color)" }}
+            style={{ color: "var(--color-appliance-label)" }}
           >
             future gadget no. 8
           </p>
