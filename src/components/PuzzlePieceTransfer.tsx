@@ -15,9 +15,11 @@ type TransferBurst = {
 
 type PuzzlePieceTransferProps = {
   direction?: TransferDirection;
+  onStart?: () => void;
   onComplete?: () => void;
   pieceIds: number[];
   sourceAnchor?: { x: number; y: number };
+  sourcePoint?: { x: number; y: number };
   sourceRef: RefObject<Element | null>;
   triggerKey: number;
 };
@@ -47,17 +49,24 @@ const getTransferPieceSize = (
 
 export const PuzzlePieceTransfer = ({
   direction = "up",
+  onStart,
   onComplete,
   pieceIds,
   sourceAnchor = { x: 0.5, y: 0.38 },
+  sourcePoint,
   sourceRef,
   triggerKey,
 }: PuzzlePieceTransferProps) => {
   const overlayRef = useRef<HTMLDivElement>(null);
   const completionTimeoutRef = useRef<number | null>(null);
   const frameRef = useRef<number | null>(null);
+  const onStartRef = useRef(onStart);
   const onCompleteRef = useRef(onComplete);
   const [burst, setBurst] = useState<TransferBurst | null>(null);
+
+  useEffect(() => {
+    onStartRef.current = onStart;
+  }, [onStart]);
 
   useEffect(() => {
     onCompleteRef.current = onComplete;
@@ -75,6 +84,7 @@ export const PuzzlePieceTransfer = ({
 
     const startTransfer = async () => {
       if (prefersReducedMotion) {
+        onStartRef.current?.();
         onCompleteRef.current?.();
         return;
       }
@@ -90,25 +100,44 @@ export const PuzzlePieceTransfer = ({
       const overlay = overlayRef.current;
       const sourceElement = sourceRef.current;
 
-      if (!overlay || !sourceElement) {
+      if (!overlay) {
+        onStartRef.current?.();
         onCompleteRef.current?.();
         return;
       }
 
       const overlayBounds = overlay.getBoundingClientRect();
-      const sourceBounds = sourceElement.getBoundingClientRect();
-      const sourcePoint = {
-        x:
-          sourceBounds.left +
-          sourceBounds.width * sourceAnchor.x -
-          overlayBounds.left,
-        y:
-          sourceBounds.top +
-          sourceBounds.height * sourceAnchor.y -
-          overlayBounds.top,
-      };
+      const resolvedSourcePoint =
+        sourcePoint != null
+          ? {
+              x: sourcePoint.x - overlayBounds.left,
+              y: sourcePoint.y - overlayBounds.top,
+            }
+          : sourceElement != null
+          ? (() => {
+              const sourceBounds = sourceElement.getBoundingClientRect();
+
+              return {
+                x:
+                  sourceBounds.left +
+                  sourceBounds.width * sourceAnchor.x -
+                  overlayBounds.left,
+                y:
+                  sourceBounds.top +
+                  sourceBounds.height * sourceAnchor.y -
+                  overlayBounds.top,
+              };
+            })()
+          : null;
+
+      if (resolvedSourcePoint === null) {
+        onStartRef.current?.();
+        onCompleteRef.current?.();
+        return;
+      }
+
       const targetPoint = {
-        x: clamp(sourcePoint.x, 108, overlayBounds.width - 108),
+        x: clamp(resolvedSourcePoint.x, 108, overlayBounds.width - 108),
         y: direction === "up" ? 56 : overlayBounds.height - 56,
       };
       const currentPuzzlePieceSize = $puzzlePieceSize.get();
@@ -124,9 +153,10 @@ export const PuzzlePieceTransfer = ({
       setBurst({
         id: triggerKey,
         pieceSize,
-        sourcePoint,
+        sourcePoint: resolvedSourcePoint,
         targetPoint,
       });
+      onStartRef.current?.();
 
       completionTimeoutRef.current = window.setTimeout(() => {
         setBurst((currentBurst) => {
@@ -155,6 +185,7 @@ export const PuzzlePieceTransfer = ({
     pieceIds.length,
     sourceAnchor.x,
     sourceAnchor.y,
+    sourcePoint,
     sourceRef,
     triggerKey,
   ]);

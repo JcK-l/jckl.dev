@@ -9,6 +9,7 @@ import { usePuzzleContext } from "../hooks/useDataContext";
 import { $gameState } from "../stores/gameStateStore";
 import { $dispensedGroups } from "../stores/puzzleDispenseStore";
 import { setPuzzlePieceSize } from "../stores/puzzleLayoutStore";
+import { $puzzleResetRequest } from "../stores/puzzleResetStore";
 import { preloadPieceImages } from "../utility/pieceImages";
 
 const originalPieceSize = { width: 300, height: 300 };
@@ -60,9 +61,12 @@ export const PuzzleGame = () => {
     right: 0,
     bottom: 0,
   });
-  const { lastPiece, totalPlacedPieces } = usePuzzleContext();
+  const { lastPiece, setLastPiece, totalPlacedPieces, setTotalPlacedPieces } =
+    usePuzzleContext();
   const dispensedGroups = useStore($dispensedGroups);
   const binaryState = useStore($gameState);
+  const puzzleResetRequest = useStore($puzzleResetRequest);
+  const handledResetTokenRef = useRef(0);
 
   const updatePieceSize = () => {
     if (puzzlebounds.current) {
@@ -123,6 +127,54 @@ export const PuzzleGame = () => {
 
     void preloadPieceImages(dispensedPiecePaths);
   }, [dispensedGroups]);
+
+  useEffect(() => {
+    if (
+      puzzleResetRequest === null ||
+      puzzleResetRequest.token === handledResetTokenRef.current
+    ) {
+      return;
+    }
+
+    handledResetTokenRef.current = puzzleResetRequest.token;
+
+    const resetPieceIndexes = new Set(
+      puzzleResetRequest.pieceIds.map((pieceId) => pieceId - 1)
+    );
+    const affectedPlacedCount = placedPieces.reduce(
+      (count, isPlaced, index) => {
+        return count + (isPlaced && resetPieceIndexes.has(index) ? 1 : 0);
+      },
+      0
+    );
+    const nextShouldBePlaced = puzzleResetRequest.action === "restore";
+    const changedPieceCount = nextShouldBePlaced
+      ? puzzleResetRequest.pieceIds.length - affectedPlacedCount
+      : affectedPlacedCount;
+
+    puzzleResetRequest.pieceIds.forEach((pieceId) => {
+      const svgImage = document.getElementById(`p${pieceId}`);
+
+      if (svgImage) {
+        svgImage.style.opacity = nextShouldBePlaced ? "1" : "0";
+      }
+    });
+
+    setPlacedPieces((currentPieces) => {
+      return currentPieces.map((isPlaced, index) => {
+        return resetPieceIndexes.has(index) ? nextShouldBePlaced : isPlaced;
+      });
+    });
+    setLastPiece(0);
+
+    if (changedPieceCount > 0) {
+      setTotalPlacedPieces((currentCount) => {
+        return nextShouldBePlaced
+          ? Math.min(originalPieces.length, currentCount + changedPieceCount)
+          : Math.max(0, currentCount - changedPieceCount);
+      });
+    }
+  }, [placedPieces, puzzleResetRequest, setLastPiece, setTotalPlacedPieces]);
 
   return (
     <div

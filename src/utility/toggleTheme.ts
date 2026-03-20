@@ -1,14 +1,14 @@
 import {
-  getSentimentState,
-  setBit,
-  SentimentStateFlags,
-} from "../stores/sentimentStateStore";
+  getSelectedEnding,
+  setEndingActive,
+  type SentimentLabel,
+} from "../stores/endingStore";
 
 enum Themes {
-  FLAG_ORIGINAL = 0,
-  FLAG_NEGATIVE = SentimentStateFlags.FLAG_NEGATIVE,
-  FLAG_NEUTRAL = SentimentStateFlags.FLAG_NEUTRAL,
-  FLAG_POSITIVE = SentimentStateFlags.FLAG_POSITIVE,
+  ORIGINAL = "original",
+  NEGATIVE = "negative",
+  NEUTRAL = "neutral",
+  POSITIVE = "positive",
 }
 
 type ThemeDefinition = {
@@ -18,7 +18,7 @@ type ThemeDefinition = {
 };
 
 const themeDefinitions: Record<Themes, ThemeDefinition> = {
-  [Themes.FLAG_ORIGINAL]: {
+  [Themes.ORIGINAL]: {
     dataValue: "original",
     label: "Original",
     properties: {
@@ -90,7 +90,7 @@ const themeDefinitions: Record<Themes, ThemeDefinition> = {
       "--color-appliance-status-not-enough-border": "#457B9D38",
     },
   },
-  [Themes.FLAG_NEGATIVE]: {
+  [Themes.NEGATIVE]: {
     dataValue: "negative",
     label: "Negative",
     properties: {
@@ -162,7 +162,7 @@ const themeDefinitions: Record<Themes, ThemeDefinition> = {
       "--color-appliance-status-not-enough-border": "#5E548E38",
     },
   },
-  [Themes.FLAG_NEUTRAL]: {
+  [Themes.NEUTRAL]: {
     dataValue: "neutral",
     label: "Neutral",
     properties: {
@@ -234,7 +234,7 @@ const themeDefinitions: Record<Themes, ThemeDefinition> = {
       "--color-appliance-status-not-enough-border": "#5E548E38",
     },
   },
-  [Themes.FLAG_POSITIVE]: {
+  [Themes.POSITIVE]: {
     dataValue: "positive",
     label: "Positive",
     properties: {
@@ -309,19 +309,34 @@ const themeDefinitions: Record<Themes, ThemeDefinition> = {
 };
 
 const debugThemeOrder = [
-  Themes.FLAG_ORIGINAL,
-  Themes.FLAG_NEUTRAL,
-  Themes.FLAG_POSITIVE,
-  Themes.FLAG_NEGATIVE,
+  Themes.ORIGINAL,
+  Themes.NEUTRAL,
+  Themes.POSITIVE,
+  Themes.NEGATIVE,
 ] as const;
 
 const themeEntries = Object.entries(themeDefinitions).map(
-  ([theme, definition]) => [Number(theme) as Themes, definition] as const
+  ([theme, definition]) => [theme as Themes, definition] as const
 );
 
 const themeByDataValue = new Map(
-  themeEntries.map(([theme, definition]) => [definition.dataValue, theme] as const)
+  themeEntries.map(
+    ([theme, definition]) => [definition.dataValue, theme] as const
+  )
 );
+
+const getThemeForSentiment = (sentiment: SentimentLabel | null): Themes => {
+  switch (sentiment) {
+    case "negative":
+      return Themes.NEGATIVE;
+    case "neutral":
+      return Themes.NEUTRAL;
+    case "positive":
+      return Themes.POSITIVE;
+    default:
+      return Themes.ORIGINAL;
+  }
+};
 
 const setThemeProperties = (
   root: HTMLElement,
@@ -334,17 +349,17 @@ const setThemeProperties = (
 
 const getAppliedTheme = (): Themes => {
   if (typeof document === "undefined") {
-    return Themes.FLAG_ORIGINAL;
+    return Themes.ORIGINAL;
   }
 
   return (
     themeByDataValue.get(document.documentElement.dataset.theme ?? "") ??
-    Themes.FLAG_ORIGINAL
+    Themes.ORIGINAL
   );
 };
 
-const applyTheme = (theme: Themes | null) => {
-  if (theme === null || typeof document === "undefined") {
+const applyTheme = (theme: Themes) => {
+  if (typeof document === "undefined") {
     return;
   }
 
@@ -359,6 +374,10 @@ const applyTheme = (theme: Themes | null) => {
   }
 };
 
+export const applyThemeForSentiment = (sentiment: SentimentLabel | null) => {
+  applyTheme(getThemeForSentiment(sentiment));
+};
+
 export const getCurrentThemeLabel = () => {
   return themeDefinitions[getAppliedTheme()].label;
 };
@@ -368,7 +387,7 @@ export const cycleDebugTheme = () => {
   const currentIndex = debugThemeOrder.indexOf(currentTheme);
   const nextTheme =
     debugThemeOrder[(currentIndex + 1) % debugThemeOrder.length] ??
-    Themes.FLAG_ORIGINAL;
+    Themes.ORIGINAL;
 
   applyTheme(nextTheme);
 
@@ -380,13 +399,14 @@ export const toggleThemes = () => {
   let currentInterval = 3000;
   const minInterval = 150;
   const decayFactor = 0.98;
-  const sentimentState = getSentimentState();
+  const selectedSentiment = getSelectedEnding();
 
-  if (sentimentState === null) {
+  if (selectedSentiment === null) {
     return;
   }
 
-  const selectedTheme = sentimentState as unknown as Themes;
+  const selectedTheme = getThemeForSentiment(selectedSentiment);
+
   let currentTheme: Themes = selectedTheme;
 
   function startDecayingInterval() {
@@ -397,9 +417,7 @@ export const toggleThemes = () => {
     const adjustInterval = () => {
       applyTheme(currentTheme);
       currentTheme =
-        currentTheme === Themes.FLAG_ORIGINAL
-          ? selectedTheme
-          : Themes.FLAG_ORIGINAL;
+        currentTheme === Themes.ORIGINAL ? selectedTheme : Themes.ORIGINAL;
 
       if (currentInterval > minInterval) {
         const jump = (currentInterval - minInterval) * decayFactor;
@@ -421,7 +439,7 @@ export const toggleThemes = () => {
       }
 
       applyTheme(selectedTheme);
-      setBit(SentimentStateFlags.FLAG_ACTIVE);
+      setEndingActive(true);
     };
 
     intervalId = setInterval(adjustInterval, currentInterval);

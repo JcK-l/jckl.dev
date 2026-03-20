@@ -1,14 +1,12 @@
 import { forwardRef, useState, type ReactNode } from "react";
+import { useStore } from "@nanostores/react";
 import { crtImage, crtScreen } from "../data/crtImage";
 import {
   GameStateFlags,
   isBitSet as gameStateIsBitSet,
   setBit,
 } from "../stores/gameStateStore";
-import {
-  SentimentStateFlags,
-  isBitSet as sentimentStateIsBitSet,
-} from "../stores/sentimentStateStore";
+import { $endingState, isEndingActive } from "../stores/endingStore";
 import { getAudioContext } from "../utility/audioContext";
 
 interface SeparatorOutProps {
@@ -19,15 +17,15 @@ interface SeparatorOutProps {
 
 export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
   (props, ref) => {
+    const endingState = useStore($endingState);
     const [isSoundPlaying, setIsSoundPlaying] = useState(false);
 
     const displayCrt =
       props.isCrt &&
       gameStateIsBitSet(GameStateFlags.FLAG_LEND_A_HAND) &&
       !(
-        (sentimentStateIsBitSet(SentimentStateFlags.FLAG_POSITIVE) ||
-          sentimentStateIsBitSet(SentimentStateFlags.FLAG_NEUTRAL)) &&
-        sentimentStateIsBitSet(SentimentStateFlags.FLAG_ACTIVE)
+        isEndingActive("positive", endingState) ||
+        isEndingActive("neutral", endingState)
       );
 
     const playSound = async (file: string) => {
@@ -105,10 +103,7 @@ export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
                     : "pointer"
                 }`}
                 onClick={async () => {
-                  if (
-                    isSoundPlaying ||
-                    sentimentStateIsBitSet(SentimentStateFlags.FLAG_ACTIVE)
-                  ) {
+                  if (isSoundPlaying || endingState.isActive) {
                     return;
                   }
 

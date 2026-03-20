@@ -3,25 +3,25 @@ import { PuzzleGame } from "../PuzzleGame";
 import { PuzzleProvider } from "../../context/PuzzleContext";
 import { AboutText } from "../AboutText";
 import { Email } from "../Email";
-import {
-  GameStateFlags,
-  isBitSet as gameStateIsBitSet,
-} from "../../stores/gameStateStore";
-import { $formData, $pastDate } from "../../stores/stringStore";
 import { useStore } from "@nanostores/react";
-import {
-  $sentimentState,
-  isBitSet as sentimentStateIsBitSet,
-  SentimentStateFlags,
-} from "../../stores/sentimentStateStore";
+import { $endingState, isEndingActive } from "../../stores/endingStore";
+import { $endingMailBySentiment } from "../../stores/endingMailStore";
+import { exitEndingToOriginal } from "../../utility/endingMode";
 
 const About = () => {
   const ref = useRef<HTMLDivElement>(null);
   const [isWide, setIsWide] = useState(false);
-  const isMail = gameStateIsBitSet(GameStateFlags.FLAG_SECRET);
-  const formData = useStore($formData);
-  const sentimentState = useStore($sentimentState);
-  const date = useStore($pastDate);
+  const endingState = useStore($endingState);
+  const endingMailBySentiment = useStore($endingMailBySentiment);
+  const isEndingModeActive = isEndingActive(undefined, endingState);
+  const activeEndingLabel = isEndingModeActive
+    ? endingState.selectedSentiment
+    : null;
+  const endingMail =
+    activeEndingLabel === null
+      ? null
+      : endingMailBySentiment[activeEndingLabel];
+  const isMail = endingMail !== null;
 
   const handleResize = () => {
     if (window.innerWidth >= 768) {
@@ -43,18 +43,35 @@ const About = () => {
     <>
       {/* <FlyingMan ref={ref} /> */}
       <div className="page-margins relative py-4" ref={ref}>
-        {sentimentStateIsBitSet(SentimentStateFlags.FLAG_NEGATIVE) ? (
-          <div></div>
-        ) : (
-          <div className="z-10 w-full">
-            <h1 className="h2-text mb-8 inline-block text-titleColor xl:mb-24">
-              About Me
-              {sentimentStateIsBitSet(SentimentStateFlags.FLAG_POSITIVE)
-                ? "!"
-                : ""}
-            </h1>
-          </div>
-        )}
+        <div className="z-10 mb-8 flex w-full items-start justify-between gap-4 xl:mb-24">
+          {endingState.selectedSentiment === "negative" ? (
+            <div className="flex-1" />
+          ) : (
+            <div className="flex-1">
+              <h1 className="h2-text inline-block text-titleColor">
+                About Me
+                {endingState.selectedSentiment === "positive" ? "!" : ""}
+              </h1>
+            </div>
+          )}
+          {isEndingModeActive ? (
+            <button
+              type="button"
+              className="focus:ring-white/70 inline-flex shrink-0 items-center rounded-full border px-4 py-3 font-mono text-[0.68rem] uppercase tracking-[0.18em] transition hover:-translate-y-0.5 hover:bg-secondary hover:text-white focus:outline-none focus:ring-2 active:translate-y-0"
+              onClick={() => {
+                exitEndingToOriginal();
+              }}
+              style={{
+                backgroundColor: "var(--color-appliance-control-panel-top)",
+                borderColor: "var(--color-appliance-panel-border)",
+                boxShadow: "0 0.85rem 1.2rem rgba(35,25,66,0.12)",
+                color: "var(--color-primary)",
+              }}
+            >
+              Back To Original
+            </button>
+          ) : null}
+        </div>
 
         <PuzzleProvider>
           <div className="relative flex flex-col-reverse justify-between gap-10 lg:flex-row lg:gap-20">
@@ -164,10 +181,10 @@ const About = () => {
                 isAboutText={!isMail}
               />
               <Email
-                name={formData.name}
-                email={formData.email}
-                message={formData.message}
-                date={date}
+                name={endingMail?.name ?? ""}
+                email={endingMail?.email ?? ""}
+                message={endingMail?.message ?? ""}
+                date={endingMail?.date ?? ""}
                 isMail={isMail}
               />
             </div>

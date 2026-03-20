@@ -1,23 +1,10 @@
 import { ArrowDown } from "../../utility/icons";
 import { Face } from "../Face";
-import {
-  $sentimentState,
-  isBitSet,
-  SentimentStateFlags,
-} from "../../stores/sentimentStateStore";
 import { useStore } from "@nanostores/react";
-import { useEffect } from "react";
+import { $endingState } from "../../stores/endingStore";
 
 const Hero = () => {
-  useStore($sentimentState);
-
-  useEffect(() => {
-    const existingFlags = JSON.parse(
-      sessionStorage.getItem("flags") || "[true, false, false, false]"
-    );
-
-    sessionStorage.setItem("flags", JSON.stringify(existingFlags));
-  }, []);
+  const endingState = useStore($endingState);
 
   const scrollToSection = () => {
     const section = document.getElementById("starConstellation");
@@ -30,13 +17,13 @@ const Hero = () => {
     <div className="relative mb-1 flex flex-col items-center justify-between">
       <Face />
 
-      {isBitSet(SentimentStateFlags.FLAG_NEGATIVE) ? (
+      {endingState.selectedSentiment === "negative" ? (
         <div></div>
       ) : (
         <div className="relative z-10 w-full px-8 text-center">
           <h1 className="h1-text mb-8 inline-block w-auto text-titleColor">
             I'm Joshua
-            {isBitSet(SentimentStateFlags.FLAG_POSITIVE) ? "!" : ""}
+            {endingState.selectedSentiment === "positive" ? "!" : ""}
           </h1>
           <p className="p-text mb-10 xl:mb-16">
             Welcome to my corner of the web - stick around, uncover the hidden,

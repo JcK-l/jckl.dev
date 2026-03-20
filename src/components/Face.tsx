@@ -1,8 +1,10 @@
 import { useRef } from "react";
 import { useScroll, useTransform, motion } from "framer-motion";
-import { isBitSet, SentimentStateFlags } from "../stores/sentimentStateStore";
+import { useStore } from "@nanostores/react";
+import { $endingState } from "../stores/endingStore";
 
 export const Face = () => {
+  const endingState = useStore($endingState);
   let ref = useRef(null);
 
   let { scrollYProgress } = useScroll({
@@ -26,15 +28,15 @@ export const Face = () => {
         <path style={{ fill: "none" }} d="M 0,0 V 743 H 900 V 0 Z" />
       </svg>
 
-      {isBitSet(SentimentStateFlags.FLAG_NEGATIVE) ? (
+      {endingState.selectedSentiment === "negative" ? (
         <div></div>
-      ) : isBitSet(SentimentStateFlags.FLAG_NEUTRAL) ? (
+      ) : endingState.selectedSentiment === "neutral" ? (
         <motion.img
           style={{ y: layer }}
           className={"absolute bottom-0 left-0 mix-blend-screen"}
           src="/jTransparent.avif"
         />
-      ) : isBitSet(SentimentStateFlags.FLAG_POSITIVE) ? (
+      ) : endingState.selectedSentiment === "positive" ? (
         <motion.img
           style={{ y: layer }}
           className={"absolute bottom-0 left-0 mix-blend-screen"}

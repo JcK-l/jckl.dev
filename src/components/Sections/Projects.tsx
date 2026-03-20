@@ -2,23 +2,16 @@ import { useState } from "react";
 import { useStore } from "@nanostores/react";
 import { projects } from "../../data/ProjectData";
 import { ProjectText } from "../ProjectText";
-import {
-  $sentimentState,
-  isBitSet,
-  SentimentStateFlags,
-} from "../../stores/sentimentStateStore";
+import { $endingState, isEndingActive } from "../../stores/endingStore";
 
 const Projects = () => {
-  const sentimentState = useStore($sentimentState);
+  const endingState = useStore($endingState);
   const [activeProjectId, setActiveProjectId] = useState(projects[0]?.id ?? 0);
 
   const activeProject =
     projects.find((project) => project.id === activeProjectId) ?? projects[0];
 
-  if (
-    isBitSet(SentimentStateFlags.FLAG_NEGATIVE) &&
-    isBitSet(SentimentStateFlags.FLAG_ACTIVE)
-  ) {
+  if (isEndingActive("negative", endingState)) {
     return <div></div>;
   }
 
@@ -26,7 +19,7 @@ const Projects = () => {
     <div className="page-margins relative bg-fgColor py-4">
       <div className="z-10 w-full text-titleColor">
         <h1 className="h2-text mb-8 inline-block w-auto xl:mb-16">
-          My Projects{isBitSet(SentimentStateFlags.FLAG_POSITIVE) ? "!" : ""}
+          My Projects{endingState.selectedSentiment === "positive" ? "!" : ""}
         </h1>
       </div>
 
@@ -64,7 +57,7 @@ const Projects = () => {
         </div>
 
         {!activeProject ? null : (
-          <div className="rounded-[2rem] border border-titleColor/10 bg-white/40 p-5 md:p-8">
+          <div className="border-titleColor/10 bg-white/40 rounded-[2rem] border p-5 md:p-8">
             <ProjectText
               title={activeProject.title}
               description={activeProject.description}

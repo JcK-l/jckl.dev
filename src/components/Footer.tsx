@@ -1,14 +1,10 @@
 import { LinkedIn, Heart, GitHub } from "../utility/icons";
-import {
-  $sentimentState,
-  isBitSet,
-  SentimentStateFlags,
-} from "../stores/sentimentStateStore";
 import { useStore } from "@nanostores/react";
+import { $endingState, isEndingActive } from "../stores/endingStore";
 
 export const Footer = () => {
-  const sentimentState = useStore($sentimentState);
-  const removeHeart = isBitSet(SentimentStateFlags.FLAG_NEGATIVE) && isBitSet(SentimentStateFlags.FLAG_ACTIVE);
+  const endingState = useStore($endingState);
+  const removeHeart = isEndingActive("negative", endingState);
 
   return (
     <footer
@@ -68,9 +64,12 @@ export const Footer = () => {
 
         <div className="flex justify-center gap-1 sm:items-center">
           Coded
-          {removeHeart ? (" ") : (
+          {removeHeart ? (
+            " "
+          ) : (
             <>
-              {" "}with
+              {" "}
+              with
               <Heart />
             </>
           )}

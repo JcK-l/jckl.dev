@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { useStore } from "@nanostores/react";
 import { Phone } from "../phone/Phone";
 import { ProjectText } from "../ProjectText";
@@ -7,14 +7,11 @@ import { $offScriptCount } from "../../stores/offScriptCountStore";
 import { $phoneNumber, $phoneResultMode } from "../../stores/phoneStore";
 import { $gameState, GameStateFlags } from "../../stores/gameStateStore";
 import {
-  $sentimentState,
-  isBitSet,
-  SentimentStateFlags,
-} from "../../stores/sentimentStateStore";
-import {
-  getStoredOffScriptCount,
-  hasUnlockedAllFlags,
-} from "../../utility/phoneProgress";
+  $endingState,
+  hasUnlockedAllEndings,
+  isEndingActive,
+} from "../../stores/endingStore";
+import { getStoredOffScriptCount } from "../../utility/phoneProgress";
 
 const specialDivergenceNumbers = new Set([571046, 1048596, 1143688]);
 
@@ -25,7 +22,7 @@ const ResultBlock = ({
   title?: string;
   children: ReactNode;
 }) => (
-  <div className="rounded-[2rem] bg-white/40 p-5 md:p-8">
+  <div className="bg-white/40 rounded-[2rem] p-5 md:p-8">
     {!title ? null : (
       <h5 className="h4-text mb-4 text-center font-bold text-titleColor">
         {title}
@@ -36,22 +33,19 @@ const ResultBlock = ({
 );
 
 const Call = () => {
-  const sentimentState = useStore($sentimentState);
+  const endingState = useStore($endingState);
   const mode = useStore($phoneResultMode);
   const phoneNumber = useStore($phoneNumber);
   const offScriptCount = useStore($offScriptCount);
   const gameState = useStore($gameState);
-  const [isFinal, setIsFinal] = useState(false);
 
   useEffect(() => {
     $offScriptCount.set(getStoredOffScriptCount());
-    setIsFinal(hasUnlockedAllFlags());
-  }, [sentimentState]);
+  }, [endingState]);
 
-  if (
-    isBitSet(SentimentStateFlags.FLAG_NEGATIVE) &&
-    isBitSet(SentimentStateFlags.FLAG_ACTIVE)
-  ) {
+  const isFinal = hasUnlockedAllEndings(endingState);
+
+  if (isEndingActive("negative", endingState)) {
     return <div></div>;
   }
   const project =
@@ -69,7 +63,7 @@ const Call = () => {
   const renderNumberResult = () => {
     if (project) {
       return (
-        <div className="rounded-[2rem] bg-white/40 p-5 md:p-8">
+        <div className="bg-white/40 rounded-[2rem] p-5 md:p-8">
           <ProjectText
             title={project.title}
             description={project.description}
@@ -87,7 +81,7 @@ const Call = () => {
       return (
         <a
           href="https://steins-gate.fandom.com/wiki/Divergence_Meter"
-          className="mx-auto block w-full rounded-[2rem] bg-white/40 p-5 md:w-7/12 md:p-8"
+          className="bg-white/40 mx-auto block w-full rounded-[2rem] p-5 md:w-7/12 md:p-8"
           target="_blank"
           rel="noreferrer noopener"
         >
@@ -152,9 +146,9 @@ const Call = () => {
         return (
           <ResultBlock title="Again? Really?">
             <p>
-              Ah, I see. You fancy yourself a rogue. A rulebreaker. Perhaps
-              even a genius. But know this: even Hououin Kyouma follows the
-              sacred script when the timeline depends on it. Turn back, or risk
+              Ah, I see. You fancy yourself a rogue. A rulebreaker. Perhaps even
+              a genius. But know this: even Hououin Kyouma follows the sacred
+              script when the timeline depends on it. Turn back, or risk
               attracting the Organization's agents.
             </p>
           </ResultBlock>
@@ -167,8 +161,8 @@ const Call = () => {
             <p>
               It seems you crave the forbidden knowledge hidden here. But
               beware, tampering with this space could destabilize the very
-              fabric of this site. Are you prepared to face the consequences? No?
-              Thought so. Back you go.
+              fabric of this site. Are you prepared to face the consequences?
+              No? Thought so. Back you go.
             </p>
           </ResultBlock>
         );
@@ -180,8 +174,7 @@ const Call = () => {
             <p>
               Not many dare to push this far. Do you think you’ve unlocked some
               grand secret? Well, let me tell you, you haven’t. Yet. But I’ll
-              give you one last chance. The truth lies where your journey
-              began.
+              give you one last chance. The truth lies where your journey began.
             </p>
           </ResultBlock>
         );
@@ -203,7 +196,7 @@ const Call = () => {
 
       if (offScriptCount >= 6) {
         return (
-          <div className="rounded-[2rem] bg-white/40 p-5 md:p-8">
+          <div className="bg-white/40 rounded-[2rem] p-5 md:p-8">
             <img
               src="/areYouSerious.avif"
               alt="..."
@@ -228,7 +221,7 @@ const Call = () => {
 
     if (shouldShowPhone) {
       return (
-        <div className="p-text rounded-[2rem] bg-white/30 px-5 py-6 text-center text-titleColor md:px-8 lg:text-left">
+        <div className="p-text bg-white/30 rounded-[2rem] px-5 py-6 text-center text-titleColor md:px-8 lg:text-left">
           Dial a number on the phone to reveal a result.
         </div>
       );
@@ -246,7 +239,11 @@ const Call = () => {
             : "mx-auto max-w-[58rem]"
         }
       >
-        <div className={shouldShowPhone ? "order-2 min-w-0 lg:order-1 lg:flex" : ""}>
+        <div
+          className={
+            shouldShowPhone ? "order-2 min-w-0 lg:order-1 lg:flex" : ""
+          }
+        >
           <div className={shouldShowPhone ? "w-full lg:h-full" : "w-full"}>
             {renderContent()}
           </div>

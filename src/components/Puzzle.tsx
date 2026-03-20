@@ -1,18 +1,14 @@
 import { puzzleImages } from "../data/PuzzleImage";
-import {
-  motion,
-  useScroll,
-  useTransform,
-  animate,
-  stagger,
-} from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useState, forwardRef, useEffect } from "react";
+import { useStore } from "@nanostores/react";
 import { usePuzzleContext } from "../hooks/useDataContext";
-import { isBitSet, SentimentStateFlags } from "../stores/sentimentStateStore";
+import { $endingState } from "../stores/endingStore";
 
 interface PuzzleProps {}
 
 export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
+  const endingState = useStore($endingState);
   const prallaxRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoHeight, setVideoHeight] = useState(0);
@@ -38,11 +34,18 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
   });
 
   useEffect(() => {
-    if (totalPlacedPieces === 16) {
-      setTimeout(() => {
-        setIsCompleted(true);
-      }, 2000);
+    if (totalPlacedPieces !== 16) {
+      setIsCompleted(false);
+      return;
     }
+
+    const completionTimeout = window.setTimeout(() => {
+      setIsCompleted(true);
+    }, 2000);
+
+    return () => {
+      window.clearTimeout(completionTimeout);
+    };
   }, [totalPlacedPieces]);
 
   let layer = useTransform(
@@ -79,9 +82,9 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
         />
       </svg>
       {isCompleted &&
-        (isBitSet(SentimentStateFlags.FLAG_POSITIVE) ? (
+        (endingState.selectedSentiment === "positive" ? (
           <motion.video
-            className="absolute top-[30%] w-full cursor-pointer select-none mix-blend-screen"
+            className="absolute top-[30%] w-full select-none mix-blend-screen"
             style={{ y: layer }}
             ref={videoRef}
             autoPlay
@@ -90,11 +93,10 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
             playsInline
             preload="auto"
             src="/secret-SG.mp4"
-            onClick={() => location.reload()}
           />
-        ) : isBitSet(SentimentStateFlags.FLAG_NEGATIVE) ? (
+        ) : endingState.selectedSentiment === "negative" ? (
           <motion.video
-            className="absolute top-[30%] w-full cursor-pointer select-none mix-blend-screen"
+            className="absolute top-[30%] w-full select-none mix-blend-screen"
             style={{ y: layer }}
             ref={videoRef}
             autoPlay
@@ -103,11 +105,10 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
             playsInline
             preload="auto"
             src="/secret-negative.mp4"
-            onClick={() => location.reload()}
           />
         ) : (
           <motion.video
-            className="absolute top-[30%] w-full cursor-pointer select-none mix-blend-screen"
+            className="absolute top-[30%] w-full select-none mix-blend-screen"
             style={{ y: layer }}
             ref={videoRef}
             autoPlay
@@ -116,7 +117,6 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
             playsInline
             preload="auto"
             src="/secret-neutral.mp4"
-            onClick={() => location.reload()}
           />
         ))}
       <svg

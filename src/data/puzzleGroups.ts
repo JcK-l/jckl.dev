@@ -42,7 +42,7 @@ export const puzzleGroups: PuzzleGroup[] = [
     key: "crt",
     label: "the CRT cache",
     lightLabel: "CRT",
-    hint: "Next lead: wake the CRT to release the final cache.",
+    hint: "Next lead: send a D-Mail to release the final cache.",
     flag: GameStateFlags.FLAG_SECRET,
     pieces: [9, 7, 6, 14],
   },

@@ -10,11 +10,7 @@ import {
   markPuzzleGroupDispensed,
 } from "../../stores/puzzleDispenseStore";
 import { $gameState, GameStateFlags } from "../../stores/gameStateStore";
-import {
-  $sentimentState,
-  isBitSet,
-  SentimentStateFlags,
-} from "../../stores/sentimentStateStore";
+import { $endingState, isEndingActive } from "../../stores/endingStore";
 
 const BREAKPOINTS = {
   sm: 640,
@@ -30,7 +26,7 @@ const connectionPieceIds =
   puzzleGroups.find((group) => group.key === "connection")?.pieces ?? [];
 
 const Connection = () => {
-  useStore($sentimentState);
+  const endingState = useStore($endingState);
   const binaryState = useStore($gameState);
   const dispensedGroups = useStore($dispensedGroups);
   const mode = useStore($phoneResultMode);
@@ -132,10 +128,7 @@ const Connection = () => {
     pendingConnectionTransfer,
   ]);
 
-  if (
-    isBitSet(SentimentStateFlags.FLAG_NEGATIVE) &&
-    isBitSet(SentimentStateFlags.FLAG_ACTIVE)
-  ) {
+  if (isEndingActive("negative", endingState)) {
     return <div></div>;
   }
 

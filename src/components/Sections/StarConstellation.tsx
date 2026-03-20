@@ -13,12 +13,8 @@ import {
   markPuzzleGroupDispensed,
 } from "../../stores/puzzleDispenseStore";
 import { Stars } from "../Stars";
-import {
-  $sentimentState,
-  isBitSet as sentimentStateIsBitSet,
-  SentimentStateFlags,
-} from "../../stores/sentimentStateStore";
 import { useStore } from "@nanostores/react";
+import { $endingState } from "../../stores/endingStore";
 
 const constellationStars = [
   {
@@ -125,7 +121,7 @@ const StarConstellation = () => {
   const [isPressed, setIsPressed] = useState<boolean>(false);
   const [transferKey, setTransferKey] = useState(0);
   const constellationRef = useRef<SVGSVGElement>(null);
-  const sentimentState = useStore($sentimentState);
+  const endingState = useStore($endingState);
   const binaryState = useStore($gameState);
   const dispensedGroups = useStore($dispensedGroups);
   const hasStarsUnlocked =
@@ -175,7 +171,7 @@ const StarConstellation = () => {
           className="relative select-none mix-blend-screen"
           style={{ y: shift }}
         >
-          {sentimentStateIsBitSet(SentimentStateFlags.FLAG_NEGATIVE) ? (
+          {endingState.selectedSentiment === "negative" ? (
             <div></div>
           ) : (
             <motion.svg
@@ -313,9 +309,7 @@ const StarConstellation = () => {
               </motion.g>
             </motion.svg>
           )}
-          <Stars
-            turnOff={sentimentStateIsBitSet(SentimentStateFlags.FLAG_NEGATIVE)}
-          />
+          <Stars turnOff={endingState.selectedSentiment === "negative"} />
         </motion.div>
       )}
     />

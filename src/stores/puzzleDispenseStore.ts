@@ -19,3 +19,16 @@ export const markPuzzleGroupDispensed = (groupKey: PuzzleGroupKey) => {
     [groupKey]: true,
   });
 };
+
+export const clearPuzzleGroupDispensed = (groupKey: PuzzleGroupKey) => {
+  const currentGroups = $dispensedGroups.get();
+
+  if (!currentGroups[groupKey]) {
+    return;
+  }
+
+  $dispensedGroups.set({
+    ...currentGroups,
+    [groupKey]: false,
+  });
+};
