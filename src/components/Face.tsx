@@ -1,7 +1,12 @@
+import { useStore } from "@nanostores/react";
 import { useRef } from "react";
 import { useScroll, useTransform, motion } from "framer-motion";
-import { useStore } from "@nanostores/react";
 import { $endingState } from "../stores/endingStore";
+import {
+  heroPortraitSizes,
+  heroPortraitSrc,
+  heroPortraitSrcSet,
+} from "../data/heroImage";
 
 export const Face = () => {
   const endingState = useStore($endingState);
@@ -26,11 +31,9 @@ export const Face = () => {
           alt: "Classic phone",
         }
       : {
-          src: "/MeTransparent-md.avif",
-          srcSet:
-            "/MeTransparent-sm.avif 500w, /MeTransparent-md.avif 1000w, /MeTransparent-l.avif 1500w, /MeTransparent-xl.avif 2000w",
-          sizes:
-            "(max-width: 639px) 83vw, (max-width: 767px) 75vw, (max-width: 1023px) 67vw, (max-width: 1535px) 50vw, (max-width: 1899px) 42vw, 33vw",
+          src: heroPortraitSrc,
+          srcSet: heroPortraitSrcSet,
+          sizes: heroPortraitSizes,
           alt: "Portrait of Joshua",
         };
 
@@ -71,7 +74,7 @@ export const Face = () => {
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <motion.path
+        <path
           style={{
             filter: "var(--hero-face-shadow-filter)",
             fill: "var(--color-secondary)",
@@ -79,7 +82,7 @@ export const Face = () => {
           }}
           d="M 0,0 V 743 H 900 V 0 Z m 331.7852,104.4824 c 28.5059,0.2033 57.1359,2.3928 83.2265,3.9746 69.6046,4.1394 125.97,2.5086 152.1582,31.9532 26.1095,29.4146 38.007,76.3095 81.59381,118.7324 43.5083,42.3932 113.8793,81.7606 114.6797,104.8281 0.8004,23.0677 -83.8557,43.4598 -130.7676,83.457 -46.88201,39.9184 -56.02091,99.4419 -98.24801,155.3399 -42.2761,55.7896 -117.7485,108.0035 -152.5899,80.5 C 346.9176,655.7346 352.6284,548.4838 312.793,476.4394 272.8492,404.4439 187.3595,367.6553 156,308.6289 c -31.3594,-59.0264 -8.5888,-140.2897 46.6426,-176.5957 34.4705,-22.71 81.6327,-27.8896 129.1426,-27.5508 z"
         />
-        <motion.path
+        <path
           style={{
             filter: "var(--hero-face-shadow-filter)",
             fill: "var(--color-transition1)",
@@ -87,7 +90,7 @@ export const Face = () => {
           }}
           d="M 0,0 V 743 H 900 V 0 Z m 279.77149,100 h 127.62305 c 17.4936,0.033 83.92346,0.6663 97.38086,1.1543 85.5714,2.9171 110.04147,-5.8019 144.92187,31.8809 34.9198,37.8274 29.4379,123.3959 55.9043,191.5742 26.4664,68.1784 84.73711,119.0047 108.66211,190.9824 23.9778,71.8858 13.64862,165.068 -42.63868,172.6817 -56.32669,7.469 -158.66496,-70.5375 -226.41796,-103.9434 -67.845,-33.4585 -101.14355,-22.4621 -145.46875,-23.1523 -44.4172,-0.7429 -99.94018,-13.4622 -145.17188,-51.2051 -45.0871,-37.7823 -80.0677,-100.6919 -91.2168,-178.5528 -11.2413,-77.9136 1.25817,-170.8322 55.38477,-209.2519 16.8436,-11.9728 37.71471,-18.6813 61.03711,-22.168 z"
         />
-        <motion.path
+        <path
           style={{
             filter: "var(--hero-face-shadow-filter)",
             fill: "var(--color-transition2)",

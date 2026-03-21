@@ -28,8 +28,12 @@ const showThemeDebugToggle = import.meta.env.DEV;
       <StarConstellation client:visible />
     </section>
 
-    <section class="bg-fgColor" id="about">
-      <About client:only="react" />
+    <section 
+      class="bg-fgColor" 
+      id="about"
+      style="--deferred-section-size: 1200px;"
+    >
+      <About client:visible />
     </section>
 
     <section

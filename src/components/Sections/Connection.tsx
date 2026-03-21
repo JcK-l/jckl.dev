@@ -47,11 +47,7 @@ const Connection = () => {
     if (!element) {
       return;
     }
-
-    let frameId = 0;
-
-    const updateReservedHeight = () => {
-      const nextHeight = element.getBoundingClientRect().height;
+    const updateReservedHeight = (nextHeight: number) => {
       const overlapAllowance =
         window.innerWidth < BREAKPOINTS.sm
           ? 24
@@ -67,27 +63,35 @@ const Connection = () => {
 
       // Small screens keep the card mostly above the separator to avoid
       // colliding with the section above; larger screens can sink deeper.
-      setReservedHeight(
-        Math.max(Math.round(nextHeight - overlapAllowance), 360)
+      const computedHeight = Math.max(
+        Math.round(nextHeight - overlapAllowance),
+        360
+      );
+
+      setReservedHeight((currentHeight) =>
+        currentHeight === computedHeight ? currentHeight : computedHeight
       );
     };
 
-    const scheduleUpdateReservedHeight = () => {
-      window.cancelAnimationFrame(frameId);
-      frameId = window.requestAnimationFrame(updateReservedHeight);
+    const resizeObserver = new ResizeObserver((entries) => {
+      const entry = entries[0];
+
+      if (!entry) {
+        return;
+      }
+
+      updateReservedHeight(entry.contentRect.height);
+    });
+    const handleResize = () => {
+      updateReservedHeight(element.clientHeight);
     };
 
-    scheduleUpdateReservedHeight();
-
-    const resizeObserver = new ResizeObserver(scheduleUpdateReservedHeight);
-
     resizeObserver.observe(element);
-    window.addEventListener("resize", scheduleUpdateReservedHeight);
+    window.addEventListener("resize", handleResize);
 
     return () => {
       resizeObserver.disconnect();
-      window.removeEventListener("resize", scheduleUpdateReservedHeight);
-      window.cancelAnimationFrame(frameId);
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 

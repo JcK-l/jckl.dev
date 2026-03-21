@@ -2,6 +2,66 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/Poppins/Poppins-Regular.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/Poppins/Poppins-Bold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/Poppins/Poppins-ExtraBold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Source Sans 3";
+  src: url("/fonts/Source_Sans_3/SourceSans3-VariableFont_wght.woff2")
+    format("woff2");
+  font-style: normal;
+  font-weight: 200 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Source Sans 3";
+  src: url("/fonts/Source_Sans_3/SourceSans3-Italic-VariableFont_wght.woff2")
+    format("woff2");
+  font-style: italic;
+  font-weight: 200 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Roboto Mono";
+  src: url("/fonts/Roboto_Mono/RobotoMono-VariableFont_wght.woff2")
+    format("woff2");
+  font-style: normal;
+  font-weight: 100 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Roboto Mono";
+  src: url("/fonts/Roboto_Mono/RobotoMono-Italic-VariableFont_wght.woff2")
+    format("woff2");
+  font-style: italic;
+  font-weight: 100 700;
+  font-display: swap;
+}
+
 @layer components {
   .page-margins {
     @apply mx-12 sm:mx-16 lg:mx-20 xl:mx-24 desk:mx-32 desk-l:mx-44 desk-xl:mx-64;
@@ -22,10 +82,10 @@
     @apply font-heading text-s-h5 font-extrabold sm:text-m-h5 desk-l:text-l-h5;
   }
   .p-text {
-    @apply font-heading text-s-p font-normal sm:text-m-p lg:text-l-p;
+    @apply font-sans text-s-p font-normal sm:text-m-p lg:text-l-p;
   }
   .small-text {
-    @apply font-heading text-s-sm font-normal sm:text-m-sm lg:text-l-sm;
+    @apply font-sans text-s-sm font-normal sm:text-m-sm lg:text-l-sm;
   }
   .button-on {
     @apply bg-secondary rounded-lg text-white cursor-pointer hover:bg-tertiary

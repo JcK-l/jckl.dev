@@ -1,14 +1,17 @@
 ---
+import {
+  heroPortraitSizes,
+  heroPortraitSrc,
+  heroPortraitSrcSet,
+} from "../data/heroImage";
+
 export interface Props {
   title: string;
 }
 
 const { title } = Astro.props;
 const isDebug = import.meta.env.DEV;
-const headingFontsHref =
-  "https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;800&display=swap";
-const applianceFontsHref =
-  "https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap";
+const enableReactScan = isDebug && Astro.url.searchParams.has("react-scan");
 ---
 
 <head>
@@ -35,7 +38,7 @@ const applianceFontsHref =
     }
   </script>
   {
-    isDebug && (
+    enableReactScan && (
       <script is:inline>
         const script = document.createElement("script");
         script.src = "https://unpkg.com/react-scan/dist/auto.global.js";
@@ -44,43 +47,26 @@ const applianceFontsHref =
     )
   }
   <link rel="icon" type="image/svg+xml" href="/favicon_io/favicon.ico" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    rel="stylesheet"
-    href={headingFontsHref}
-    media="print"
-    onload="this.media='all'"
+    rel="preload"
+    href="/fonts/Source_Sans_3/SourceSans3-VariableFont_wght.woff2"
+    as="font"
+    type="font/woff2"
+    crossorigin
   />
-  <script is:inline define:vars={{ applianceFontsHref }}>
-    const loadApplianceFonts = () => {
-      if (document.querySelector("link[data-appliance-fonts='true']")) {
-        return;
-      }
-
-      const link = document.createElement("link");
-      link.rel = "stylesheet";
-      link.href = applianceFontsHref;
-      link.dataset.applianceFonts = "true";
-      document.head.appendChild(link);
-    };
-
-    if ("requestIdleCallback" in window) {
-      window.requestIdleCallback(loadApplianceFonts, { timeout: 2000 });
-    } else {
-      window.addEventListener("load", loadApplianceFonts, { once: true });
-    }
-  </script>
-  <noscript>
-    <link rel="stylesheet" href={headingFontsHref} />
-    <link rel="stylesheet" href={applianceFontsHref} />
-  </noscript>
+  <link
+    rel="preload"
+    href="/fonts/Poppins/Poppins-ExtraBold.woff2"
+    as="font"
+    type="font/woff2"
+    crossorigin
+  />
   <link
     rel="preload"
     as="image"
-    href="/MeTransparent-md.avif"
-    imagesrcset="/MeTransparent-sm.avif 500w, /MeTransparent-md.avif 1000w, /MeTransparent-l.avif 1500w, /MeTransparent-xl.avif 2000w"
-    imagesizes="(max-width: 639px) 83vw, (max-width: 767px) 75vw, (max-width: 1023px) 67vw, (max-width: 1535px) 50vw, (max-width: 1899px) 42vw, 33vw"
+    href={heroPortraitSrc}
+    imagesrcset={heroPortraitSrcSet}
+    imagesizes={heroPortraitSizes}
     fetchpriority="high"
   />
   <meta name="generator" content={Astro.generator} />
