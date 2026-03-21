@@ -38,16 +38,13 @@ const Call = () => {
   const phoneNumber = useStore($phoneNumber);
   const offScriptCount = useStore($offScriptCount);
   const gameState = useStore($gameState);
+  const isNegativeEndingActive = isEndingActive("negative", endingState);
 
   useEffect(() => {
     $offScriptCount.set(getStoredOffScriptCount());
   }, [endingState]);
 
   const isFinal = hasUnlockedAllEndings(endingState);
-
-  if (isEndingActive("negative", endingState)) {
-    return <div></div>;
-  }
   const project =
     phoneNumber === null
       ? undefined
@@ -237,7 +234,12 @@ const Call = () => {
   };
 
   return (
-    <div className="page-margins relative bg-fgColor py-4">
+    <div
+      aria-hidden={isNegativeEndingActive}
+      className={`page-margins relative bg-fgColor py-4 ${
+        isNegativeEndingActive ? "pointer-events-none invisible" : ""
+      }`}
+    >
       <div
         className={
           shouldShowPhone

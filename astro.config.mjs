@@ -2,6 +2,7 @@ import { defineConfig } from "astro/config";
 import tailwind from "@astrojs/tailwind";
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
+import reactComponentName from "react-scan/react-component-name/astro";
 
 import netlify from "@astrojs/netlify";
 
@@ -15,6 +16,7 @@ export default defineConfig({
         // applyBaseStyles: false,
       },
     }),
+    reactComponentName(),
     react(),
     sitemap(),
     (await import("@playform/compress")).default({

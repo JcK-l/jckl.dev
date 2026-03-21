@@ -10,8 +10,6 @@ export interface Props {
 }
 
 const { title } = Astro.props;
-const isDebug = import.meta.env.DEV;
-const enableReactScan = isDebug && Astro.url.searchParams.has("react-scan");
 ---
 
 <head>
@@ -37,15 +35,6 @@ const enableReactScan = isDebug && Astro.url.searchParams.has("react-scan");
       window.scrollTo(0, 0);
     }
   </script>
-  {
-    enableReactScan && (
-      <script is:inline>
-        const script = document.createElement("script");
-        script.src = "https://unpkg.com/react-scan/dist/auto.global.js";
-        document.head.appendChild(script);
-      </script>
-    )
-  }
   <link rel="icon" type="image/svg+xml" href="/favicon_io/favicon.ico" />
   <link
     rel="preload"

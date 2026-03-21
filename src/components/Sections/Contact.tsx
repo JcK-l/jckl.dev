@@ -154,7 +154,9 @@ const Contact = () => {
   const [transferSourcePoint, setTransferSourcePoint] =
     useState<ViewportPoint | null>(null);
   const [crtScreenOpacity, setCrtScreenOpacity] = useState(0);
+  const [reservedContentHeight, setReservedContentHeight] = useState(0);
   const submitButtonRef = useRef<HTMLButtonElement>(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
   const formRef = useRef<FormElement | null>(null);
   const wasEndingActiveRef = useRef(endingState.isActive);
   const staticPlaybackRef = useRef<CachedAudioPlayback | null>(null);
@@ -342,45 +344,57 @@ const Contact = () => {
       return;
     }
 
-    let frameId = 0;
+    const playback = staticPlaybackRef.current;
+    const nextOpacity = getContactStaticVisualOpacity();
 
-    const updateStaticGain = () => {
-      const playback = staticPlaybackRef.current;
-      const nextOpacity = getContactStaticVisualOpacity();
+    if (playback !== null) {
+      rampPlaybackGain(playback, getContactStaticTargetGain(isNegativeEndingActive));
+    }
 
-      if (playback === null) {
-        setCrtScreenOpacity(nextOpacity);
-        return;
-      }
+    setCrtScreenOpacity((currentOpacity) => {
+      return Math.abs(currentOpacity - nextOpacity) < 0.01
+        ? currentOpacity
+        : nextOpacity;
+    });
+  }, [isNegativeEndingActive, shouldPlayContactStatic]);
 
-      rampPlaybackGain(
-        playback,
-        getContactStaticTargetGain(isNegativeEndingActive)
-      );
-      setCrtScreenOpacity((currentOpacity) => {
-        return Math.abs(currentOpacity - nextOpacity) < 0.01
-          ? currentOpacity
-          : nextOpacity;
+  useEffect(() => {
+    if (shouldHideContact) {
+      return;
+    }
+
+    const element = contentRef.current;
+
+    if (!element) {
+      return;
+    }
+
+    const updateReservedContentHeight = (nextHeight: number) => {
+      const roundedHeight = Math.round(nextHeight);
+
+      setReservedContentHeight((currentHeight) => {
+        return currentHeight === roundedHeight ? currentHeight : roundedHeight;
       });
     };
 
-    const scheduleStaticGainUpdate = () => {
-      window.cancelAnimationFrame(frameId);
-      frameId = window.requestAnimationFrame(updateStaticGain);
-    };
+    updateReservedContentHeight(element.getBoundingClientRect().height);
 
-    scheduleStaticGainUpdate();
-    window.addEventListener("scroll", scheduleStaticGainUpdate, {
-      passive: true,
+    const resizeObserver = new ResizeObserver((entries) => {
+      const entry = entries[0];
+
+      if (!entry) {
+        return;
+      }
+
+      updateReservedContentHeight(entry.contentRect.height);
     });
-    window.addEventListener("resize", scheduleStaticGainUpdate);
+
+    resizeObserver.observe(element);
 
     return () => {
-      window.cancelAnimationFrame(frameId);
-      window.removeEventListener("scroll", scheduleStaticGainUpdate);
-      window.removeEventListener("resize", scheduleStaticGainUpdate);
+      resizeObserver.disconnect();
     };
-  }, [isNegativeEndingActive, shouldPlayContactStatic]);
+  }, [shouldHideContact]);
 
   useEffect(() => {
     if (phase !== "delivering" || !isEndingModeActive) {
@@ -428,7 +442,14 @@ const Contact = () => {
       }
       renderItem={() =>
         shouldHideContact ? (
-          <div className="page-margins relative z-20 py-16 sm:py-24">
+          <div
+            className="page-margins relative z-20 py-16 sm:py-24"
+            style={
+              reservedContentHeight > 0
+                ? { minHeight: `${reservedContentHeight}px` }
+                : undefined
+            }
+          >
             <div className="border-white/15 bg-bgColor/28 text-white/70 mx-auto min-h-[12rem] max-w-2xl rounded-[2rem] border px-6 py-10 text-center backdrop-blur-[2px] sm:px-10 sm:py-14">
               <p className="text-white/50 font-mono text-[0.72rem] uppercase tracking-[0.18em]">
                 Another Timeline Is Open
@@ -440,7 +461,7 @@ const Contact = () => {
             </div>
           </div>
         ) : (
-          <div className="page-margins relative z-20 py-8">
+          <div className="page-margins relative z-20 py-8" ref={contentRef}>
             <div
               className={`flex flex-col items-center justify-between sm:flex-row sm:items-start ${
                 isEndingSequenceVisible ? "pointer-events-none" : ""
@@ -541,8 +562,6 @@ const Contact = () => {
                       } else {
                         event.target.setCustomValidity("");
                       }
-
-                      event.target.reportValidity();
                     }
                   }}
                   required

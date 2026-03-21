@@ -1,7 +1,7 @@
 import { useStore } from "@nanostores/react";
 import { useRef } from "react";
 import { useScroll, useTransform, motion } from "framer-motion";
-import { $endingState } from "../stores/endingStore";
+import { $endingState, isEndingActive } from "../stores/endingStore";
 import {
   heroPortraitSizes,
   heroPortraitSrc,
@@ -10,6 +10,13 @@ import {
 
 export const Face = () => {
   const endingState = useStore($endingState);
+  const isNegativeEndingActive = isEndingActive("negative", endingState);
+  const imageX =
+    endingState.selectedSentiment === "positive"
+      ? "-19%"
+      : endingState.selectedSentiment === "neutral"
+        ? "-6%"
+        : "0%";
   let ref = useRef(null);
 
   let { scrollYProgress } = useScroll({
@@ -51,22 +58,20 @@ export const Face = () => {
         <path style={{ fill: "none" }} d="M 0,0 V 743 H 900 V 0 Z" />
       </svg>
 
-      {endingState.selectedSentiment === "negative" ? (
-        <div></div>
-      ) : (
-        <motion.div
-          style={{ y: layer }}
-          className="absolute bottom-0 left-0 mix-blend-screen"
-        >
-          <img
-            {...imageProps}
-            className="block"
-            decoding="async"
-            fetchpriority="high"
-            loading="eager"
-          />
-        </motion.div>
-      )}
+      <motion.div
+        style={{ x: imageX, y: layer }}
+        className={`absolute bottom-0 left-0 mix-blend-screen ${
+          isNegativeEndingActive ? "pointer-events-none invisible" : ""
+        }`}
+      >
+        <img
+          {...imageProps}
+          className="block max-w-none"
+          decoding="async"
+          fetchpriority="high"
+          loading="eager"
+        />
+      </motion.div>
 
       <svg
         className="absolute left-0 top-0 z-10"

@@ -17,7 +17,7 @@ const ENDING_SECTION_ID = "about";
 const ORIGINAL_SECTION_ID = "crtMission";
 
 const jumpToSection = (sectionId: string) => {
-  if (typeof document === "undefined") {
+  if (typeof document === "undefined" || typeof window === "undefined") {
     return;
   }
 
@@ -27,7 +27,24 @@ const jumpToSection = (sectionId: string) => {
     return;
   }
 
-  targetSection.scrollIntoView({ behavior: "auto", block: "start" });
+  const targetBounds = targetSection.getBoundingClientRect();
+  const viewportHeight =
+    window.innerHeight || document.documentElement.clientHeight;
+  const isAlreadyNearViewportTop =
+    targetBounds.top >= -24 && targetBounds.top <= viewportHeight * 0.35;
+
+  if (isAlreadyNearViewportTop) {
+    return;
+  }
+
+  const prefersReducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
+  ).matches;
+
+  targetSection.scrollIntoView({
+    behavior: prefersReducedMotion ? "auto" : "smooth",
+    block: "start",
+  });
 };
 
 export const enterEnding = (sentiment: SentimentLabel) => {

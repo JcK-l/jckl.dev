@@ -8,13 +8,16 @@ import Connection from "../components/Sections/Connection";
 import Call from "../components/Sections/Call";
 import StarConstellation from "../components/Sections/StarConstellation";
 import CrtMission from "../components/Sections/CrtMission";
+import { ReactScanDebug } from "../components/ReactScanDebug";
 import { ThemeDebugToggle } from "../components/ThemeDebugToggle";
 
 const showThemeDebugToggle = import.meta.env.DEV;
+const showReactScanDebug = import.meta.env.DEV;
 ---
 
 <Layout title="Welcome to my site!">
   {showThemeDebugToggle ? <ThemeDebugToggle client:load /> : null}
+  {showReactScanDebug ? <ReactScanDebug client:load /> : null}
   <main>
     <section class="bg-fgColor" id="hero">
       <Hero client:idle />
@@ -25,7 +28,7 @@ const showThemeDebugToggle = import.meta.env.DEV;
       id="starConstellation"
       style="--deferred-section-size: 780px;"
     >
-      <StarConstellation client:visible />
+      <StarConstellation client:idle />
     </section>
 
     <section 
@@ -40,7 +43,7 @@ const showThemeDebugToggle = import.meta.env.DEV;
       id="crtMission"
       style="--deferred-section-size: 1100px;"
     >
-      <CrtMission client:visible />
+      <CrtMission client:idle />
     </section>
 
     <section
@@ -48,7 +51,7 @@ const showThemeDebugToggle = import.meta.env.DEV;
       id="projects"
       style="--deferred-section-size: 760px;"
     >
-      <Projects client:visible />
+      <Projects client:idle />
     </section>
 
     <section
@@ -56,7 +59,7 @@ const showThemeDebugToggle = import.meta.env.DEV;
       id="connection"
       style="--deferred-section-size: 880px;"
     >
-      <Connection client:visible />
+      <Connection client:idle />
     </section>
 
     <section
@@ -64,15 +67,14 @@ const showThemeDebugToggle = import.meta.env.DEV;
       id="call"
       style="--deferred-section-size: 980px;"
     >
-      <Call client:visible />
+      <Call client:idle />
     </section>
 
     <section
-      class="deferred-section"
       id="contact"
       style="--deferred-section-size: 840px;"
     >
-      <Contact client:visible />
+      <Contact client:idle />
     </section>
   </main>
 </Layout>

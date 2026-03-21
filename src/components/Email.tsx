@@ -1,4 +1,5 @@
 
+import { useEffect, useState } from "react";
 import { ApplianceShell } from "./ApplianceShell";
 import { ApplianceTerminal } from "./ApplianceTerminal";
 
@@ -14,11 +15,17 @@ export const Email = ({ name, email, message, date, isMail }: EmailProps) => {
   const trimmedName = name.trim();
   const subject = trimmedName ? `New email from ${trimmedName}` : "New email";
   const senderInitial = trimmedName.charAt(0).toUpperCase() || "?";
-  const inboxDate = new Intl.DateTimeFormat(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  }).format(new Date());
+  const [inboxDate, setInboxDate] = useState("Today");
+
+  useEffect(() => {
+    setInboxDate(
+      new Intl.DateTimeFormat(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      }).format(new Date())
+    );
+  }, []);
 
   if (!isMail) return null;
 

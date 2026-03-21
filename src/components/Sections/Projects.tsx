@@ -7,16 +7,18 @@ import { $endingState, isEndingActive } from "../../stores/endingStore";
 const Projects = () => {
   const endingState = useStore($endingState);
   const [activeProjectId, setActiveProjectId] = useState(projects[0]?.id ?? 0);
+  const isNegativeEndingActive = isEndingActive("negative", endingState);
 
   const activeProject =
     projects.find((project) => project.id === activeProjectId) ?? projects[0];
 
-  if (isEndingActive("negative", endingState)) {
-    return <div></div>;
-  }
-
   return (
-    <div className="page-margins relative bg-fgColor py-4">
+    <div
+      aria-hidden={isNegativeEndingActive}
+      className={`page-margins relative bg-fgColor py-4 ${
+        isNegativeEndingActive ? "pointer-events-none invisible" : ""
+      }`}
+    >
       <div className="z-10 w-full text-titleColor">
         <h1 className="h2-text mb-8 inline-block w-auto xl:mb-16">
           My Projects{endingState.selectedSentiment === "positive" ? "!" : ""}

@@ -34,6 +34,7 @@
   "devDependencies": {
     "prettier": "^2.8.8",
     "prettier-plugin-tailwindcss": "^0.3.0",
+    "react-scan": "^0.5.3",
     "ttf2woff2": "^8.0.1"
   }
 }

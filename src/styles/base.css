@@ -313,11 +313,6 @@ html {
   scroll-behavior: smooth;
 }
 
-html,
-body {
-  overflow-anchor: none;
-}
-
 @media only screen and (min-width: 370px) {
   html {
     font-size: 16px;
