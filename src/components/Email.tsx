@@ -1,4 +1,7 @@
 
+import { ApplianceShell } from "./ApplianceShell";
+import { ApplianceTerminal } from "./ApplianceTerminal";
+
 interface EmailProps {
   name: string;
   email: string;
@@ -7,24 +10,148 @@ interface EmailProps {
   isMail: boolean;
 }
 
-export const Email = ({name, email, message, date, isMail}: EmailProps) => {
+export const Email = ({ name, email, message, date, isMail }: EmailProps) => {
+  const trimmedName = name.trim();
+  const subject = trimmedName ? `New email from ${trimmedName}` : "New email";
+  const senderInitial = trimmedName.charAt(0).toUpperCase() || "?";
+  const inboxDate = new Intl.DateTimeFormat(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }).format(new Date());
 
   if (!isMail) return null;
 
   return (
-    <div className="relative w-full">
-      <span>From: {email}</span> <br />
-      <span>To: mail@jckl.dev</span> <br />
-      <span>{date}</span> 
-      <br />
-      <br />
-      <svg height="2" width="100%">
-        <line x1="0" y1="0" x2="75%" y2="0" style={{stroke: 'var(--color-text-color)', strokeWidth: 2}} />
-      </svg>
-      <br />
-      <span className="h5-text text-titleColor">New email from {name}</span> <br />
-      <br />
-      <span>{message}</span> <br />
-    </div>
+    <ApplianceShell className="relative w-full p-3" showHighlight>
+      <div className="p-3">
+        <div className="mb-3 flex items-start justify-between gap-3">
+          <div>
+            <p
+              className="text-[10px] uppercase tracking-[0.24em]"
+              style={{ color: "var(--color-appliance-label)" }}
+            >
+              Mail Viewer
+            </p>
+            <p className="mt-1 text-[0.72rem] tracking-[0.08em] text-primary">
+              incoming correspondence
+            </p>
+          </div>
+          <span
+            className="rounded-full border px-3 py-1 font-appliance text-[0.55rem] uppercase tracking-[0.2em]"
+            style={{
+              backgroundColor: "var(--color-appliance-control-panel-top)",
+              borderColor: "var(--color-appliance-panel-border)",
+              color: "var(--color-primary)",
+            }}
+          >
+            Read
+          </span>
+        </div>
+        <ApplianceTerminal
+          className="rounded-[1rem] px-0 pb-0 pt-3"
+          headerLabel="Inbox"
+          headerMeta={inboxDate}
+          bodyClassName="overflow-hidden rounded-[inherit]"
+        >
+          <div
+            className="border-b px-4 py-4"
+            style={{ borderColor: "var(--color-appliance-screen-border)" }}
+          >
+            <p
+              className="text-[0.55rem] uppercase tracking-[0.24em]"
+              style={{ color: "var(--color-appliance-screen-muted)" }}
+            >
+              Subject
+            </p>
+            <p className="mt-2 font-sans text-[1rem] font-semibold leading-6">
+              {subject}
+            </p>
+          </div>
+          <div
+            className="grid gap-4 border-b px-4 py-4 md:grid-cols-[minmax(0,12rem)_1fr]"
+            style={{ borderColor: "var(--color-appliance-screen-border)" }}
+          >
+            <div className="flex items-center gap-3">
+              <div
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border font-heading text-base font-bold uppercase"
+                style={{
+                  backgroundColor: "rgba(241,250,238,0.08)",
+                  borderColor: "rgba(241,250,238,0.22)",
+                }}
+              >
+                {senderInitial}
+              </div>
+              <div className="min-w-0">
+                <p className="font-sans text-[0.95rem] font-semibold leading-5">
+                  {trimmedName || "Unknown sender"}
+                </p>
+                <p
+                  className="break-all text-[0.68rem] tracking-[0.06em]"
+                  style={{ color: "var(--color-appliance-screen-muted)" }}
+                >
+                  {email}
+                </p>
+              </div>
+            </div>
+            <dl className="grid gap-3 text-[0.72rem] leading-5 sm:grid-cols-3 sm:gap-4">
+              <div>
+                <dt
+                  className="text-[0.55rem] uppercase tracking-[0.2em]"
+                  style={{ color: "var(--color-appliance-screen-muted)" }}
+                >
+                  From
+                </dt>
+                <dd className="mt-1 font-sans text-[0.85rem] leading-5">
+                  {email}
+                </dd>
+              </div>
+              <div>
+                <dt
+                  className="text-[0.55rem] uppercase tracking-[0.2em]"
+                  style={{ color: "var(--color-appliance-screen-muted)" }}
+                >
+                  To
+                </dt>
+                <dd className="mt-1 font-sans text-[0.85rem] leading-5">
+                  mail@jckl.dev
+                </dd>
+              </div>
+              <div>
+                <dt
+                  className="text-[0.55rem] uppercase tracking-[0.2em]"
+                  style={{ color: "var(--color-appliance-screen-muted)" }}
+                >
+                  Received
+                </dt>
+                <dd className="mt-1 font-sans text-[0.85rem] leading-5">
+                  {date}
+                </dd>
+              </div>
+            </dl>
+          </div>
+          <div className="px-4 py-4">
+            <div
+              className="rounded-[0.95rem] border px-4 py-4"
+              style={{
+                backgroundColor: "rgba(15,31,52,0.24)",
+                borderColor: "rgba(241,250,238,0.16)",
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
+              }}
+            >
+              <p
+                className="mb-3 text-[0.55rem] uppercase tracking-[0.24em]"
+                style={{ color: "var(--color-appliance-screen-muted)" }}
+              >
+                Message
+              </p>
+              <p className="whitespace-pre-wrap font-sans text-[0.95rem] leading-7">
+                {message}
+              </p>
+            </div>
+          </div>
+        </ApplianceTerminal>
+      </div>
+    </ApplianceShell>
   );
-}
+};

@@ -62,6 +62,7 @@ export const PuzzlePieceTransfer = ({
   const frameRef = useRef<number | null>(null);
   const onStartRef = useRef(onStart);
   const onCompleteRef = useRef(onComplete);
+  const handledTriggerKeyRef = useRef(0);
   const [burst, setBurst] = useState<TransferBurst | null>(null);
 
   useEffect(() => {
@@ -73,9 +74,11 @@ export const PuzzlePieceTransfer = ({
   }, [onComplete]);
 
   useEffect(() => {
-    if (triggerKey === 0) {
+    if (triggerKey === 0 || triggerKey === handledTriggerKeyRef.current) {
       return;
     }
+
+    handledTriggerKeyRef.current = triggerKey;
 
     let isCancelled = false;
     const prefersReducedMotion =

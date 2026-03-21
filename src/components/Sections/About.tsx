@@ -6,7 +6,6 @@ import { Email } from "../Email";
 import { useStore } from "@nanostores/react";
 import { $endingState, isEndingActive } from "../../stores/endingStore";
 import { $endingMailBySentiment } from "../../stores/endingMailStore";
-import { exitEndingToOriginal } from "../../utility/endingMode";
 
 const About = () => {
   const ref = useRef<HTMLDivElement>(null);
@@ -43,7 +42,7 @@ const About = () => {
     <>
       {/* <FlyingMan ref={ref} /> */}
       <div className="page-margins relative py-4" ref={ref}>
-        <div className="z-10 mb-8 flex w-full items-start justify-between gap-4 xl:mb-24">
+        <div className="z-10 mb-8 flex w-full items-start gap-4 xl:mb-24">
           {endingState.selectedSentiment === "negative" ? (
             <div className="flex-1" />
           ) : (
@@ -54,23 +53,6 @@ const About = () => {
               </h1>
             </div>
           )}
-          {isEndingModeActive ? (
-            <button
-              type="button"
-              className="focus:ring-white/70 inline-flex shrink-0 items-center rounded-full border px-4 py-3 font-mono text-[0.68rem] uppercase tracking-[0.18em] transition hover:-translate-y-0.5 hover:bg-secondary hover:text-white focus:outline-none focus:ring-2 active:translate-y-0"
-              onClick={() => {
-                exitEndingToOriginal();
-              }}
-              style={{
-                backgroundColor: "var(--color-appliance-control-panel-top)",
-                borderColor: "var(--color-appliance-panel-border)",
-                boxShadow: "0 0.85rem 1.2rem rgba(35,25,66,0.12)",
-                color: "var(--color-primary)",
-              }}
-            >
-              Back To Original
-            </button>
-          ) : null}
         </div>
 
         <PuzzleProvider>

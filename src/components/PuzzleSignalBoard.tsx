@@ -1,8 +1,11 @@
+import { useStore } from "@nanostores/react";
 import {
   puzzleGroups,
   getNextPuzzleHint,
   type DispensedGroups,
 } from "../data/puzzleGroups";
+import { $endingState, isEndingActive } from "../stores/endingStore";
+import { exitEndingToOriginal } from "../utility/endingMode";
 import { ApplianceShell } from "./ApplianceShell";
 import { ApplianceTerminal } from "./ApplianceTerminal";
 
@@ -12,12 +15,20 @@ interface PuzzleSignalBoardProps {
   totalPlacedPieces: number;
 }
 
+const totalPuzzlePieces = puzzleGroups.reduce((count, group) => {
+  return count + group.pieces.length;
+}, 0);
+
 export const PuzzleSignalBoard = ({
   binaryState,
   dispensedGroups,
   totalPlacedPieces,
 }: PuzzleSignalBoardProps) => {
+  const endingState = useStore($endingState);
   const nextHint = getNextPuzzleHint(binaryState, totalPlacedPieces);
+  const isPuzzleComplete = totalPlacedPieces >= totalPuzzlePieces;
+  const showReturnToOriginal =
+    isPuzzleComplete && isEndingActive(undefined, endingState);
 
   return (
     <ApplianceShell className="mb-4 p-3">
@@ -66,10 +77,28 @@ export const PuzzleSignalBoard = ({
             })}
           </div>
         </div>
-        <ApplianceTerminal className="min-h-[3.3rem] rounded-[0.95rem] px-3 py-3">
-          <p className="text-[0.72rem] tracking-[0.08em]">
-            {nextHint}
-          </p>
+        <ApplianceTerminal
+          className="rounded-[0.95rem] px-3 py-3"
+        >
+          {showReturnToOriginal ? (
+            <p className="text-[0.72rem] leading-6 tracking-[0.08em]">
+              Signal lock complete. Picture stabilized.{" "}
+              <button
+                type="button"
+                className="focus:ring-white/60 inline cursor-pointer rounded-sm font-semibold underline underline-offset-4 transition-colors hover:text-extra2 focus:outline-none focus:ring-2"
+                onClick={() => {
+                  exitEndingToOriginal();
+                }}
+              >
+                Return
+              </button>{" "}
+              the cache to the original timeline when you're ready.
+            </p>
+          ) : (
+            <p className="text-[0.72rem] tracking-[0.08em]">
+              {nextHint}
+            </p>
+          )}
         </ApplianceTerminal>
       </div>
     </ApplianceShell>
