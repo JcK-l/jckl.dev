@@ -60,54 +60,34 @@ export const PhonewaveTimerControls = ({
         className="pointer-events-none absolute inset-0 opacity-60"
         style={{ backgroundImage: "var(--color-appliance-control-pattern)" }}
       />
-      <div
-        className="pointer-events-none absolute right-3 top-3 h-[5.25rem] w-[2.4rem] rounded-full opacity-55"
-        style={{ backgroundImage: "var(--color-appliance-control-vent)" }}
-      />
       <div className="relative lg:pl-1">
         <div className="mb-4 flex items-start justify-between gap-3">
-          <div className="space-y-1">
-            <p
-              className="font-mono text-[0.56rem] uppercase tracking-[0.32em]"
-              style={{ color: "var(--color-appliance-label)" }}
-            >
-              phone microwave
-            </p>
-            <p className="font-mono text-[0.72rem] tracking-[0.08em] text-[var(--color-primary)]">
-              timer setting
-            </p>
-          </div>
+          <p
+            className="text-[0.56rem] uppercase tracking-[0.32em]"
+            style={{ color: "var(--color-appliance-label)" }}
+          >
+            timer setting
+          </p>
           <span
-            className="rounded-full border px-2.5 py-1 font-mono text-[0.54rem] uppercase tracking-[0.2em]"
+            className="rounded-full border px-2.5 py-1 text-[0.54rem] uppercase tracking-[0.2em]"
             style={statusStyles}
           >
             {statusLabel}
           </span>
         </div>
         <div
-          className="rounded-[1.25rem] border p-3"
+          className="rounded-[1.1rem] p-3"
           style={{
-            background:
-              "linear-gradient(180deg, var(--color-appliance-control-panel-top), var(--color-appliance-control-panel-bottom))",
-            borderColor: "var(--color-appliance-control-panel-border)",
-            boxShadow:
-              "inset 0 1px 0 rgba(255,255,255,0.9), inset 0 -0.85rem 1.15rem rgba(94,84,142,0.08), 0 0.9rem 1.4rem rgba(35,25,66,0.1)",
+            backgroundColor: "var(--color-appliance-control-panel-top)",
           }}
         >
-          <div className="mb-3 flex items-center justify-between gap-2">
+          <div className="mb-3">
             <p
-              className="font-mono text-[0.54rem] uppercase tracking-[0.28em]"
+              className="text-[0.54rem] uppercase tracking-[0.28em]"
               style={{ color: "var(--color-appliance-label)" }}
             >
-              time setting
+              offset
             </p>
-            <span
-              className="h-2.5 w-2.5 rounded-full"
-              style={{
-                backgroundColor: statusColor,
-                boxShadow: `0 0 16px ${statusColor}`,
-              }}
-            />
           </div>
           <div className="grid grid-cols-2 gap-2">
             {TIMER_FIELDS.map(({ key, label, shortLabel }) => {
@@ -127,20 +107,22 @@ export const PhonewaveTimerControls = ({
                       ? statusColor
                       : "var(--color-appliance-control-panel-border)",
                     boxShadow: isSelected
-                      ? `inset 0 1px 0 rgba(255,255,255,0.28), 0 0.7rem 1.1rem ${statusColor}33`
-                      : "inset 0 1px 0 rgba(255,255,255,0.92), 0 0.55rem 0.9rem rgba(35,25,66,0.08)",
+                      ? "inset 0 1px 0 rgba(255,255,255,0.22)"
+                      : "inset 0 1px 0 rgba(255,255,255,0.58)",
                   }}
                 >
                   <span
-                    className="block font-mono text-[1.3rem] uppercase tracking-[0.24em]"
+                    className="block tabular-nums text-[1.3rem] uppercase tracking-[0.24em]"
                     style={{
-                      color: isSelected ? "var(--color-white)" : "var(--color-primary)",
+                      color: isSelected
+                        ? "var(--color-white)"
+                        : "var(--color-primary)",
                     }}
                   >
                     {getDisplayValue(values[key])}
                   </span>
                   <span
-                    className="mt-1 block font-mono text-[0.54rem] uppercase tracking-[0.28em]"
+                    className="mt-1 block text-[0.54rem] uppercase tracking-[0.28em]"
                     style={{
                       color: isSelected
                         ? "var(--color-white-shade)"
@@ -160,14 +142,13 @@ export const PhonewaveTimerControls = ({
             <button
               key={digit}
               type="button"
-              className="rounded-[1rem] border px-0 py-3 font-mono text-[1rem] uppercase tracking-[0.18em] text-[var(--color-primary)] transition active:translate-y-[1px]"
+              className="rounded-[1rem] border px-0 py-3 tabular-nums text-[1rem] uppercase tracking-[0.18em] text-[var(--color-primary)] transition active:translate-y-[1px]"
               onClick={() => onDigit(digit)}
               style={{
                 background:
                   "linear-gradient(180deg, var(--color-appliance-control-button-top), var(--color-appliance-control-button-bottom))",
                 borderColor: "var(--color-appliance-control-button-border)",
-                boxShadow:
-                  "inset 0 1px 0 rgba(255,255,255,0.92), 0 0.55rem 0.9rem rgba(35,25,66,0.08)",
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.55)",
               }}
             >
               {digit}
@@ -175,40 +156,38 @@ export const PhonewaveTimerControls = ({
           ))}
           <button
             type="button"
-            className="rounded-[1rem] border px-0 py-3 font-mono text-[0.7rem] uppercase tracking-[0.22em] text-[var(--color-baloon1)] transition active:translate-y-[1px]"
+            className="rounded-[1rem] border px-0 py-3 text-[0.7rem] uppercase tracking-[0.22em] text-[var(--color-baloon1)] transition active:translate-y-[1px]"
             onClick={onBack}
             style={{
               background:
                 "linear-gradient(180deg, var(--color-appliance-control-danger-top), var(--color-appliance-control-danger-bottom))",
               borderColor: "var(--color-appliance-control-danger-border)",
-              boxShadow:
-                "inset 0 1px 0 rgba(255,255,255,0.85), 0 0.55rem 0.9rem rgba(172,57,49,0.14)",
+              boxShadow: "inset 0 1px 0 rgba(255,255,255,0.45)",
             }}
           >
             BKSP
           </button>
           <button
             type="button"
-            className="rounded-[1rem] border px-0 py-3 font-mono text-[1rem] uppercase tracking-[0.18em] text-[var(--color-primary)] transition active:translate-y-[1px]"
+            className="rounded-[1rem] border px-0 py-3 tabular-nums text-[1rem] uppercase tracking-[0.18em] text-[var(--color-primary)] transition active:translate-y-[1px]"
             onClick={() => onDigit("0")}
             style={{
               background:
                 "linear-gradient(180deg, var(--color-appliance-control-button-top), var(--color-appliance-control-button-bottom))",
               borderColor: "var(--color-appliance-control-button-border)",
-              boxShadow:
-                "inset 0 1px 0 rgba(255,255,255,0.92), 0 0.55rem 0.9rem rgba(35,25,66,0.08)",
+              boxShadow: "inset 0 1px 0 rgba(255,255,255,0.55)",
             }}
           >
             0
           </button>
           <button
             type="button"
-            className="rounded-[1rem] border px-0 py-3 font-mono text-[0.7rem] uppercase tracking-[0.22em] text-[var(--color-white)] transition active:translate-y-[1px]"
+            className="rounded-[1rem] border px-0 py-3 text-[0.7rem] uppercase tracking-[0.22em] text-[var(--color-white)] transition active:translate-y-[1px]"
             onClick={onSubmit}
             style={{
               background: statusColor,
               borderColor: statusColor,
-              boxShadow: `inset 0 1px 0 rgba(255,255,255,0.2), 0 0.7rem 1.1rem ${statusColor}3d`,
+              boxShadow: "inset 0 1px 0 rgba(255,255,255,0.18)",
             }}
           >
             START

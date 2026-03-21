@@ -189,69 +189,42 @@ export const Phonewave = ({
       className={`mx-auto flex min-h-[24rem] w-full flex-col px-5 py-5 md:px-7 lg:h-full ${className}`}
       radius="2rem"
       showHighlight
-      ventClassName="right-7 top-[5.2rem] h-3.5 w-24"
     >
       <div
-        className="flex items-start justify-between gap-4 border-b pb-4"
+        className="flex items-start gap-4 border-b pb-4"
         style={{ borderColor: "var(--color-appliance-shell-border)" }}
       >
         <div className="space-y-1.5">
           <p
-            className="font-mono text-[0.56rem] uppercase tracking-[0.3em]"
+            className="text-[0.56rem] uppercase tracking-[0.3em]"
             style={{ color: "var(--color-appliance-label)" }}
           >
             future gadget no. 8
           </p>
-          <p className="font-mono text-[0.86rem] tracking-[0.08em] text-[var(--color-primary)] sm:text-[0.98rem]">
+          <p className="text-[0.86rem] tracking-[0.08em] text-[var(--color-primary)] sm:text-[0.98rem]">
             PhoneWave (name subject to change)
           </p>
         </div>
-        <span
-          className="shrink-0 rounded-full border px-3 py-1.5 font-mono text-[0.54rem] uppercase tracking-[0.22em]"
-          style={{
-            backgroundColor: "var(--color-appliance-control-panel-top)",
-            borderColor: "var(--color-appliance-control-panel-border)",
-            color: "var(--color-primary)",
-          }}
-        >
-          phone microwave
-        </span>
       </div>
-      <div
-        className="relative mt-4 flex flex-1 overflow-hidden rounded-[1.45rem] border p-4 sm:p-5"
-        style={{
-          background:
-            "linear-gradient(180deg, var(--color-appliance-panel-top), var(--color-appliance-panel-bottom))",
-          borderColor: "var(--color-appliance-panel-border)",
-          boxShadow: "inset 0 0 0 1px var(--color-appliance-panel-highlight)",
-        }}
-      >
-        <div
-          className="pointer-events-none absolute inset-0 opacity-70"
-          style={{ backgroundImage: "var(--color-appliance-panel-pattern)" }}
+      <div className="mt-5 grid flex-1 gap-4 lg:grid-cols-[minmax(0,1fr)_17.25rem] lg:gap-5">
+        <PhonewaveScreen
+          animate={variant === "result"}
+          className="lg:mr-1"
+          currentStep={currentStep}
+          lines={lines}
+          onStepComplete={setCurrentStep}
         />
-        <div className="relative flex flex-1 flex-col">
-          <div className="grid flex-1 gap-4 lg:grid-cols-[minmax(0,1fr)_17.25rem] lg:gap-5">
-            <PhonewaveScreen
-              animate={variant === "result"}
-              className="lg:mr-1"
-              currentStep={currentStep}
-              lines={lines}
-              onStepComplete={setCurrentStep}
-            />
-            <PhonewaveTimerControls
-              onBack={handleBack}
-              onDigit={handleDigit}
-              onSelect={setSelectedField}
-              onSubmit={handleSubmit}
-              selectedField={selectedField}
-              shouldWiggle={timerStatus.mode === "too-much"}
-              statusColor={timerStatus.color}
-              statusMode={timerStatus.mode}
-              values={timerValues}
-            />
-          </div>
-        </div>
+        <PhonewaveTimerControls
+          onBack={handleBack}
+          onDigit={handleDigit}
+          onSelect={setSelectedField}
+          onSubmit={handleSubmit}
+          selectedField={selectedField}
+          shouldWiggle={timerStatus.mode === "too-much"}
+          statusColor={timerStatus.color}
+          statusMode={timerStatus.mode}
+          values={timerValues}
+        />
       </div>
     </ApplianceShell>
   );

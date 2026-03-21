@@ -35,20 +35,32 @@ export const Face = () => {
           style={{ y: layer }}
           className={"absolute bottom-0 left-0 mix-blend-screen"}
           src="/jTransparent.avif"
+          alt="Joshua silhouette"
+          decoding="async"
+          fetchPriority="high"
+          loading="eager"
         />
       ) : endingState.selectedSentiment === "positive" ? (
         <motion.img
           style={{ y: layer }}
           className={"absolute bottom-0 left-0 mix-blend-screen"}
           src={"/classicPhone.avif"}
+          alt="Classic phone"
+          decoding="async"
+          fetchPriority="high"
+          loading="eager"
         />
       ) : (
         <motion.img
           style={{ y: layer }}
           className={"absolute bottom-0 left-0 mix-blend-screen"}
+          src="/MeTransparent-md.avif"
           srcSet="/MeTransparent-sm.avif 500w, /MeTransparent-md.avif 1000w, /MeTransparent-l.avif 1500w, /MeTransparent-xl.avif 2000w"
-          sizes="(max-width: 500px) 500w, (max-width: 1500px) 1000w, (max-width: 2000px) 1500w, 2000w"
-          alt="Get a better browser"
+          sizes="(max-width: 639px) 83vw, (max-width: 767px) 75vw, (max-width: 1023px) 67vw, (max-width: 1535px) 50vw, (max-width: 1899px) 42vw, 33vw"
+          alt="Portrait of Joshua"
+          decoding="async"
+          fetchPriority="high"
+          loading="eager"
         />
       )}
 

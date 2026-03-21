@@ -65,6 +65,7 @@ module.exports = {
       fontFamily: {
         sans: ["DM Sans", "sans-serif"],
         heading: ["Poppins", "sans-serif"],
+        appliance: ["Roboto Mono", "monospace"],
       },
       screens: {
         'sm': '640px',

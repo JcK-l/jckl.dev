@@ -1,3 +1,4 @@
+import { ApplianceTerminal } from "../ApplianceTerminal";
 import { TypingText } from "../TypingText";
 
 export type PhonewaveTone = "neutral" | "success" | "failure" | "muted";
@@ -22,10 +23,13 @@ const PHONEWAVE_TYPING_DELAY_JITTER_MS = 3;
 const PHONEWAVE_BOOT_SETTLE_MS = 520;
 const PHONEWAVE_LINE_SETTLE_MS = 180;
 
+const phonewaveLineClassName =
+  "text-[0.72rem] uppercase tracking-[0.18em] sm:text-[0.82rem]";
+
 const renderStaticLine = (line: PhonewaveLine, index: number) => (
   <p
     key={`${line.label}-${index}`}
-    className={`font-mono text-[0.72rem] uppercase tracking-[0.18em] sm:text-[0.82rem] ${
+    className={`${phonewaveLineClassName} ${
       toneClassNames[line.tone ?? "neutral"]
     }`}
   >
@@ -49,81 +53,47 @@ export const PhonewaveScreen = ({
   const shouldAnimate = animate && currentStep < lines.length;
 
   return (
-    <div
-      className={`relative min-h-[16rem] rounded-[1.05rem] border px-4 py-4 ${className}`}
-      style={{
-        backgroundColor: "var(--color-appliance-screen-bg)",
-        borderColor: "var(--color-appliance-screen-border)",
-        boxShadow:
-          "inset 0 1px 0 rgba(255,255,255,0.05), inset 0 -0.9rem 1.2rem rgba(10,8,18,0.24), 0 0.9rem 1.4rem rgba(35,25,66,0.12)",
-      }}
+    <ApplianceTerminal
+      bodyClassName="flex flex-col space-y-2.5"
+      className={`min-h-[16rem] ${className}`}
+      headerLabel="event log"
     >
-      <div
-        className="pointer-events-none absolute inset-x-4 top-3 h-3 rounded-full opacity-55 blur-md"
-        style={{
-          background:
-            "linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0))",
-        }}
-      />
-      <div
-        className="pointer-events-none absolute inset-0 opacity-80"
-        style={{ backgroundImage: "var(--color-appliance-screen-pattern)" }}
-      />
-      <div
-        className="relative mb-4 flex items-center justify-between gap-3 border-b pb-3"
-        style={{ borderColor: "var(--color-appliance-screen-border)" }}
-      >
-        <p
-          className="font-mono text-[0.55rem] uppercase tracking-[0.24em]"
-          style={{ color: "var(--color-appliance-screen-muted)" }}
-        >
-          phone microwave log
-        </p>
-        <p
-          className="font-mono text-[0.55rem] tracking-[0.1em]"
-          style={{ color: "var(--color-appliance-screen-muted)" }}
-        >
-          name subject to change
-        </p>
-      </div>
-      <div className="relative flex flex-col space-y-2.5">
-        {shouldAnimate
-          ? lines.map((line, index) => {
-              if (index < currentStep) {
-                return renderStaticLine(line, index);
-              }
+      {shouldAnimate
+        ? lines.map((line, index) => {
+            if (index < currentStep) {
+              return renderStaticLine(line, index);
+            }
 
-              if (index > currentStep) {
-                return null;
-              }
+            if (index > currentStep) {
+              return null;
+            }
 
-              return (
-                <TypingText
-                  key={`${line.label}-${index}`}
-                  className={`font-mono text-[0.72rem] uppercase tracking-[0.18em] sm:text-[0.82rem] ${
-                    toneClassNames[line.tone ?? "neutral"]
-                  }`}
-                  text={formatPhonewaveLine(line)}
-                  typingDelay={PHONEWAVE_TYPING_DELAY_MS}
-                  typingDelayJitter={PHONEWAVE_TYPING_DELAY_JITTER_MS}
-                  onComplete={() => {
-                    if (index === lines.length - 1) {
-                      onStepComplete(lines.length);
-                      return;
-                    }
-
-                    onStepComplete(index + 1);
-                  }}
-                  onCompleteDelay={
-                    line.label === "boot"
-                      ? PHONEWAVE_BOOT_SETTLE_MS
-                      : PHONEWAVE_LINE_SETTLE_MS
+            return (
+              <TypingText
+                key={`${line.label}-${index}`}
+                className={`${phonewaveLineClassName} ${
+                  toneClassNames[line.tone ?? "neutral"]
+                }`}
+                text={formatPhonewaveLine(line)}
+                typingDelay={PHONEWAVE_TYPING_DELAY_MS}
+                typingDelayJitter={PHONEWAVE_TYPING_DELAY_JITTER_MS}
+                onComplete={() => {
+                  if (index === lines.length - 1) {
+                    onStepComplete(lines.length);
+                    return;
                   }
-                />
-              );
-            })
-          : lines.map(renderStaticLine)}
-      </div>
-    </div>
+
+                  onStepComplete(index + 1);
+                }}
+                onCompleteDelay={
+                  line.label === "boot"
+                    ? PHONEWAVE_BOOT_SETTLE_MS
+                    : PHONEWAVE_LINE_SETTLE_MS
+                }
+              />
+            );
+          })
+        : lines.map(renderStaticLine)}
+    </ApplianceTerminal>
   );
 };

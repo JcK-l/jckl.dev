@@ -89,6 +89,8 @@ const Call = () => {
             src="/divergenceMeter.avif"
             alt="Divergence Meter"
             className="rounded-lg"
+            decoding="async"
+            loading="lazy"
           />
         </a>
       );
@@ -123,6 +125,8 @@ const Call = () => {
                 src="/kurisu.avif"
                 alt="kurisu"
                 className="mx-auto mt-6 w-6/12"
+                decoding="async"
+                loading="lazy"
               />
             </>
           </ResultBlock>
@@ -201,6 +205,8 @@ const Call = () => {
               src="/areYouSerious.avif"
               alt="..."
               className="mx-auto my-auto w-6/12"
+              decoding="async"
+              loading="lazy"
             />
           </div>
         );

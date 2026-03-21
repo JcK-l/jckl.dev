@@ -4,6 +4,7 @@ import {
   type DispensedGroups,
 } from "../data/puzzleGroups";
 import { ApplianceShell } from "./ApplianceShell";
+import { ApplianceTerminal } from "./ApplianceTerminal";
 
 interface PuzzleSignalBoardProps {
   binaryState: number;
@@ -19,7 +20,7 @@ export const PuzzleSignalBoard = ({
   const nextHint = getNextPuzzleHint(binaryState, totalPlacedPieces);
 
   return (
-    <ApplianceShell className="mb-4 p-3" ventClassName="right-4 top-4 h-3 w-20">
+    <ApplianceShell className="mb-4 p-3">
       <div className="relative p-3">
         <div className="mb-3 flex items-start justify-between gap-3">
           <div>
@@ -29,7 +30,9 @@ export const PuzzleSignalBoard = ({
             >
               Signal Board
             </p>
-            <p className="small-text mt-1 text-primary">piece routing</p>
+            <p className="mt-1 text-[0.72rem] tracking-[0.08em] text-primary">
+              piece routing
+            </p>
           </div>
           <div className="flex gap-3">
             {puzzleGroups.map((group) => {
@@ -63,23 +66,11 @@ export const PuzzleSignalBoard = ({
             })}
           </div>
         </div>
-        <div
-          className="relative min-h-[3.3rem] overflow-hidden rounded-[0.95rem] px-3 py-3"
-          style={{
-            backgroundColor: "var(--color-appliance-screen-bg)",
-          }}
-        >
-          <div
-            className="pointer-events-none absolute inset-0 opacity-80"
-            style={{ backgroundImage: "var(--color-appliance-screen-pattern)" }}
-          />
-          <p
-            className="small-text relative"
-            style={{ color: "var(--color-appliance-screen-text)" }}
-          >
+        <ApplianceTerminal className="min-h-[3.3rem] rounded-[0.95rem] px-3 py-3">
+          <p className="text-[0.72rem] tracking-[0.08em]">
             {nextHint}
           </p>
-        </div>
+        </ApplianceTerminal>
       </div>
     </ApplianceShell>
   );
