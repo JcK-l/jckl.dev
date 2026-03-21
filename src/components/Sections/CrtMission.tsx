@@ -24,9 +24,7 @@ import {
 } from "../../stores/puzzleDispenseStore";
 import {
   $endingState,
-  hasSelectedEnding,
   hasVisibleEndingBalloons,
-  isEndingActive,
   type SentimentLabel,
 } from "../../stores/endingStore";
 import { activateDiscoveredEnding } from "../../utility/endingMode";
@@ -66,16 +64,16 @@ const CrtMission = () => {
   const sequenceTimeoutRef = useRef<number | null>(null);
   const transferTimeoutRef = useRef<number | null>(null);
   const hideTimeoutRef = useRef<number | null>(null);
-  const hasSelectedSentiment = hasSelectedEnding(endingState);
-  const showMe = isEndingActive(undefined, endingState) && hasSelectedSentiment;
   const visibleBalloons = hasVisibleEndingBalloons(endingState);
+  const shouldRenderMissionScene =
+    !endingState.isActive && (!isHidden || visibleBalloons);
 
   useEffect(() => {
     controls.start({
       rotate: [0, 2, -2, 0],
       transition: { duration: 10, repeat: Infinity, ease: "easeInOut" },
     });
-  }, [controls, showMe]);
+  }, [controls, endingState.isActive]);
 
   useEffect(() => {
     if (endingState.isActive) {
@@ -205,7 +203,7 @@ const CrtMission = () => {
           className="relative select-none mix-blend-screen"
           style={{ y: shift }}
         >
-          {isHidden && !showMe && !visibleBalloons ? null : (
+          {shouldRenderMissionScene ? (
             <motion.svg
               ref={missionRef}
               viewBox="0 0 49.26923 39"
@@ -413,7 +411,7 @@ const CrtMission = () => {
                 </>
               )}
             </motion.svg>
-          )}
+          ) : null}
 
           <div className="pointer-events-none">
             <Stars turnOff={endingState.selectedSentiment === "negative"} />
