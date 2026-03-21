@@ -96,7 +96,7 @@ export const PhonePad = ({
 
   return (
     <div className={className}>
-      <div className="poppins-extrabold h5-text relative flex min-h-[4.75rem] pb-1 pt-4 items-center justify-center text-center">
+      <div className="h5-text relative flex min-h-[4.75rem] items-center justify-center pb-1 pt-4 text-center">
         {display || <>&nbsp;</>}
       </div>
       <svg

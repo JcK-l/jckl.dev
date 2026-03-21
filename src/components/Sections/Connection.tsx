@@ -48,6 +48,8 @@ const Connection = () => {
       return;
     }
 
+    let frameId = 0;
+
     const updateReservedHeight = () => {
       const nextHeight = element.getBoundingClientRect().height;
       const overlapAllowance =
@@ -70,18 +72,22 @@ const Connection = () => {
       );
     };
 
-    updateReservedHeight();
+    const scheduleUpdateReservedHeight = () => {
+      window.cancelAnimationFrame(frameId);
+      frameId = window.requestAnimationFrame(updateReservedHeight);
+    };
 
-    const resizeObserver = new ResizeObserver(() => {
-      updateReservedHeight();
-    });
+    scheduleUpdateReservedHeight();
+
+    const resizeObserver = new ResizeObserver(scheduleUpdateReservedHeight);
 
     resizeObserver.observe(element);
-    window.addEventListener("resize", updateReservedHeight);
+    window.addEventListener("resize", scheduleUpdateReservedHeight);
 
     return () => {
       resizeObserver.disconnect();
-      window.removeEventListener("resize", updateReservedHeight);
+      window.removeEventListener("resize", scheduleUpdateReservedHeight);
+      window.cancelAnimationFrame(frameId);
     };
   }, []);
 

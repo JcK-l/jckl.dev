@@ -63,7 +63,7 @@ module.exports = {
         transition2 : "var(--color-transition2)",
       },
       fontFamily: {
-        sans: ["DM Sans", "sans-serif"],
+        sans: ["system-ui", "sans-serif"],
         heading: ["Poppins", "sans-serif"],
         appliance: ["Roboto Mono", "monospace"],
       },

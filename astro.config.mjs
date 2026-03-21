@@ -18,10 +18,10 @@ export default defineConfig({
     react(),
     sitemap(),
     (await import("@playform/compress")).default({
-      CSS: false,
-      HTML: false,
+      CSS: true,
+      HTML: true,
       Image: false,
-      JavaScript: false,
+      JavaScript: true,
       SVG: {
         "svgo": {
           plugins: [

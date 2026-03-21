@@ -15,7 +15,6 @@
     "@astrojs/react": "^4.1.6",
     "@astrojs/sitemap": "^3.2.1",
     "@astrojs/tailwind": "^5.1.5",
-    "@lottiefiles/dotlottie-react": "^0.12.1",
     "@nanostores/react": "^0.7.1",
     "@netlify/functions": "^3.0.0",
     "@playform/compress": "^0.1.7",

@@ -1,7 +1,6 @@
 import { useStore } from "@nanostores/react";
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { BetweenLands } from "../BetweenLands";
 import { PuzzlePieceTransfer } from "../PuzzlePieceTransfer";
 import {
@@ -53,6 +52,13 @@ type ViewportPoint = {
   x: number;
   y: number;
 };
+
+const ContactSpinner = () => (
+  <span
+    aria-hidden="true"
+    className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-white/25 border-t-white"
+  />
+);
 
 const apiUrl = "/api/openai";
 const contactTransferSourceAnchor = { x: 0.5, y: 0.5 };
@@ -354,6 +360,7 @@ const Contact = () => {
                     <input
                       className="w-full rounded-lg border-white bg-white p-2 font-medium text-bgColor focus:bg-primary focus:text-white focus:outline-none focus:ring focus:ring-white xl:p-4"
                       type="text"
+                      id="name"
                       name="name"
                       required
                     />
@@ -365,6 +372,7 @@ const Contact = () => {
                     <input
                       className="w-full rounded-lg bg-white p-2 font-medium text-bgColor focus:bg-primary focus:text-white focus:outline-none focus:ring focus:ring-white xl:p-4"
                       type="email"
+                      id="email"
                       name="email"
                       required
                     />
@@ -375,6 +383,7 @@ const Contact = () => {
                 </label>
                 <textarea
                   className="mb-3 w-full rounded-lg bg-white pb-10 pl-2 pt-2 font-medium text-bgColor focus:bg-primary focus:text-white focus:outline-none focus:ring focus:ring-white xl:pb-24 xl:pl-4 xl:pt-4"
+                  id="message"
                   name="message"
                   onChange={(event) => {
                     if (gameStateIsBitSet(GameStateFlags.FLAG_CRT)) {
@@ -413,12 +422,7 @@ const Contact = () => {
                         {isAnalyzing
                           ? "Analyzing D-Mail..."
                           : "Delivering D-Mail..."}
-                        <DotLottieReact
-                          src={"/load.lottie"}
-                          autoplay
-                          loop
-                          style={{ width: 24, height: 24 }}
-                        ></DotLottieReact>
+                        <ContactSpinner />
                       </>
                     ) : (
                       <>

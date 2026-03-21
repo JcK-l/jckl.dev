@@ -6,13 +6,6 @@ import { $endingState } from "../../stores/endingStore";
 const Hero = () => {
   const endingState = useStore($endingState);
 
-  const scrollToSection = () => {
-    const section = document.getElementById("starConstellation");
-    if (section) {
-      section.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
   return (
     <div className="relative mb-1 flex flex-col items-center justify-between">
       <Face />
@@ -36,14 +29,13 @@ const Hero = () => {
             you &lt;3 */}
           </p>
 
-          <button
-            type="button"
-            onClick={scrollToSection}
+          <a
+            href="#starConstellation"
             aria-label="Scroll to the next section"
             className="relative inline-block h-10 w-10 cursor-pointer xl:h-16 xl:w-16"
           >
             <ArrowDown className="animate-bounce" />
-          </button>
+          </a>
         </div>
       )}
     </div>

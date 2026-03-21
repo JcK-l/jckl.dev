@@ -7,25 +7,25 @@
     @apply mx-12 sm:mx-16 lg:mx-20 xl:mx-24 desk:mx-32 desk-l:mx-44 desk-xl:mx-64;
   }
   .h1-text {
-    @apply poppins-extrabold text-s-h1 sm:text-m-h1 desk-l:text-l-h1;
+    @apply font-heading text-s-h1 font-extrabold sm:text-m-h1 desk-l:text-l-h1;
   }
   .h2-text {
-    @apply poppins-extrabold text-s-h2 sm:text-m-h2 desk-l:text-l-h2;
+    @apply font-heading text-s-h2 font-extrabold sm:text-m-h2 desk-l:text-l-h2;
   }
   .h3-text {
-    @apply poppins-extrabold text-s-h3 sm:text-m-h3 desk-l:text-l-h3;
+    @apply font-heading text-s-h3 font-extrabold sm:text-m-h3 desk-l:text-l-h3;
   }
   .h4-text {
-    @apply poppins-extrabold text-s-h4 sm:text-m-h4 desk-l:text-l-h4;
+    @apply font-heading text-s-h4 font-extrabold sm:text-m-h4 desk-l:text-l-h4;
   }
   .h5-text {
-    @apply poppins-extrabold text-s-h5 sm:text-m-h5 desk-l:text-l-h5;
+    @apply font-heading text-s-h5 font-extrabold sm:text-m-h5 desk-l:text-l-h5;
   }
   .p-text {
-    @apply poppins-regular text-s-p sm:text-m-p lg:text-l-p;
+    @apply font-heading text-s-p font-normal sm:text-m-p lg:text-l-p;
   }
   .small-text {
-    @apply poppins-regular text-s-sm sm:text-m-sm lg:text-l-sm;
+    @apply font-heading text-s-sm font-normal sm:text-m-sm lg:text-l-sm;
   }
   .button-on {
     @apply bg-secondary rounded-lg text-white cursor-pointer hover:bg-tertiary
@@ -39,7 +39,7 @@
 }
 
 :root {
-
+  --hero-face-shadow-filter: none;
   --color-text-color: #1D3557;
   --color-bg-color: #1D3557;
   --color-fg-color: #F1FAEE;
@@ -220,6 +220,11 @@
   animation: applianceWiggle 220ms ease-in-out 2;
 }
 
+.deferred-section {
+  content-visibility: auto;
+  contain-intrinsic-size: auto var(--deferred-section-size, 960px);
+}
+
 .phone-pad-button circle,
 .phone-pad-button path {
   transition: fill 120ms ease, stroke 120ms ease, opacity 120ms ease;
@@ -245,6 +250,7 @@
 
 html {
   font-size: 14px;
+  scroll-behavior: smooth;
 }
 
 html,
@@ -259,6 +265,11 @@ body {
 }
 
 @media only screen and (min-width: 768px) {
+  :root {
+    --hero-face-shadow-filter: drop-shadow(0 15px 15px rgba(35, 25, 66, 0.05))
+      drop-shadow(0 8px 5px rgba(35, 25, 66, 0.1));
+  }
+
   html {
     font-size: 18px;
   }
@@ -276,111 +287,4 @@ body {
   }
 }
 
-.poppins-thin {
-  font-family: "Poppins", serif;
-  font-weight: 100;
-  font-style: normal;
-}
-
-.poppins-extralight {
-  font-family: "Poppins", serif;
-  font-weight: 200;
-  font-style: normal;
-}
-
-.poppins-light {
-  font-family: "Poppins", serif;
-  font-weight: 300;
-  font-style: normal;
-}
-
-.poppins-regular {
-  font-family: "Poppins", serif;
-  font-weight: 400;
-  font-style: normal;
-}
-
-.poppins-medium {
-  font-family: "Poppins", serif;
-  font-weight: 500;
-  font-style: normal;
-}
-
-.poppins-semibold {
-  font-family: "Poppins", serif;
-  font-weight: 600;
-  font-style: normal;
-}
-
-.poppins-bold {
-  font-family: "Poppins", serif;
-  font-weight: 700;
-  font-style: normal;
-}
-
-.poppins-extrabold {
-  font-family: "Poppins", serif;
-  font-weight: 800;
-  font-style: normal;
-}
-
-.poppins-black {
-  font-family: "Poppins", serif;
-  font-weight: 900;
-  font-style: normal;
-}
-
-.poppins-thin-italic {
-  font-family: "Poppins", serif;
-  font-weight: 100;
-  font-style: italic;
-}
-
-.poppins-extralight-italic {
-  font-family: "Poppins", serif;
-  font-weight: 200;
-  font-style: italic;
-}
-
-.poppins-light-italic {
-  font-family: "Poppins", serif;
-  font-weight: 300;
-  font-style: italic;
-}
-
-.poppins-regular-italic {
-  font-family: "Poppins", serif;
-  font-weight: 400;
-  font-style: italic;
-}
-
-.poppins-medium-italic {
-  font-family: "Poppins", serif;
-  font-weight: 500;
-  font-style: italic;
-}
-
-.poppins-semibold-italic {
-  font-family: "Poppins", serif;
-  font-weight: 600;
-  font-style: italic;
-}
-
-.poppins-bold-italic {
-  font-family: "Poppins", serif;
-  font-weight: 700;
-  font-style: italic;
-}
-
-.poppins-extrabold-italic {
-  font-family: "Poppins", serif;
-  font-weight: 800;
-  font-style: italic;
-}
-
-.poppins-black-italic {
-  font-family: "Poppins", serif;
-  font-weight: 900;
-  font-style: italic;
-}
 

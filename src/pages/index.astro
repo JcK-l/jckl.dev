@@ -17,35 +17,59 @@ const showThemeDebugToggle = import.meta.env.DEV;
   {showThemeDebugToggle ? <ThemeDebugToggle client:load /> : null}
   <main>
     <section class="bg-fgColor" id="hero">
-      <Hero client:load />
+      <Hero client:idle />
     </section>
 
-    <section class="" id="starConstellation">
-      <StarConstellation client:load />
+    <section
+      class="deferred-section"
+      id="starConstellation"
+      style="--deferred-section-size: 780px;"
+    >
+      <StarConstellation client:visible />
     </section>
 
     <section class="bg-fgColor" id="about">
       <About client:only="react" />
     </section>
 
-    <section class="" id="crtMission">
-      <CrtMission client:load />
+    <section
+      class="deferred-section"
+      id="crtMission"
+      style="--deferred-section-size: 1100px;"
+    >
+      <CrtMission client:visible />
     </section>
 
-    <section class="bg-fgColor" id="projects">
-      <Projects client:load />
+    <section
+      class="bg-fgColor deferred-section"
+      id="projects"
+      style="--deferred-section-size: 760px;"
+    >
+      <Projects client:visible />
     </section>
 
-    <section class="" id="connection">
-      <Connection client:load />
+    <section
+      class="deferred-section"
+      id="connection"
+      style="--deferred-section-size: 880px;"
+    >
+      <Connection client:visible />
     </section>
 
-    <section class="bg-fgColor" id="call">
-      <Call client:load />
+    <section
+      class="bg-fgColor deferred-section"
+      id="call"
+      style="--deferred-section-size: 980px;"
+    >
+      <Call client:visible />
     </section>
 
-    <section class="" id="contact">
-      <Contact client:idle />
+    <section
+      class="deferred-section"
+      id="contact"
+      style="--deferred-section-size: 840px;"
+    >
+      <Contact client:visible />
     </section>
   </main>
 </Layout>

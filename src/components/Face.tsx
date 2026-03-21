@@ -14,6 +14,26 @@ export const Face = () => {
 
   let layer = useTransform(scrollYProgress, [0, 1], ["0vh", "10vh"]);
 
+  const imageProps =
+    endingState.selectedSentiment === "neutral"
+      ? {
+          src: "/jTransparent.avif",
+          alt: "Joshua silhouette",
+        }
+      : endingState.selectedSentiment === "positive"
+      ? {
+          src: "/classicPhone.avif",
+          alt: "Classic phone",
+        }
+      : {
+          src: "/MeTransparent-md.avif",
+          srcSet:
+            "/MeTransparent-sm.avif 500w, /MeTransparent-md.avif 1000w, /MeTransparent-l.avif 1500w, /MeTransparent-xl.avif 2000w",
+          sizes:
+            "(max-width: 639px) 83vw, (max-width: 767px) 75vw, (max-width: 1023px) 67vw, (max-width: 1535px) 50vw, (max-width: 1899px) 42vw, 33vw",
+          alt: "Portrait of Joshua",
+        };
+
   return (
     <div
       ref={ref}
@@ -30,38 +50,19 @@ export const Face = () => {
 
       {endingState.selectedSentiment === "negative" ? (
         <div></div>
-      ) : endingState.selectedSentiment === "neutral" ? (
-        <motion.img
-          style={{ y: layer }}
-          className={"absolute bottom-0 left-0 mix-blend-screen"}
-          src="/jTransparent.avif"
-          alt="Joshua silhouette"
-          decoding="async"
-          fetchPriority="high"
-          loading="eager"
-        />
-      ) : endingState.selectedSentiment === "positive" ? (
-        <motion.img
-          style={{ y: layer }}
-          className={"absolute bottom-0 left-0 mix-blend-screen"}
-          src={"/classicPhone.avif"}
-          alt="Classic phone"
-          decoding="async"
-          fetchPriority="high"
-          loading="eager"
-        />
       ) : (
-        <motion.img
+        <motion.div
           style={{ y: layer }}
-          className={"absolute bottom-0 left-0 mix-blend-screen"}
-          src="/MeTransparent-md.avif"
-          srcSet="/MeTransparent-sm.avif 500w, /MeTransparent-md.avif 1000w, /MeTransparent-l.avif 1500w, /MeTransparent-xl.avif 2000w"
-          sizes="(max-width: 639px) 83vw, (max-width: 767px) 75vw, (max-width: 1023px) 67vw, (max-width: 1535px) 50vw, (max-width: 1899px) 42vw, 33vw"
-          alt="Portrait of Joshua"
-          decoding="async"
-          fetchPriority="high"
-          loading="eager"
-        />
+          className="absolute bottom-0 left-0 mix-blend-screen"
+        >
+          <img
+            {...imageProps}
+            className="block"
+            decoding="async"
+            fetchpriority="high"
+            loading="eager"
+          />
+        </motion.div>
       )}
 
       <svg
@@ -72,8 +73,7 @@ export const Face = () => {
       >
         <motion.path
           style={{
-            filter:
-              "drop-shadow(0 15px 15px rgba(35, 25, 66, 0.05)) drop-shadow(0 8px 5px rgba(35, 25, 66, 0.1))",
+            filter: "var(--hero-face-shadow-filter)",
             fill: "var(--color-secondary)",
             opacity: 1,
           }}
@@ -81,8 +81,7 @@ export const Face = () => {
         />
         <motion.path
           style={{
-            filter:
-              "drop-shadow(0 15px 15px rgba(35, 25, 66, 0.05)) drop-shadow(0 8px 5px rgba(35, 25, 66, 0.1))",
+            filter: "var(--hero-face-shadow-filter)",
             fill: "var(--color-transition1)",
             opacity: 1,
           }}
@@ -90,8 +89,7 @@ export const Face = () => {
         />
         <motion.path
           style={{
-            filter:
-              "drop-shadow(0 15px 15px rgba(35, 25, 66, 0.05)) drop-shadow(0 8px 5px rgba(35, 25, 66, 0.1))",
+            filter: "var(--hero-face-shadow-filter)",
             fill: "var(--color-transition2)",
             opacity: 1,
           }}
@@ -107,8 +105,7 @@ export const Face = () => {
       >
         <path
           style={{
-            filter:
-              "drop-shadow(0 15px 15px rgba(35, 25, 66, 0.05)) drop-shadow(0 8px 5px rgba(35, 25, 66, 0.1))",
+            filter: "var(--hero-face-shadow-filter)",
             fill: "var(--color-fg-color)",
           }}
           d="M 0,0 V 743 H 900 V 0 Z m 373.04887,107.92578 c 11.3543,-0.1479 22.7659,-0.013 34.1445,0.35156 91.1203,3.007 179.9623,20.59437 266.709,62.50977 86.6554,41.8242 171.0338,107.88654 180.3281,186.52344 9.2943,78.6368 -56.5867,169.84691 -115.0859,236.82031 -58.4082,67.0646 -109.4363,109.80104 -163.1973,115.08594 -53.761,5.285 -110.1641,-26.78939 -170.9414,-20.77539 -60.7773,6.0139 -125.9284,50.20709 -188.89259,47.83789 -62.9641,-2.278 -123.83212,-51.02809 -140.41602,-111.89649 -16.675,-60.8684 10.7519,-133.76326 27.0625,-218.41406 16.4017,-84.5597 21.68632,-180.87506 70.98242,-234.81836 43.1341,-47.28 119.82549,-62.18941 199.30669,-63.22461 z"

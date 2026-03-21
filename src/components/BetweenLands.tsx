@@ -1,13 +1,9 @@
 import { SeparatorIn } from "./SeparatorIn";
 import { SeparatorOut } from "./SeparatorOut";
 import type { ReactNode } from "react";
-import { useEffect, useLayoutEffect, useState, useRef } from "react";
-import {
-  MotionValue,
-  useScroll,
-  useTransform,
-  useMotionValue,
-} from "framer-motion";
+import type { MotionValue } from "framer-motion";
+import { useEffect, useState, useRef } from "react";
+import { useScroll, useTransform, useMotionValue } from "framer-motion";
 import { Crt } from "./Crt";
 import { GameStateFlags, isBitSet } from "../stores/gameStateStore";
 
@@ -23,8 +19,6 @@ interface BetweenLandsProps {
 
 const originalImgWidth = 500;
 const originalSnapPoint = { x: 1600, y: 1750 };
-const useIsomorphicLayoutEffect =
-  typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 export const BetweenLands = ({
   isBackground,
@@ -77,12 +71,16 @@ export const BetweenLands = ({
     });
   };
 
-  useIsomorphicLayoutEffect(() => {
-    updateSizes();
+  useEffect(() => {
+    let frameId = 0;
+    const scheduleUpdate = () => {
+      window.cancelAnimationFrame(frameId);
+      frameId = window.requestAnimationFrame(updateSizes);
+    };
 
-    const resizeObserver = new ResizeObserver(() => {
-      updateSizes();
-    });
+    scheduleUpdate();
+
+    const resizeObserver = new ResizeObserver(scheduleUpdate);
 
     if (ref.current) {
       resizeObserver.observe(ref.current);
@@ -96,11 +94,12 @@ export const BetweenLands = ({
       resizeObserver.observe(separatorOutRef.current);
     }
 
-    window.addEventListener("resize", updateSizes);
+    window.addEventListener("resize", scheduleUpdate);
 
     return () => {
       resizeObserver.disconnect();
-      window.removeEventListener("resize", updateSizes);
+      window.removeEventListener("resize", scheduleUpdate);
+      window.cancelAnimationFrame(frameId);
     };
   }, []);
 
