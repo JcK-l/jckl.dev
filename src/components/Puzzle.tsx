@@ -3,9 +3,39 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useState, forwardRef, useEffect } from "react";
 import { useStore } from "@nanostores/react";
 import { usePuzzleContext } from "../hooks/useDataContext";
-import { $endingState } from "../stores/endingStore";
+import { $endingState, markEndingVideoSettled } from "../stores/endingStore";
 
 interface PuzzleProps {}
+
+const COMPLETED_PIECE_COUNT = 16;
+const COMPLETION_DELAY_MS = 2000;
+const FALL_ANIMATION_DURATION_MS = 2000;
+const VIDEO_FADE_DURATION_S = 0.6;
+const VIDEO_END_FRAME_OFFSET_S = 0.05;
+
+const endingVideoSources = {
+  negative: "/secret-negative.mp4",
+  neutral: "/secret-neutral.mp4",
+  positive: "/secret-SG.mp4",
+} as const;
+
+const createCompletedAnimation = (
+  translateY: number,
+  rotate: number,
+  skipAnimation: boolean
+) => ({
+  translateY,
+  scale: 0,
+  rotate,
+  transition: {
+    type: "tween" as const,
+    duration: skipAnimation ? 0 : FALL_ANIMATION_DURATION_MS / 1000,
+  },
+});
+
+const getLastFrameTime = (duration: number) => {
+  return Math.max(duration - VIDEO_END_FRAME_OFFSET_S, 0);
+};
 
 export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
   const endingState = useStore($endingState);
@@ -13,8 +43,18 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoHeight, setVideoHeight] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
-  const { lastPiece, setLastPiece, totalPlacedPieces, setTotalPlacedPieces } =
-    usePuzzleContext();
+  const [isVideoVisible, setIsVideoVisible] = useState(false);
+  const [shouldPlayVideo, setShouldPlayVideo] = useState(false);
+  const { totalPlacedPieces } = usePuzzleContext();
+  const selectedSentiment = endingState.selectedSentiment;
+  const hasSettledVideo =
+    selectedSentiment === null
+      ? false
+      : endingState.settledVideos[selectedSentiment];
+  const shouldSkipFallAnimation =
+    totalPlacedPieces === COMPLETED_PIECE_COUNT && hasSettledVideo;
+  const selectedVideoSrc =
+    selectedSentiment === null ? null : endingVideoSources[selectedSentiment];
 
   useEffect(() => {
     const updateSizes = () => {
@@ -26,7 +66,7 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
     updateSizes();
     window.addEventListener("resize", updateSizes);
     return () => window.removeEventListener("resize", updateSizes);
-  }, [videoRef]);
+  }, [isVideoVisible, selectedVideoSrc]);
 
   const { scrollYProgress } = useScroll({
     target: prallaxRef,
@@ -34,21 +74,113 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
   });
 
   useEffect(() => {
-    if (totalPlacedPieces !== 16) {
+    if (totalPlacedPieces !== COMPLETED_PIECE_COUNT) {
       setIsCompleted(false);
+      setIsVideoVisible(false);
+      setShouldPlayVideo(false);
       return;
     }
 
+    if (hasSettledVideo) {
+      setIsCompleted(true);
+      setIsVideoVisible(true);
+      setShouldPlayVideo(false);
+      return;
+    }
+
+    setIsVideoVisible(false);
+    setShouldPlayVideo(false);
+
     const completionTimeout = window.setTimeout(() => {
       setIsCompleted(true);
-    }, 2000);
+    }, COMPLETION_DELAY_MS);
+
+    const videoRevealTimeout = window.setTimeout(() => {
+      setIsVideoVisible(true);
+    }, COMPLETION_DELAY_MS + FALL_ANIMATION_DURATION_MS);
 
     return () => {
       window.clearTimeout(completionTimeout);
+      window.clearTimeout(videoRevealTimeout);
     };
-  }, [totalPlacedPieces]);
+  }, [hasSettledVideo, totalPlacedPieces]);
 
-  let layer = useTransform(
+  useEffect(() => {
+    const video = videoRef.current;
+
+    if (!video || !isVideoVisible || !hasSettledVideo) {
+      return;
+    }
+
+    const settleOnLastFrame = () => {
+      if (!Number.isFinite(video.duration) || video.duration <= 0) {
+        return;
+      }
+
+      video.currentTime = getLastFrameTime(video.duration);
+      video.pause();
+    };
+
+    if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+      settleOnLastFrame();
+      return;
+    }
+
+    video.addEventListener("loadeddata", settleOnLastFrame, { once: true });
+
+    return () => {
+      video.removeEventListener("loadeddata", settleOnLastFrame);
+    };
+  }, [hasSettledVideo, isVideoVisible, selectedVideoSrc]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+
+    if (!video || !isVideoVisible || hasSettledVideo || !shouldPlayVideo) {
+      return;
+    }
+
+    const playVideo = () => {
+      video.currentTime = 0;
+      void video.play().catch(() => {
+        return;
+      });
+    };
+
+    if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+      playVideo();
+      return;
+    }
+
+    video.addEventListener("loadeddata", playVideo, { once: true });
+
+    return () => {
+      video.removeEventListener("loadeddata", playVideo);
+    };
+  }, [hasSettledVideo, isVideoVisible, selectedVideoSrc, shouldPlayVideo]);
+
+  const handleVideoFadeComplete = () => {
+    if (hasSettledVideo || shouldPlayVideo) {
+      return;
+    }
+
+    setShouldPlayVideo(true);
+  };
+
+  const handleVideoEnded = () => {
+    const video = videoRef.current;
+
+    if (video && Number.isFinite(video.duration) && video.duration > 0) {
+      video.currentTime = getLastFrameTime(video.duration);
+      video.pause();
+    }
+
+    if (selectedSentiment !== null) {
+      markEndingVideoSettled(selectedSentiment);
+    }
+  };
+
+  const layer = useTransform(
     scrollYProgress,
     [0, 1],
     [`-${videoHeight / 8}px`, `${videoHeight / 8}px`]
@@ -81,44 +213,26 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
           ry="0.93354601"
         />
       </svg>
-      {isCompleted &&
-        (endingState.selectedSentiment === "positive" ? (
-          <motion.video
-            className="absolute top-[30%] w-full select-none mix-blend-screen"
-            style={{ y: layer }}
-            ref={videoRef}
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="auto"
-            src="/secret-SG.mp4"
-          />
-        ) : endingState.selectedSentiment === "negative" ? (
-          <motion.video
-            className="absolute top-[30%] w-full select-none mix-blend-screen"
-            style={{ y: layer }}
-            ref={videoRef}
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="auto"
-            src="/secret-negative.mp4"
-          />
-        ) : (
-          <motion.video
-            className="absolute top-[30%] w-full select-none mix-blend-screen"
-            style={{ y: layer }}
-            ref={videoRef}
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="auto"
-            src="/secret-neutral.mp4"
-          />
-        ))}
+      {isVideoVisible && selectedVideoSrc !== null ? (
+        <motion.video
+          key={selectedVideoSrc}
+          className="absolute top-[30%] w-full select-none mix-blend-screen"
+          style={{ y: layer }}
+          ref={videoRef}
+          initial={{ opacity: hasSettledVideo ? 1 : 0 }}
+          animate={{ opacity: 1 }}
+          transition={{
+            duration: hasSettledVideo ? 0 : VIDEO_FADE_DURATION_S,
+            ease: "easeInOut",
+          }}
+          muted
+          playsInline
+          preload="auto"
+          src={selectedVideoSrc}
+          onAnimationComplete={handleVideoFadeComplete}
+          onEnded={handleVideoEnded}
+        />
+      ) : null}
       <svg
         className="pointer-events-none absolute"
         version="1.0"
@@ -133,16 +247,11 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
           style={{ opacity: 0 }}
           animate={
             isCompleted
-              ? {
-                  translateY: 50,
-                  scale: 0,
-                  rotate: 10,
-                  transition: {
-                    type: "tween",
-                    // velocity: 100,
-                    duration: 2,
-                  },
-                }
+              ? createCompletedAnimation(
+                  50,
+                  10,
+                  shouldSkipFallAnimation
+                )
               : {}
           }
           id="p12"
@@ -157,16 +266,11 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
           style={{ opacity: 0 }}
           animate={
             isCompleted
-              ? {
-                  translateY: 50,
-                  scale: 0,
-                  rotate: 8,
-                  transition: {
-                    type: "tween",
-                    // velocity: 100,
-                    duration: 2,
-                  },
-                }
+              ? createCompletedAnimation(
+                  50,
+                  8,
+                  shouldSkipFallAnimation
+                )
               : {}
           }
           id="p11"
@@ -181,16 +285,11 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
           style={{ opacity: 0 }}
           animate={
             isCompleted
-              ? {
-                  translateY: 50,
-                  scale: 0,
-                  rotate: -10,
-                  transition: {
-                    type: "tween",
-                    // velocity: 100,
-                    duration: 2,
-                  },
-                }
+              ? createCompletedAnimation(
+                  50,
+                  -10,
+                  shouldSkipFallAnimation
+                )
               : {}
           }
           id="p10"
@@ -205,16 +304,11 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
           style={{ opacity: 0 }}
           animate={
             isCompleted
-              ? {
-                  translateY: 100,
-                  scale: 0,
-                  rotate: -6,
-                  transition: {
-                    type: "tween",
-                    // velocity: 100,
-                    duration: 2,
-                  },
-                }
+              ? createCompletedAnimation(
+                  100,
+                  -6,
+                  shouldSkipFallAnimation
+                )
               : {}
           }
           id="p8"
@@ -229,16 +323,11 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
           style={{ opacity: 0 }}
           animate={
             isCompleted
-              ? {
-                  translateY: 105,
-                  scale: 0,
-                  rotate: 12,
-                  transition: {
-                    type: "tween",
-                    // velocity: 100,
-                    duration: 2,
-                  },
-                }
+              ? createCompletedAnimation(
+                  105,
+                  12,
+                  shouldSkipFallAnimation
+                )
               : {}
           }
           id="p7"
@@ -253,16 +342,11 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
           style={{ opacity: 0 }}
           animate={
             isCompleted
-              ? {
-                  translateY: 110,
-                  scale: 0,
-                  rotate: 4,
-                  transition: {
-                    type: "tween",
-                    // velocity: 100,
-                    duration: 2,
-                  },
-                }
+              ? createCompletedAnimation(
+                  110,
+                  4,
+                  shouldSkipFallAnimation
+                )
               : {}
           }
           id="p6"
@@ -277,16 +361,11 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
           style={{ opacity: 0 }}
           animate={
             isCompleted
-              ? {
-                  translateY: 50,
-                  scale: 0,
-                  rotate: -2,
-                  transition: {
-                    type: "tween",
-                    // velocity: 100,
-                    duration: 2,
-                  },
-                }
+              ? createCompletedAnimation(
+                  50,
+                  -2,
+                  shouldSkipFallAnimation
+                )
               : {}
           }
           id="p9"
@@ -301,16 +380,11 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
           style={{ opacity: 0 }}
           animate={
             isCompleted
-              ? {
-                  translateY: 110,
-                  scale: 0,
-                  rotate: 5,
-                  transition: {
-                    type: "tween",
-                    // velocity: 100,
-                    duration: 2,
-                  },
-                }
+              ? createCompletedAnimation(
+                  110,
+                  5,
+                  shouldSkipFallAnimation
+                )
               : {}
           }
           id="p5"

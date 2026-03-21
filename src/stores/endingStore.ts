@@ -5,15 +5,23 @@ export const sentimentLabels = ["negative", "neutral", "positive"] as const;
 export type SentimentLabel = (typeof sentimentLabels)[number];
 
 export type DiscoveredSentiments = Record<SentimentLabel, boolean>;
+export type EndingVideoState = Record<SentimentLabel, boolean>;
 
 export type EndingState = {
   discoveredSentiments: DiscoveredSentiments;
   isActive: boolean;
   pendingDiscovery: SentimentLabel | null;
   selectedSentiment: SentimentLabel | null;
+  settledVideos: EndingVideoState;
 };
 
 const createDiscoveredSentiments = (): DiscoveredSentiments => ({
+  negative: false,
+  neutral: false,
+  positive: false,
+});
+
+const createEndingVideoState = (): EndingVideoState => ({
   negative: false,
   neutral: false,
   positive: false,
@@ -24,6 +32,7 @@ const defaultEndingState: EndingState = {
   isActive: false,
   pendingDiscovery: null,
   selectedSentiment: null,
+  settledVideos: createEndingVideoState(),
 };
 
 export const $endingState = atom<EndingState>(defaultEndingState);
@@ -116,6 +125,32 @@ export const markDiscoveredEnding = (sentiment: SentimentLabel) => {
   });
 
   return nextDiscoveredSentiments;
+};
+
+export const hasSettledEndingVideo = (
+  sentiment: SentimentLabel,
+  endingState = getEndingState()
+) => {
+  return endingState.settledVideos[sentiment];
+};
+
+export const markEndingVideoSettled = (sentiment: SentimentLabel) => {
+  const endingState = getEndingState();
+
+  if (endingState.settledVideos[sentiment]) {
+    return endingState.settledVideos;
+  }
+
+  const nextSettledVideos = {
+    ...endingState.settledVideos,
+    [sentiment]: true,
+  };
+
+  setEndingState({
+    settledVideos: nextSettledVideos,
+  });
+
+  return nextSettledVideos;
 };
 
 export const queuePendingEndingDiscovery = (sentiment: SentimentLabel) => {
