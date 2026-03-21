@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useStore } from "@nanostores/react";
 import { BetweenLands } from "../BetweenLands";
+import { ApplianceShell } from "../ApplianceShell";
+import { ApplianceTerminal } from "../ApplianceTerminal";
 import { PuzzlePieceTransfer } from "../PuzzlePieceTransfer";
 import { Phonewave } from "../phone/Phonewave";
 import { puzzleGroups } from "../../data/puzzleGroups";
@@ -25,6 +27,60 @@ const CONNECTION_TRANSFER_DELAY_MS = 220;
 const connectionPieceIds =
   puzzleGroups.find((group) => group.key === "connection")?.pieces ?? [];
 
+const ConnectionStatusPanel = ({
+  headerMeta,
+  lines,
+}: {
+  headerMeta: string;
+  lines: Array<{ tone?: "default" | "muted" | "warning"; value: string }>;
+}) => (
+  <ApplianceShell
+    className="mx-auto w-full px-5 py-5 md:px-7"
+    radius="2rem"
+    showHighlight
+  >
+    <div
+      className="flex items-start gap-4 border-b pb-4"
+      style={{ borderColor: "var(--color-appliance-shell-border)" }}
+    >
+      <div className="space-y-1.5">
+        <p
+          className="text-[0.56rem] uppercase tracking-[0.3em]"
+          style={{ color: "var(--color-appliance-label)" }}
+        >
+          future gadget no. 8
+        </p>
+        <p className="text-[0.86rem] tracking-[0.08em] text-[var(--color-primary)] sm:text-[0.98rem]">
+          PhoneWave (name subject to change)
+        </p>
+      </div>
+    </div>
+    <div className="mt-5">
+      <ApplianceTerminal
+        bodyClassName="flex flex-col space-y-2.5"
+        className="min-h-[16rem]"
+        headerLabel="system status"
+        headerMeta={headerMeta}
+      >
+        {lines.map((line, index) => (
+          <p
+            key={`${headerMeta}-${index}`}
+            className={`text-[0.72rem] uppercase tracking-[0.18em] sm:text-[0.82rem] ${
+              line.tone === "muted"
+                ? "text-[var(--color-appliance-screen-muted)]"
+                : line.tone === "warning"
+                ? "text-[var(--color-baloon1)]"
+                : "text-[var(--color-appliance-screen-text)]"
+            }`}
+          >
+            {line.value}
+          </p>
+        ))}
+      </ApplianceTerminal>
+    </div>
+  </ApplianceShell>
+);
+
 const Connection = () => {
   const endingState = useStore($endingState);
   const binaryState = useStore($gameState);
@@ -37,6 +93,9 @@ const Connection = () => {
     useState(false);
   const [isPhonewaveSequenceComplete, setIsPhonewaveSequenceComplete] =
     useState(false);
+  const isNegativeEndingActive = isEndingActive("negative", endingState);
+  const isNeutralEndingActive = isEndingActive("neutral", endingState);
+  const isPositiveEndingActive = isEndingActive("positive", endingState);
   const hasConnectionUnlocked =
     (binaryState & (1 << GameStateFlags.FLAG_CONNECTION)) !== 0;
   const hasTriggeredTransferRef = useRef(hasConnectionUnlocked);
@@ -138,9 +197,61 @@ const Connection = () => {
     pendingConnectionTransfer,
   ]);
 
-  if (isEndingActive("negative", endingState)) {
-    return <div></div>;
-  }
+  const connectionPanelVariant = isPositiveEndingActive
+    ? "hidden"
+    : isNegativeEndingActive
+    ? "negative"
+    : isNeutralEndingActive
+    ? "neutral"
+    : "phonewave";
+  const reservedPanelHeight =
+    connectionPanelVariant === "hidden" ? 176 : reservedHeight;
+  const middleLayerContent =
+    connectionPanelVariant === "phonewave" ? (
+      <Phonewave
+        className="w-full"
+        onSequenceComplete={() => {
+          setIsPhonewaveSequenceComplete(true);
+        }}
+        variant={mode === "connection" ? "result" : "idle"}
+      />
+    ) : connectionPanelVariant === "neutral" ? (
+      <ConnectionStatusPanel
+        headerMeta="relay cold start"
+        lines={[
+          {
+            tone: "muted",
+            value: "[boot] temporal relay not yet initialized",
+          },
+          {
+            tone: "default",
+            value: "[status] first stable offset has not been registered",
+          },
+          {
+            tone: "muted",
+            value: "[action] await initialization before arming the relay",
+          },
+        ]}
+      />
+    ) : connectionPanelVariant === "negative" ? (
+      <ConnectionStatusPanel
+        headerMeta="retry saturation"
+        lines={[
+          {
+            tone: "warning",
+            value: "[warning] repeated rollback signatures detected",
+          },
+          {
+            tone: "default",
+            value: "[status] state index cannot advance beyond the current checkpoint",
+          },
+          {
+            tone: "muted",
+            value: "[action] clear the loop condition before requesting another pass",
+          },
+        ]}
+      />
+    ) : null;
 
   return (
     <BetweenLands
@@ -149,7 +260,7 @@ const Connection = () => {
       renderItem={() => (
         <div
           className="min-h-[22rem] tablet:min-h-[20rem]"
-          style={{ height: `${reservedHeight}px` }}
+          style={{ height: `${reservedPanelHeight}px` }}
         />
       )}
       separatorInMiddleLayer={
@@ -164,19 +275,15 @@ const Connection = () => {
         />
       }
       separatorOutMiddleLayer={
-        <div
-          ref={phonewaveRef}
-          className="pointer-events-auto absolute bottom-[50%] left-1/2 w-[94%] max-w-[52rem] -translate-x-1/2 sm:bottom-[50%] sm:w-[88%] tablet:bottom-[50%] tablet:w-[82%] lg:bottom-[41%] lg:left-[63%] lg:w-[72%] xl:bottom-[47%] xl:left-[68%] xl:w-[65%] desk:bottom-[50%] desk:left-[69%] desk:w-[60%] desk-l:bottom-[53%] desk-l:left-[72%] desk-l:w-[56%] desk-xl:bottom-[8%] desk-xl:left-[62%] desk-xl:w-[52%]"
-          style={{ maxWidth: "min(52rem, calc(100vw - 1rem))" }}
-        >
-          <Phonewave
-            className="w-full"
-            onSequenceComplete={() => {
-              setIsPhonewaveSequenceComplete(true);
-            }}
-            variant={mode === "connection" ? "result" : "idle"}
-          />
-        </div>
+        middleLayerContent === null ? null : (
+          <div
+            ref={phonewaveRef}
+            className="pointer-events-auto absolute bottom-[50%] left-1/2 w-[94%] max-w-[52rem] -translate-x-1/2 sm:bottom-[50%] sm:w-[88%] tablet:bottom-[50%] tablet:w-[82%] lg:bottom-[41%] lg:left-[63%] lg:w-[72%] xl:bottom-[47%] xl:left-[68%] xl:w-[65%] desk:bottom-[50%] desk:left-[69%] desk:w-[60%] desk-l:bottom-[53%] desk-l:left-[72%] desk-l:w-[56%] desk-xl:bottom-[8%] desk-xl:left-[62%] desk-xl:w-[52%]"
+            style={{ maxWidth: "min(52rem, calc(100vw - 1rem))" }}
+          >
+            {middleLayerContent}
+          </div>
+        )
       }
     />
   );

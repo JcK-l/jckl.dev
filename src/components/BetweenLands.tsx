@@ -12,6 +12,7 @@ interface BetweenLandsProps {
   isCrt: boolean;
   crtCallback?: () => void;
   renderItem: (shift: MotionValue<string>) => ReactNode;
+  separatorOutCrtScreenOpacity?: number;
   separatorInMiddleLayer?: ReactNode;
   separatorOutUnderLayer?: ReactNode;
   separatorOutMiddleLayer?: ReactNode;
@@ -25,6 +26,7 @@ export const BetweenLands = ({
   isCrt,
   crtCallback,
   renderItem,
+  separatorOutCrtScreenOpacity,
   separatorInMiddleLayer,
   separatorOutUnderLayer,
   separatorOutMiddleLayer,
@@ -134,6 +136,7 @@ export const BetweenLands = ({
       <SeparatorOut
         ref={separatorOutRef}
         isCrt={isCrt}
+        crtScreenOpacity={separatorOutCrtScreenOpacity}
         underLayer={separatorOutUnderLayer}
         middleLayer={separatorOutMiddleLayer}
       />

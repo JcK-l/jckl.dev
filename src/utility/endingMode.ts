@@ -2,6 +2,7 @@ import {
   clearEndingSelection,
   commitPendingEndingDiscovery,
   getSelectedEnding,
+  markEndingVideoSettled,
   queuePendingEndingDiscovery,
   setSelectedEnding,
   type SentimentLabel,
@@ -43,10 +44,13 @@ export const activateDiscoveredEnding = (sentiment: SentimentLabel) => {
 };
 
 export const exitEndingToOriginal = () => {
-  if (getSelectedEnding() === null) {
+  const selectedEnding = getSelectedEnding();
+
+  if (selectedEnding === null) {
     return;
   }
 
+  markEndingVideoSettled(selectedEnding);
   applyThemeForSentiment(null);
   clearEndingSelection();
   resetFinalCacheToOriginal();

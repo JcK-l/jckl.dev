@@ -40,7 +40,6 @@ const About = () => {
 
   return (
     <>
-      {/* <FlyingMan ref={ref} /> */}
       <div className="page-margins relative py-4" ref={ref}>
         <div className="z-10 mb-8 flex w-full items-start gap-4 xl:mb-24">
           {endingState.selectedSentiment === "negative" ? (

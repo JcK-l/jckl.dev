@@ -1,4 +1,4 @@
-import { forwardRef, useState, type ReactNode } from "react";
+import { forwardRef, useEffect, useState, type ReactNode } from "react";
 import { useStore } from "@nanostores/react";
 import { crtImage, crtScreen } from "../data/crtImage";
 import {
@@ -6,14 +6,22 @@ import {
   isBitSet as gameStateIsBitSet,
   setBit,
 } from "../stores/gameStateStore";
-import { $endingState, isEndingActive } from "../stores/endingStore";
-import { getAudioContext } from "../utility/audioContext";
+import { $endingState } from "../stores/endingStore";
+import {
+  preloadAudioBuffers,
+  resumeAudioContext,
+  startCachedAudio,
+} from "../utility/audioContext";
 
 interface SeparatorOutProps {
   isCrt?: boolean;
+  crtScreenOpacity?: number;
   underLayer?: ReactNode;
   middleLayer?: ReactNode;
 }
+
+const crtReadySoundFiles = ["/tvSounds/on.mp3", "/tvSounds/onAndOff.mp3"];
+const CRT_SOUND_GAIN = 0.25;
 
 export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
   (props, ref) => {
@@ -21,33 +29,12 @@ export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
     const [isSoundPlaying, setIsSoundPlaying] = useState(false);
 
     const displayCrt =
-      props.isCrt &&
-      gameStateIsBitSet(GameStateFlags.FLAG_LEND_A_HAND) &&
-      !(
-        isEndingActive("positive", endingState) ||
-        isEndingActive("neutral", endingState)
-      );
+      props.isCrt && gameStateIsBitSet(GameStateFlags.FLAG_LEND_A_HAND);
+    const crtScreenOpacity = props.crtScreenOpacity ?? 0;
 
-    const playSound = async (file: string) => {
-      const audioContext = getAudioContext();
-      const response = await fetch(file);
-      const arrayBuffer = await response.arrayBuffer();
-      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-      let gainNode: GainNode;
-      gainNode = audioContext.createGain();
-      gainNode.gain.value = 0.25;
-      gainNode.connect(audioContext.destination);
-
-      const source = audioContext.createBufferSource();
-      source.buffer = audioBuffer;
-      source.connect(gainNode);
-      source.start(0);
-      return new Promise<void>((resolve) => {
-        source.onended = () => {
-          resolve();
-        };
-      });
-    };
+    useEffect(() => {
+      void preloadAudioBuffers(crtReadySoundFiles);
+    }, []);
 
     return (
       <div
@@ -108,17 +95,29 @@ export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
                   }
 
                   setIsSoundPlaying(true);
-                  if (
-                    gameStateIsBitSet(GameStateFlags.FLAG_STARS_ALIGN) &&
-                    gameStateIsBitSet(GameStateFlags.FLAG_LEND_A_HAND) &&
-                    gameStateIsBitSet(GameStateFlags.FLAG_CONNECTION)
-                  ) {
-                    setBit(GameStateFlags.FLAG_CRT);
-                    await playSound("/tvSounds/on.mp3");
-                  } else {
-                    await playSound("/tvSounds/onAndOff.mp3");
+                  await resumeAudioContext();
+
+                  try {
+                    const isCrtReady =
+                      gameStateIsBitSet(GameStateFlags.FLAG_STARS_ALIGN) &&
+                      gameStateIsBitSet(GameStateFlags.FLAG_LEND_A_HAND) &&
+                      gameStateIsBitSet(GameStateFlags.FLAG_CONNECTION);
+                    const soundFile = isCrtReady
+                      ? "/tvSounds/on.mp3"
+                      : "/tvSounds/onAndOff.mp3";
+
+                    if (isCrtReady) {
+                      setBit(GameStateFlags.FLAG_CRT);
+                    }
+
+                    const playback = await startCachedAudio(soundFile, {
+                      gain: CRT_SOUND_GAIN,
+                    });
+
+                    await playback.ended;
+                  } finally {
+                    setIsSoundPlaying(false);
                   }
-                  setIsSoundPlaying(false);
                 }}
                 viewBox="0 0 960 279.177"
                 version="1.1"
@@ -142,7 +141,7 @@ export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
                     width="123.47222"
                     height="97.013885"
                     preserveAspectRatio="none"
-                    opacity={gameStateIsBitSet(GameStateFlags.FLAG_CRT) ? 1 : 0}
+                    opacity={crtScreenOpacity}
                     xlinkHref={crtScreen}
                     id="screen"
                     x="26.629618"

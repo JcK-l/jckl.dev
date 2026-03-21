@@ -16,7 +16,11 @@ import {
   isEndingActive,
   type SentimentLabel,
 } from "../../stores/endingStore";
-import { getAudioContext } from "../../utility/audioContext";
+import {
+  preloadAudioBuffers,
+  startCachedAudio,
+  type CachedAudioPlayback,
+} from "../../utility/audioContext";
 import { enterEnding } from "../../utility/endingMode";
 import {
   completeFinalCacheDelivery,
@@ -62,6 +66,66 @@ const ContactSpinner = () => (
 
 const apiUrl = "/api/openai";
 const contactTransferSourceAnchor = { x: 0.5, y: 0.5 };
+const contactStaticAudioUrl = "/tvSounds/tv-static-7019loop.mp3";
+const originalEndingStaticGain = 0.05;
+const negativeEndingStaticGain = 0.09;
+const contactStaticGainRampSeconds = 0.18;
+const contactStaticBubblePaddingRatio = 0.35;
+
+const getContactBubbleStrength = (sectionElement: HTMLElement) => {
+  const sectionBounds = sectionElement.getBoundingClientRect();
+  const viewportHeight = window.innerHeight;
+  const viewportCenter = viewportHeight / 2;
+  const sectionCenter = sectionBounds.top + sectionBounds.height / 2;
+  const bubblePadding = viewportHeight * contactStaticBubblePaddingRatio;
+  const maxDistance =
+    viewportHeight / 2 + sectionBounds.height / 2 + bubblePadding;
+  const normalizedDistance = Math.min(
+    Math.abs(sectionCenter - viewportCenter) / maxDistance,
+    1
+  );
+  const proximity = 1 - normalizedDistance;
+
+  return proximity * proximity;
+};
+
+const getContactSectionBubbleStrength = () => {
+  const contactSection = document.getElementById("contact");
+
+  if (contactSection === null) {
+    return 0;
+  }
+
+  return getContactBubbleStrength(contactSection);
+};
+
+const getContactStaticTargetGain = (isNegativeEndingActive: boolean) => {
+  const bubbleStrength = getContactSectionBubbleStrength();
+  const baseGain = isNegativeEndingActive
+    ? negativeEndingStaticGain
+    : originalEndingStaticGain;
+
+  return baseGain * bubbleStrength;
+};
+
+const getContactStaticVisualOpacity = () => {
+  return getContactSectionBubbleStrength();
+};
+
+const rampPlaybackGain = (
+  playback: CachedAudioPlayback,
+  targetGain: number
+) => {
+  const now = playback.context.currentTime;
+  const currentGain = playback.gainNode.gain.value;
+
+  playback.gainNode.gain.cancelScheduledValues(now);
+  playback.gainNode.gain.setValueAtTime(currentGain, now);
+  playback.gainNode.gain.linearRampToValueAtTime(
+    targetGain,
+    now + contactStaticGainRampSeconds
+  );
+};
 
 const getTransferSourcePoint = (
   sourceElement: HTMLButtonElement | null
@@ -89,15 +153,26 @@ const Contact = () => {
   const [pendingTransfer, setPendingTransfer] = useState(false);
   const [transferSourcePoint, setTransferSourcePoint] =
     useState<ViewportPoint | null>(null);
+  const [crtScreenOpacity, setCrtScreenOpacity] = useState(0);
   const submitButtonRef = useRef<HTMLButtonElement>(null);
   const formRef = useRef<FormElement | null>(null);
   const wasEndingActiveRef = useRef(endingState.isActive);
+  const staticPlaybackRef = useRef<CachedAudioPlayback | null>(null);
   const isEndingModeActive = endingState.isActive;
   const isNegativeEndingActive = isEndingActive("negative", endingState);
+  const isNeutralEndingActive = isEndingActive("neutral", endingState);
+  const isPositiveEndingActive = isEndingActive("positive", endingState);
   const isAnalyzing = phase === "analyzing";
   const isDeliveringDmail = phase === "delivering";
   const isEndingSequenceVisible = isAnalyzing || isDeliveringDmail;
   const shouldHideContact = isEndingModeActive && !isDeliveringDmail;
+  const isCrtPowered = gameStateIsBitSet(GameStateFlags.FLAG_CRT);
+  const shouldDisplayContactCrt =
+    gameStateIsBitSet(GameStateFlags.FLAG_LEND_A_HAND) &&
+    !isPositiveEndingActive &&
+    !isNeutralEndingActive;
+  const shouldPlayContactStatic =
+    isCrtPowered && !isPositiveEndingActive && !isNeutralEndingActive;
 
   const validateMessage = (
     message: string,
@@ -206,43 +281,106 @@ const Contact = () => {
   };
 
   useEffect(() => {
-    if (
-      !isNegativeEndingActive ||
-      !gameStateIsBitSet(GameStateFlags.FLAG_CRT)
-    ) {
+    if (!isCrtPowered) {
       return;
     }
 
-    let source: AudioBufferSourceNode | undefined;
-    let gainNode: GainNode | undefined;
+    void preloadAudioBuffers([contactStaticAudioUrl]);
+  }, [isCrtPowered]);
 
-    const fetchAudio = async () => {
-      const audioContext = getAudioContext();
-      const response = await fetch("/tvSounds/tv-static-7019loop.mp3");
-      const arrayBuffer = await response.arrayBuffer();
-      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+  useEffect(() => {
+    if (!shouldPlayContactStatic) {
+      staticPlaybackRef.current?.stop();
+      staticPlaybackRef.current = null;
+      setCrtScreenOpacity(0);
+      return;
+    }
 
-      source = audioContext.createBufferSource();
-      source.buffer = audioBuffer;
-      source.loop = true;
+    let playback: CachedAudioPlayback | null = null;
+    let isCancelled = false;
 
-      gainNode = audioContext.createGain();
-      gainNode.gain.value = 0.09;
+    const startStaticPlayback = async () => {
+      try {
+        playback = await startCachedAudio(contactStaticAudioUrl, {
+          gain: 0,
+          loop: true,
+        });
+      } catch {
+        return;
+      }
 
-      gainNode.connect(audioContext.destination);
-      source.connect(gainNode);
+      if (isCancelled) {
+        playback.stop();
+        return;
+      }
 
-      source.start(0);
+      staticPlaybackRef.current = playback;
+      rampPlaybackGain(
+        playback,
+        getContactStaticTargetGain(isNegativeEndingActive)
+      );
+      setCrtScreenOpacity(getContactStaticVisualOpacity());
     };
 
-    void fetchAudio();
+    void startStaticPlayback();
 
     return () => {
-      source?.stop();
-      source?.disconnect();
-      gainNode?.disconnect();
+      isCancelled = true;
+
+      if (playback !== null) {
+        playback.stop();
+      }
+
+      if (staticPlaybackRef.current === playback) {
+        staticPlaybackRef.current = null;
+      }
     };
-  }, [gameState, isNegativeEndingActive]);
+  }, [shouldPlayContactStatic]);
+
+  useEffect(() => {
+    if (!shouldPlayContactStatic) {
+      return;
+    }
+
+    let frameId = 0;
+
+    const updateStaticGain = () => {
+      const playback = staticPlaybackRef.current;
+      const nextOpacity = getContactStaticVisualOpacity();
+
+      if (playback === null) {
+        setCrtScreenOpacity(nextOpacity);
+        return;
+      }
+
+      rampPlaybackGain(
+        playback,
+        getContactStaticTargetGain(isNegativeEndingActive)
+      );
+      setCrtScreenOpacity((currentOpacity) => {
+        return Math.abs(currentOpacity - nextOpacity) < 0.01
+          ? currentOpacity
+          : nextOpacity;
+      });
+    };
+
+    const scheduleStaticGainUpdate = () => {
+      window.cancelAnimationFrame(frameId);
+      frameId = window.requestAnimationFrame(updateStaticGain);
+    };
+
+    scheduleStaticGainUpdate();
+    window.addEventListener("scroll", scheduleStaticGainUpdate, {
+      passive: true,
+    });
+    window.addEventListener("resize", scheduleStaticGainUpdate);
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      window.removeEventListener("scroll", scheduleStaticGainUpdate);
+      window.removeEventListener("resize", scheduleStaticGainUpdate);
+    };
+  }, [isNegativeEndingActive, shouldPlayContactStatic]);
 
   useEffect(() => {
     if (phase !== "delivering" || !isEndingModeActive) {
@@ -275,7 +413,8 @@ const Contact = () => {
   return (
     <BetweenLands
       isBackground={false}
-      isCrt={gameStateIsBitSet(GameStateFlags.FLAG_LEND_A_HAND)}
+      isCrt={shouldDisplayContactCrt}
+      separatorOutCrtScreenOpacity={crtScreenOpacity}
       separatorInMiddleLayer={
         <PuzzlePieceTransfer
           direction="up"
@@ -385,6 +524,9 @@ const Contact = () => {
                   className="mb-3 w-full rounded-lg bg-white pb-10 pl-2 pt-2 font-medium text-bgColor focus:bg-primary focus:text-white focus:outline-none focus:ring focus:ring-white xl:pb-24 xl:pl-4 xl:pt-4"
                   id="message"
                   name="message"
+                  placeholder={
+                    isCrtPowered ? "How did you like the website?" : undefined
+                  }
                   onChange={(event) => {
                     if (gameStateIsBitSet(GameStateFlags.FLAG_CRT)) {
                       const encoder = new TextEncoder();
