@@ -17,6 +17,47 @@ import {
 const HERO_VIEWBOX_WIDTH = 900;
 const HERO_VIEWBOX_HEIGHT = 743;
 
+const heroImageLayouts = {
+  default: {
+    x: 23.26,
+    y: 85.32,
+    width: 898.72,
+    assetWidth: 2000,
+    assetHeight: 1428,
+    src: heroPortraitSrc,
+    srcSet: heroPortraitSrcSet,
+    sizes: heroPortraitSizes,
+    alt: "Portrait of Joshua",
+  },
+  neutral: {
+    x: 154.03,
+    y: 97,
+    width: 630,
+    assetWidth: 1044,
+    assetHeight: 1044,
+    src: "/jTransparent.avif",
+    alt: "Joshua silhouette",
+  },
+  positive: {
+    x: 1.5,
+    y: 97,
+    width: 943.11,
+    assetWidth: 1500,
+    assetHeight: 1002,
+    src: "/classicPhone.avif",
+    alt: "Classic phone",
+  },
+} as const;
+
+const getHeroImageStyle = (layout: (typeof heroImageLayouts)[keyof typeof heroImageLayouts]) => {
+  return {
+    aspectRatio: `${layout.assetWidth} / ${layout.assetHeight}`,
+    left: `${(layout.x / HERO_VIEWBOX_WIDTH) * 100}%`,
+    top: `${(layout.y / HERO_VIEWBOX_HEIGHT) * 100}%`,
+    width: `${(layout.width / HERO_VIEWBOX_WIDTH) * 100}%`,
+  } as const;
+};
+
 const heroLayerDefs = [
   {
     key: "secondary",
@@ -187,35 +228,18 @@ export const Face = () => {
   const reduceMotion = useReducedMotion();
   const maskPrefix = useId().replace(/:/g, "");
   const ref = useRef<HTMLDivElement>(null);
-  const imageX =
-    endingState.selectedSentiment === "positive"
-      ? "19%"
-      : endingState.selectedSentiment === "neutral"
-        ? "6%"
-        : "0%";
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["0% 0%", "100% 0%"],
   });
   const layer = useTransform(scrollYProgress, [0, 1], ["0vh", "10vh"]);
 
-  const imageProps =
+  const heroImageLayout =
     endingState.selectedSentiment === "neutral"
-      ? {
-          src: "/jTransparent.avif",
-          alt: "Joshua silhouette",
-        }
+      ? heroImageLayouts.neutral
       : endingState.selectedSentiment === "positive"
-        ? {
-            src: "/classicPhone.avif",
-            alt: "Classic phone",
-          }
-        : {
-            src: heroPortraitSrc,
-            srcSet: heroPortraitSrcSet,
-            sizes: heroPortraitSizes,
-            alt: "Portrait of Joshua",
-          };
+        ? heroImageLayouts.positive
+        : heroImageLayouts.default;
 
   return (
     <div
@@ -233,17 +257,21 @@ export const Face = () => {
       </svg>
 
       <motion.div
-        style={{ left: imageX, y: layer }}
-        className={`absolute bottom-0 left-0 mix-blend-screen ${
+        style={{ y: layer }}
+        className={`absolute inset-0 mix-blend-screen ${
           isNegativeEndingActive ? "pointer-events-none invisible" : ""
         }`}
       >
         <img
-          {...imageProps}
-          className="block max-w-none"
+          src={heroImageLayout.src}
+          srcSet={"srcSet" in heroImageLayout ? heroImageLayout.srcSet : undefined}
+          sizes={"sizes" in heroImageLayout ? heroImageLayout.sizes : undefined}
+          alt={heroImageLayout.alt}
+          className="absolute block h-auto max-w-none"
           decoding="async"
           fetchpriority="high"
           loading="eager"
+          style={getHeroImageStyle(heroImageLayout)}
         />
       </motion.div>
 
