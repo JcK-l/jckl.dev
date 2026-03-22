@@ -48,9 +48,8 @@ const jumpToSection = (sectionId: string) => {
 };
 
 export const enterEnding = (sentiment: SentimentLabel) => {
-  setSelectedEnding(sentiment);
   queuePendingEndingDiscovery(sentiment);
-  toggleThemes();
+  toggleThemes(sentiment);
 };
 
 export const activateDiscoveredEnding = (sentiment: SentimentLabel) => {

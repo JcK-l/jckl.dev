@@ -50,7 +50,7 @@ interface FetchSentimentResponse {
   sentiment: SentimentLabel;
 }
 
-type ContactPhase = "idle" | "analyzing" | "delivering" | "placeholder";
+type ContactPhase = "idle" | "analyzing" | "delivering";
 
 type ViewportPoint = {
   x: number;
@@ -167,7 +167,7 @@ const Contact = () => {
   const isAnalyzing = phase === "analyzing";
   const isDeliveringDmail = phase === "delivering";
   const isEndingSequenceVisible = isAnalyzing || isDeliveringDmail;
-  const shouldHideContact = isEndingModeActive && !isDeliveringDmail;
+  const shouldHideContact = isEndingModeActive;
   const isCrtPowered = gameStateIsBitSet(GameStateFlags.FLAG_CRT);
   const shouldDisplayContactCrt =
     gameStateIsBitSet(GameStateFlags.FLAG_LEND_A_HAND) &&
@@ -271,6 +271,11 @@ const Contact = () => {
         date: pastDate,
       });
       prepareFinalCacheEnding();
+      setTransferSourcePoint(
+        shouldTriggerTransfer
+          ? getTransferSourcePoint(submitButtonRef.current)
+          : null
+      );
       setPendingTransfer(shouldTriggerTransfer);
       setPhase("delivering");
       enterEnding(sentiment);
@@ -402,12 +407,11 @@ const Contact = () => {
     }
 
     if (pendingTransfer) {
-      setTransferSourcePoint(getTransferSourcePoint(submitButtonRef.current));
       setTransferKey((currentKey) => currentKey + 1);
       setPendingTransfer(false);
     }
 
-    setPhase("placeholder");
+    setPhase("idle");
   }, [isEndingModeActive, pendingTransfer, phase]);
 
   useEffect(() => {

@@ -13,9 +13,9 @@ export const Face = () => {
   const isNegativeEndingActive = isEndingActive("negative", endingState);
   const imageX =
     endingState.selectedSentiment === "positive"
-      ? "-19%"
+      ? "19%"
       : endingState.selectedSentiment === "neutral"
-        ? "-6%"
+        ? "6%"
         : "0%";
   let ref = useRef(null);
 

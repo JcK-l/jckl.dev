@@ -1,6 +1,5 @@
 import {
-  getSelectedEnding,
-  setEndingActive,
+  setSelectedEnding,
   type SentimentLabel,
 } from "../stores/endingStore";
 
@@ -378,17 +377,11 @@ export const cycleDebugTheme = () => {
   return themeDefinitions[nextTheme].label;
 };
 
-export const toggleThemes = () => {
+export const toggleThemes = (selectedSentiment: SentimentLabel) => {
   let intervalId: ReturnType<typeof setInterval> | null = null;
   let currentInterval = 3000;
   const minInterval = 150;
   const decayFactor = 0.98;
-  const selectedSentiment = getSelectedEnding();
-
-  if (selectedSentiment === null) {
-    return;
-  }
-
   const selectedTheme = getThemeForSentiment(selectedSentiment);
 
   let currentTheme: Themes = selectedTheme;
@@ -423,7 +416,7 @@ export const toggleThemes = () => {
       }
 
       applyTheme(selectedTheme);
-      setEndingActive(true);
+      setSelectedEnding(selectedSentiment, true);
     };
 
     intervalId = setInterval(adjustInterval, currentInterval);
