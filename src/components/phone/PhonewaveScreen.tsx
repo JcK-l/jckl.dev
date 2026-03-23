@@ -1,4 +1,4 @@
-import { ApplianceTerminal } from "../ApplianceTerminal";
+import { ApplianceTerminal } from "../appliance/ApplianceTerminal";
 import { TypingText } from "../TypingText";
 
 export type PhonewaveTone = "neutral" | "success" | "failure" | "muted";

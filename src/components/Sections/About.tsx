@@ -1,8 +1,8 @@
 import { useRef, useEffect, useState } from "react";
-import { PuzzleGame } from "../PuzzleGame";
+import { PuzzleGame } from "../puzzle/PuzzleGame";
 import { PuzzleProvider } from "../../context/PuzzleContext";
 import { AboutText } from "../AboutText";
-import { Email } from "../Email";
+import { Email } from "../appliance/Email";
 import { useStore } from "@nanostores/react";
 import { $endingState, isEndingActive } from "../../stores/endingStore";
 import { $endingMailBySentiment } from "../../stores/endingMailStore";

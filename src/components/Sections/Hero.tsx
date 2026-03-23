@@ -1,5 +1,5 @@
 import { ArrowDown } from "../../utility/icons";
-import { HeroFace } from "../HeroFace";
+import { HeroFace } from "../hero/HeroFace";
 import { useStore } from "@nanostores/react";
 import { $endingState, isEndingActive } from "../../stores/endingStore";
 

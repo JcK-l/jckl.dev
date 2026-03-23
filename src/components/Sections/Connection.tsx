@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useStore } from "@nanostores/react";
 import { BetweenLands } from "../BetweenLands";
-import { ApplianceShell } from "../ApplianceShell";
-import { ApplianceTerminal } from "../ApplianceTerminal";
-import { PuzzlePieceTransfer } from "../PuzzlePieceTransfer";
+import { ApplianceShell } from "../appliance/ApplianceShell";
+import { ApplianceTerminal } from "../appliance/ApplianceTerminal";
+import { PuzzlePieceTransfer } from "../puzzle/PuzzlePieceTransfer";
 import { Phonewave } from "../phone/Phonewave";
 import { puzzleGroups } from "../../data/puzzleGroups";
 import { $phoneResultMode } from "../../stores/phoneStore";

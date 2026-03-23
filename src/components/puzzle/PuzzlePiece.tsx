@@ -1,11 +1,11 @@
 import { motion, useAnimation, useDragControls } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { usePuzzleContext } from "../hooks/useDataContext";
+import { usePuzzleContext } from "../../hooks/useDataContext";
 import {
   playCachedAudio,
   preloadAudioBuffers,
   resumeAudioContext,
-} from "../utility/audioContext";
+} from "../../utility/audioContext";
 
 interface PuzzlePieceProps {
   id: number;

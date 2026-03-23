@@ -3,8 +3,8 @@ import {
   heroPortraitSizes,
   heroPortraitSrc,
   heroPortraitSrcSet,
-} from "../data/heroImage";
-import { $endingState, isEndingActive } from "../stores/endingStore";
+} from "../../data/heroImage";
+import { $endingState, isEndingActive } from "../../stores/endingStore";
 import { HeroFaceFrame, type HeroFaceImageLayout } from "./HeroFaceFrame";
 
 const heroImageLayouts = {

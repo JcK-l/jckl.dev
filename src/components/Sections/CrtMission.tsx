@@ -8,7 +8,7 @@ import {
 } from "react";
 import { useStore } from "@nanostores/react";
 import { BetweenLands } from "../BetweenLands";
-import { PuzzlePieceTransfer } from "../PuzzlePieceTransfer";
+import { PuzzlePieceTransfer } from "../puzzle/PuzzlePieceTransfer";
 import { Stars } from "../Stars";
 import { meImage, meDown } from "../../data/meImage";
 import { crtImage } from "../../data/crtImage";

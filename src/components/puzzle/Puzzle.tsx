@@ -1,9 +1,9 @@
-import { puzzleImages } from "../data/PuzzleImage";
+import { puzzleImages } from "../../data/PuzzleImage";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useState, forwardRef, useEffect } from "react";
 import { useStore } from "@nanostores/react";
-import { usePuzzleContext } from "../hooks/useDataContext";
-import { $endingState, markEndingVideoSettled } from "../stores/endingStore";
+import { usePuzzleContext } from "../../hooks/useDataContext";
+import { $endingState, markEndingVideoSettled } from "../../stores/endingStore";
 
 interface PuzzleProps {}
 

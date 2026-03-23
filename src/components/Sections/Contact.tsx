@@ -2,7 +2,7 @@ import { useStore } from "@nanostores/react";
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { BetweenLands } from "../BetweenLands";
-import { PuzzlePieceTransfer } from "../PuzzlePieceTransfer";
+import { PuzzlePieceTransfer } from "../puzzle/PuzzlePieceTransfer";
 import {
   $gameState,
   GameStateFlags,

@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import type { MotionValue } from "framer-motion";
 import { useEffect, useState, useRef } from "react";
 import { useScroll, useTransform, useMotionValue } from "framer-motion";
-import { Crt } from "./Crt";
+import { Crt } from "./appliance/Crt";
 import { GameStateFlags, isBitSet } from "../stores/gameStateStore";
 
 interface BetweenLandsProps {

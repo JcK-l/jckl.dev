@@ -9,7 +9,7 @@ import {
   $phoneResultMode,
   $phoneTimer,
 } from "../../stores/phoneStore";
-import { ApplianceShell } from "../ApplianceShell";
+import { ApplianceShell } from "../appliance/ApplianceShell";
 import { PhonewaveScreen, type PhonewaveLine } from "./PhonewaveScreen";
 import { PhonewaveTimerControls } from "./PhonewaveTimerControls";
 import { formatDate } from "../../utility/formatDate";

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { BetweenLands } from "../BetweenLands";
-import { PuzzlePieceTransfer } from "../PuzzlePieceTransfer";
+import { PuzzlePieceTransfer } from "../puzzle/PuzzlePieceTransfer";
 import { puzzleGroups } from "../../data/puzzleGroups";
 import {
   $gameState,

@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState, type RefObject } from "react";
-import { pieces as puzzlePieces } from "../data/PuzzleData";
-import { $puzzlePieceSize } from "../stores/puzzleLayoutStore";
-import { preloadPieceImages } from "../utility/pieceImages";
+import { pieces as puzzlePieces } from "../../data/PuzzleData";
+import { $puzzlePieceSize } from "../../stores/puzzleLayoutStore";
+import { preloadPieceImages } from "../../utility/pieceImages";
 
 type TransferDirection = "up" | "down";
 

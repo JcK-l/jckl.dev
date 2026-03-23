@@ -3,11 +3,11 @@ import {
   puzzleGroups,
   getNextPuzzleHint,
   type DispensedGroups,
-} from "../data/puzzleGroups";
-import { $endingState, isEndingActive } from "../stores/endingStore";
-import { exitEndingToOriginal } from "../utility/endingMode";
-import { ApplianceShell } from "./ApplianceShell";
-import { ApplianceTerminal } from "./ApplianceTerminal";
+} from "../../data/puzzleGroups";
+import { $endingState, isEndingActive } from "../../stores/endingStore";
+import { exitEndingToOriginal } from "../../utility/endingMode";
+import { ApplianceShell } from "../appliance/ApplianceShell";
+import { ApplianceTerminal } from "../appliance/ApplianceTerminal";
 
 interface PuzzleSignalBoardProps {
   binaryState: number;
