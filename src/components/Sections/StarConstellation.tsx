@@ -119,6 +119,17 @@ const connectionPathStyle = {
   strokeDasharray: "0,1,0",
 };
 
+const guidePathStyle = {
+  fill: "none",
+  stroke: "var(--color-yellow)",
+  strokeWidth: 0.12,
+  strokeLinecap: "round" as const,
+  strokeLinejoin: "round" as const,
+  strokeDasharray: "0.12 0.55",
+  strokeOpacity: 0.15,
+  pointerEvents: "none" as const,
+};
+
 const starsPieceIds =
   puzzleGroups.find((group) => group.key === "stars")?.pieces ?? [];
 
@@ -134,6 +145,23 @@ const StarConstellation = () => {
   const hasStarsUnlocked =
     (binaryState & (1 << GameStateFlags.FLAG_STARS_ALIGN)) !== 0;
   const hasTriggeredTransferRef = useRef(hasStarsUnlocked);
+  const starGlowLevels = isPressed
+    ? {
+        strongRest: 0.12,
+        strongTwinkle: [0.1, 0.28, 0.1],
+        softRest: 0.34,
+        softTwinkle: [0.28, 0.68, 0.28],
+        coreRest: 1,
+        coreTwinkle: [0.9, 1, 0.9],
+      }
+    : {
+        strongRest: 0.18,
+        strongTwinkle: [0.14, 0.38, 0.14],
+        softRest: 0.48,
+        softTwinkle: [0.4, 0.86, 0.4],
+        coreRest: 1,
+        coreTwinkle: [0.96, 1, 0.96],
+      };
 
   useEffect(() => {
     if (hasStarsUnlocked) {
@@ -248,6 +276,18 @@ const StarConstellation = () => {
                   <feGaussianBlur stdDeviation="0.7" />
                 </filter>
               </defs>
+              {!isPressed ? (
+                <>
+                  <path
+                    style={guidePathStyle}
+                    d={constellationPrimaryConnectionPath}
+                  />
+                  <path
+                    style={guidePathStyle}
+                    d={constellationSecondaryConnectionPath}
+                  />
+                </>
+              ) : null}
               {constellationStars.map((star) => (
                 <g key={star.id}>
                   <motion.path
@@ -260,11 +300,11 @@ const StarConstellation = () => {
                     style={getStarStyle(star.strokeWidth)}
                     variants={{
                       rest: {
-                        opacity: 0.12,
+                        opacity: starGlowLevels.strongRest,
                         transition: settleTransition,
                       },
                       twinkle: (delay: number) => ({
-                        opacity: [0.1, 0.28, 0.1],
+                        opacity: starGlowLevels.strongTwinkle,
                         transition: getPulseTransition(delay),
                       }),
                     }}
@@ -279,11 +319,11 @@ const StarConstellation = () => {
                     style={getStarStyle(star.strokeWidth)}
                     variants={{
                       rest: {
-                        opacity: 0.34,
+                        opacity: starGlowLevels.softRest,
                         transition: settleTransition,
                       },
                       twinkle: (delay: number) => ({
-                        opacity: [0.28, 0.68, 0.28],
+                        opacity: starGlowLevels.softTwinkle,
                         transition: getPulseTransition(delay),
                       }),
                     }}
@@ -297,11 +337,11 @@ const StarConstellation = () => {
                     style={getStarStyle(star.strokeWidth)}
                     variants={{
                       rest: {
-                        opacity: 1,
+                        opacity: starGlowLevels.coreRest,
                         transition: settleTransition,
                       },
                       twinkle: (delay: number) => ({
-                        opacity: [0.9, 1, 0.9],
+                        opacity: starGlowLevels.coreTwinkle,
                         transition: getPulseTransition(delay),
                       }),
                     }}
