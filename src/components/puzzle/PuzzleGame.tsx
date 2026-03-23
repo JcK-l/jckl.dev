@@ -178,7 +178,7 @@ export const PuzzleGame = () => {
 
   return (
     <div
-      className="relative my-auto w-full shrink-0 select-none lg:w-5/12"
+      className="relative w-full shrink-0 self-start select-none lg:w-5/12"
       draggable={false}
     >
       <PuzzleSignalBoard

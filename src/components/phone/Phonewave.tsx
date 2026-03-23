@@ -188,10 +188,9 @@ export const Phonewave = ({
     <ApplianceShell
       className={`mx-auto flex min-h-[24rem] w-full flex-col px-5 py-5 md:px-7 lg:h-full ${className}`}
       radius="2rem"
-      showHighlight
     >
       <div
-        className="flex items-start gap-4 border-b pb-4"
+        className="flex items-start justify-between gap-4 border-b pb-4"
         style={{ borderColor: "var(--color-appliance-shell-border)" }}
       >
         <div className="space-y-1.5">
@@ -201,7 +200,10 @@ export const Phonewave = ({
           >
             future gadget no. 8
           </p>
-          <p className="text-[0.86rem] tracking-[0.08em] text-[var(--color-primary)] sm:text-[0.98rem]">
+          <p
+            className="text-[0.86rem] tracking-[0.08em] sm:text-[0.98rem]"
+            style={{ color: "var(--color-appliance-label-soft)" }}
+          >
             PhoneWave (name subject to change)
           </p>
         </div>

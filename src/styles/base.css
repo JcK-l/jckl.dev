@@ -128,12 +128,13 @@
   --color-transition1: #7EA5B8;
   --color-transition2: #B7CFD3;
   --color-appliance-label: #1D3557;
-  --color-appliance-shell-top: #E9E1D4;
-  --color-appliance-shell-bottom: #E9E1D4;
+  --color-appliance-label-soft: #457B9D;
+  --color-appliance-shell-top: #D7E1EB;
+  --color-appliance-shell-bottom: #D7E1EB;
   --color-appliance-shell-border: #1D355722;
   --color-appliance-shell-pattern: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0)), repeating-linear-gradient(38deg, rgba(29,53,87,0.035) 0px, rgba(29,53,87,0.035) 1px, transparent 1px, transparent 10px), repeating-linear-gradient(-36deg, rgba(255,255,255,0.18) 0px, rgba(255,255,255,0.18) 1px, transparent 1px, transparent 13px);
-  --color-appliance-panel-top: #F3ECE1;
-  --color-appliance-panel-bottom: #F3ECE1;
+  --color-appliance-panel-top: #E4EBF2;
+  --color-appliance-panel-bottom: #E4EBF2;
   --color-appliance-panel-border: #1D35571F;
   --color-appliance-panel-highlight: #FFFFFF26;
   --color-appliance-panel-pattern: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0)), repeating-linear-gradient(44deg, rgba(29,53,87,0.026) 0px, rgba(29,53,87,0.026) 1px, transparent 1px, transparent 9px), repeating-linear-gradient(-44deg, rgba(255,255,255,0.16) 0px, rgba(255,255,255,0.16) 1px, transparent 1px, transparent 12px);
@@ -143,14 +144,14 @@
   --color-appliance-screen-text: #F1FAEE;
   --color-appliance-screen-muted: #A8DADC;
   --color-appliance-control-pattern: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0)), repeating-linear-gradient(42deg, rgba(29,53,87,0.03) 0px, rgba(29,53,87,0.03) 1px, transparent 1px, transparent 10px), repeating-linear-gradient(-42deg, rgba(255,255,255,0.14) 0px, rgba(255,255,255,0.14) 1px, transparent 1px, transparent 12px);
-  --color-appliance-control-panel-top: #F6F0E6;
-  --color-appliance-control-panel-bottom: #F6F0E6;
+  --color-appliance-control-panel-top: #EEF4F8;
+  --color-appliance-control-panel-bottom: #EEF4F8;
   --color-appliance-control-panel-border: #1D35571F;
-  --color-appliance-control-button-top: #FBF6EE;
-  --color-appliance-control-button-bottom: #FBF6EE;
+  --color-appliance-control-button-top: #F7FAFC;
+  --color-appliance-control-button-bottom: #F7FAFC;
   --color-appliance-control-button-border: #1D35571F;
-  --color-appliance-control-danger-top: #F7ECE7;
-  --color-appliance-control-danger-bottom: #F7ECE7;
+  --color-appliance-control-danger-top: #F1E7E8;
+  --color-appliance-control-danger-bottom: #F1E7E8;
   --color-appliance-control-danger-border: #E6394630;
   --color-appliance-status-ready-bg: #018E421F;
   --color-appliance-status-ready-border: #018E4238;
@@ -278,6 +279,15 @@
 
 .appliance-wiggle {
   animation: applianceWiggle 220ms ease-in-out 2;
+}
+
+.about-deck-scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.about-deck-scroll::-webkit-scrollbar {
+  display: none;
 }
 
 .phone-pad-button circle,

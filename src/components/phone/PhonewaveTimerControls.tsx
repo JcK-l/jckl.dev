@@ -5,6 +5,7 @@ import {
   type TimerStatusMode,
   type TimerValues,
 } from "../../utility/phoneTimer";
+import { ApplianceInsetPanel } from "../appliance/ApplianceInsetPanel";
 
 const timerStatusLabels: Record<TimerStatusMode, string> = {
   "not-enough": "NOT ENOUGH",
@@ -75,12 +76,7 @@ export const PhonewaveTimerControls = ({
             {statusLabel}
           </span>
         </div>
-        <div
-          className="rounded-[1.1rem] p-3"
-          style={{
-            backgroundColor: "var(--color-appliance-control-panel-top)",
-          }}
-        >
+        <ApplianceInsetPanel className="p-3">
           <div className="mb-3">
             <p
               className="text-[0.54rem] uppercase tracking-[0.28em]"
@@ -136,7 +132,7 @@ export const PhonewaveTimerControls = ({
               );
             })}
           </div>
-        </div>
+        </ApplianceInsetPanel>
         <div className="mt-4 grid grid-cols-3 gap-2.5">
           {keypadDigits.map((digit) => (
             <button
