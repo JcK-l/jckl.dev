@@ -35,7 +35,7 @@ const handPieceIds =
 const CRT_SEQUENCE_DELAY_MS = 550;
 const CRT_DROP_DELAY_S = 0.6;
 const CRT_TRANSFER_AFTER_DROP_START_MS = 500;
-const CRT_HIDE_AFTER_TRANSFER_MS = 200;
+const CRT_HIDE_AFTER_TRANSFER_MS = 650;
 const CRT_TRANSFER_SOURCE_ANCHOR = { x: 0.56, y: -0.5 };
 const MISSION_FLOAT_TRANSITION = {
   duration: 12.5,
@@ -56,6 +56,15 @@ const discoveredBalloonOutline = {
   strokeOpacity: 0.22,
   strokeWidth: 6,
   pointerEvents: "none" as const,
+};
+
+const getMissionDropOffsets = (sceneHeight: number) => {
+  const safeHeight = Math.max(sceneHeight, 250);
+
+  return {
+    endY: safeHeight * 1.2,
+    startY: 0,
+  };
 };
 
 const CrtMission = () => {
@@ -204,9 +213,15 @@ const CrtMission = () => {
         setOpacity(1);
         sequenceTimeoutRef.current = window.setTimeout(() => {
           const shouldTransfer = !dispensedGroups.hand;
+          const sceneHeight =
+            missionRef.current?.getBoundingClientRect().height ?? 0;
+          const { startY, endY } = getMissionDropOffsets(sceneHeight);
 
           setOpacitySwitch(1);
           gameStateSetBit(GameStateFlags.FLAG_LEND_A_HAND);
+          floatControls.stop();
+          floatControls.set({ x: 0, y: 0, rotate: 0 });
+          controls.set({ y: startY });
 
           if (shouldTransfer) {
             transferTimeoutRef.current = window.setTimeout(() => {
@@ -220,11 +235,16 @@ const CrtMission = () => {
 
           controls
             .start({
-              y: 0,
+              y: endY,
               transition: {
                 delay: CRT_DROP_DELAY_S,
                 type: "inertia",
-                velocity: 350,
+                velocity: 700,
+                power: 0.18,
+                min: endY,
+                max: endY,
+                bounceStiffness: 260,
+                bounceDamping: 26,
               },
             })
             .then(() => {
@@ -243,35 +263,37 @@ const CrtMission = () => {
           style={{ y: shift }}
         >
           {shouldRenderMissionScene ? (
-            <motion.div
-              initial={false}
-              ref={missionRef}
-              animate={controls}
+            <div
               className="absolute left-[50%] top-[50%] z-10 w-7/12 -translate-x-1/2 -translate-y-1/2"
             >
               <motion.div
-                animate={floatControls}
+                ref={missionRef}
+                animate={controls}
                 initial={false}
-                style={{ transformOrigin: "50% 0%" }}
               >
-                <svg
-                  viewBox="0 0 49.26923 39"
-                  fill="none"
-                  className="h-auto w-full"
-                  version="1.1"
-                  id="svg1"
-                  xmlns="http://www.w3.org/2000/svg"
+                <motion.div
+                  animate={floatControls}
+                  initial={false}
+                  style={{ transformOrigin: "50% 0%" }}
                 >
-                  <defs id="defs1" />
-                  <g
-                    id="g13"
-                    transform="matrix(0.02182348,0,0,0.02182348,25.113447,1.8637982)"
+                  <svg
+                    viewBox="0 0 49.26923 39"
+                    fill="none"
+                    className="h-auto w-full"
+                    version="1.1"
+                    id="svg1"
+                    xmlns="http://www.w3.org/2000/svg"
                   >
-                    <path
-                      style={{ fill: "#303e48" }}
-                      d="m 333.338,357.309 c -0.039,0 -0.077,0 -0.116,0 -4.559,0.063 -8.203,3.809 -8.14,8.368 0.134,9.766 -2.447,17.54 -8.629,25.993 -6.827,9.335 -14.109,13.803 -22.541,18.976 -7.256,4.451 -15.48,9.496 -23.573,18.12 -2.319,2.471 -5.514,5.88 -8.798,10.347 -0.146,-1.282 -0.295,-2.583 -0.447,-3.908 -2.176,-19 -4.883,-42.646 -6.237,-66.046 -2.778,-48.034 0.139,-97.258 8.671,-146.304 0.781,-4.492 -2.225,-8.765 -6.718,-9.547 -4.488,-0.785 -8.766,2.227 -9.547,6.718 -8.749,50.293 -11.739,100.79 -8.888,150.087 1.308,22.605 3.831,45.242 5.964,63.89 -10.114,-16.523 -20.134,-25.279 -28.981,-33.013 -7.493,-6.55 -13.965,-12.206 -19.364,-21.755 -11.037,-19.519 -9.302,-44.688 -7.227,-58.178 0.686,-4.455 -2.121,-8.87 -6.549,-9.715 -4.612,-0.88 -8.991,2.235 -9.711,6.83 -5.374,34.357 1.992,56.589 9.116,69.189 6.784,11.999 14.962,19.146 22.87,26.058 8.403,7.346 16.457,16.032 25.959,29.522 13.597,19.302 16.479,40.49 16.534,47.189 0.054,6.521 0.252,12.721 0.291,13.888 0.15,4.463 3.814,7.98 8.245,7.98 0.094,0 0.187,-10e-4 0.281,-0.004 4.557,-0.152 8.127,-3.968 7.975,-8.525 -0.181,-5.399 -1.443,-43.364 18.599,-63.406 6.794,-6.794 13.178,-11.056 20.167,-15.344 9.088,-5.576 18.486,-11.341 27.234,-23.302 8.354,-11.422 11.996,-22.516 11.81,-35.967 -0.061,-4.52 -3.744,-8.141 -8.25,-8.141 z"
-                      id="path1"
-                    />
+                    <defs id="defs1" />
+                    <g
+                      id="g13"
+                      transform="matrix(0.02182348,0,0,0.02182348,25.113447,1.8637982)"
+                    >
+                      <path
+                        style={{ fill: "#303e48" }}
+                        d="m 333.338,357.309 c -0.039,0 -0.077,0 -0.116,0 -4.559,0.063 -8.203,3.809 -8.14,8.368 0.134,9.766 -2.447,17.54 -8.629,25.993 -6.827,9.335 -14.109,13.803 -22.541,18.976 -7.256,4.451 -15.48,9.496 -23.573,18.12 -2.319,2.471 -5.514,5.88 -8.798,10.347 -0.146,-1.282 -0.295,-2.583 -0.447,-3.908 -2.176,-19 -4.883,-42.646 -6.237,-66.046 -2.778,-48.034 0.139,-97.258 8.671,-146.304 0.781,-4.492 -2.225,-8.765 -6.718,-9.547 -4.488,-0.785 -8.766,2.227 -9.547,6.718 -8.749,50.293 -11.739,100.79 -8.888,150.087 1.308,22.605 3.831,45.242 5.964,63.89 -10.114,-16.523 -20.134,-25.279 -28.981,-33.013 -7.493,-6.55 -13.965,-12.206 -19.364,-21.755 -11.037,-19.519 -9.302,-44.688 -7.227,-58.178 0.686,-4.455 -2.121,-8.87 -6.549,-9.715 -4.612,-0.88 -8.991,2.235 -9.711,6.83 -5.374,34.357 1.992,56.589 9.116,69.189 6.784,11.999 14.962,19.146 22.87,26.058 8.403,7.346 16.457,16.032 25.959,29.522 13.597,19.302 16.479,40.49 16.534,47.189 0.054,6.521 0.252,12.721 0.291,13.888 0.15,4.463 3.814,7.98 8.245,7.98 0.094,0 0.187,-10e-4 0.281,-0.004 4.557,-0.152 8.127,-3.968 7.975,-8.525 -0.181,-5.399 -1.443,-43.364 18.599,-63.406 6.794,-6.794 13.178,-11.056 20.167,-15.344 9.088,-5.576 18.486,-11.341 27.234,-23.302 8.354,-11.422 11.996,-22.516 11.81,-35.967 -0.061,-4.52 -3.744,-8.141 -8.25,-8.141 z"
+                        id="path1"
+                      />
 
                   <motion.g {...getBalloonInteractionProps("positive")}>
                     {endingState.discoveredSentiments.positive ? (
@@ -423,43 +445,44 @@ const CrtMission = () => {
                   </motion.g>
                 </g>
 
-                  {endingState.selectedSentiment !== "negative" && (
-                    <>
-                      <image
-                        width="10.697615"
-                        height="22.317436"
-                        preserveAspectRatio="none"
-                        opacity={opacitySwitch ^ 1}
-                        xlinkHref={`${meImage}`}
-                        id="image1"
-                        x="28.49054"
-                        y="11.719395"
-                      />
-                      <image
-                        width="10.437182"
-                        height="27.279438"
-                        preserveAspectRatio="none"
-                        opacity={opacitySwitch}
-                        xlinkHref={`${meDown}`}
-                        id="image1-2"
-                        x="28.29455"
-                        y="11.51998"
-                      />
-                      <image
-                        width="8.0540342"
-                        height="6.0324798"
-                        preserveAspectRatio="none"
-                        opacity={opactiy}
-                        xlinkHref={`${crtImage}`}
-                        id="image1-0"
-                        x="31.965414"
-                        y="26.777388"
-                      />
-                    </>
-                  )}
-                </svg>
+                    {endingState.selectedSentiment !== "negative" && (
+                      <>
+                        <image
+                          width="10.697615"
+                          height="22.317436"
+                          preserveAspectRatio="none"
+                          opacity={opacitySwitch ^ 1}
+                          xlinkHref={`${meImage}`}
+                          id="image1"
+                          x="28.49054"
+                          y="11.719395"
+                        />
+                        <image
+                          width="10.437182"
+                          height="27.279438"
+                          preserveAspectRatio="none"
+                          opacity={opacitySwitch}
+                          xlinkHref={`${meDown}`}
+                          id="image1-2"
+                          x="28.29455"
+                          y="11.51998"
+                        />
+                        <image
+                          width="8.0540342"
+                          height="6.0324798"
+                          preserveAspectRatio="none"
+                          opacity={opactiy}
+                          xlinkHref={`${crtImage}`}
+                          id="image1-0"
+                          x="31.965414"
+                          y="26.777388"
+                        />
+                      </>
+                    )}
+                  </svg>
+                </motion.div>
               </motion.div>
-            </motion.div>
+            </div>
           ) : null}
 
           <div className="pointer-events-none">

@@ -280,11 +280,6 @@
   animation: applianceWiggle 220ms ease-in-out 2;
 }
 
-.deferred-section {
-  content-visibility: auto;
-  contain-intrinsic-size: auto var(--deferred-section-size, 960px);
-}
-
 .phone-pad-button circle,
 .phone-pad-button path {
   transition: fill 120ms ease, stroke 120ms ease, opacity 120ms ease;
