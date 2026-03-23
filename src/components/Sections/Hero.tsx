@@ -1,5 +1,5 @@
 import { ArrowDown } from "../../utility/icons";
-import { Face } from "../Face";
+import { HeroFace } from "../HeroFace";
 import { useStore } from "@nanostores/react";
 import { $endingState, isEndingActive } from "../../stores/endingStore";
 
@@ -9,7 +9,7 @@ const Hero = () => {
 
   return (
     <div className="relative mb-1 flex flex-col items-center justify-between">
-      <Face />
+      <HeroFace />
 
       <div
         className={`relative z-10 w-full px-8 text-center ${
