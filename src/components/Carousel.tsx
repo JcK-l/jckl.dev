@@ -12,9 +12,14 @@ const SPRING_OPTIONS = {
 interface CarouselProps {
   imageFolder: string;
   numberImages: number;
+  className?: string;
 }
 
-export const Carousel = ({ imageFolder, numberImages }: CarouselProps) => {
+export const Carousel = ({
+  imageFolder,
+  numberImages,
+  className = "",
+}: CarouselProps) => {
   const [position, setPosition] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
   const positionRef = useRef(0);
@@ -26,7 +31,6 @@ export const Carousel = ({ imageFolder, numberImages }: CarouselProps) => {
     (_, index) => `${imageFolder}/${index + 1}.avif`
   );
 
-
   const handleImageClick = (src: string) => {
     setSelectedImage(src);
     setIsModalOpen(true);
@@ -36,7 +40,6 @@ export const Carousel = ({ imageFolder, numberImages }: CarouselProps) => {
     setSelectedImage(null);
     setIsModalOpen(false);
   };
-
 
   const onDragEndHandler: DragHandlers["onDragEnd"] = (event, info) => {
     const offset = info.offset.x;
@@ -78,6 +81,12 @@ export const Carousel = ({ imageFolder, numberImages }: CarouselProps) => {
   }, [carouselRef.current]);
 
   useEffect(() => {
+    positionRef.current = 0;
+    setPosition(0);
+    controls.set({ translateX: "0px" });
+  }, [controls, imageFolder, numberImages]);
+
+  useEffect(() => {
     if (isModalOpen) return;
 
     const interval = setInterval(() => {
@@ -93,34 +102,57 @@ export const Carousel = ({ imageFolder, numberImages }: CarouselProps) => {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [carouselRef.current, isModalOpen]);
+  }, [carouselRef.current, imageFolder, images.length, isModalOpen]);
 
   return (
-    <div className="relative mx-auto mb-2 w-full select-none overflow-hidden md:w-7/12">
+    <div className={`relative w-full select-none overflow-hidden ${className}`}>
       <motion.div
         ref={carouselRef}
-        className={`relative z-50 flex items-start justify-start`} // cursor-grab  active:cursor-grabbing`}
+        className="relative z-10 flex items-start justify-start"
         // drag={"x"} // Not now I guess. Works everywhere except for safari on IOS
         // onDragEnd={onDragEndHandler}
         animate={controls}
         // dragConstraints={carouselRef}
       >
         {images.map((src, index) => (
-          <ProjectCards key={index} src={src} onClick={() => handleImageClick(src)} />
+          <ProjectCards
+            key={index}
+            src={src}
+            onClick={() => handleImageClick(src)}
+          />
         ))}
       </motion.div>
-      {selectedImage && (
-        <Modal src={selectedImage} onClose={closeModal} />
-      )}
+      <div
+        className="pointer-events-none absolute bottom-3 right-3 z-20 rounded-full border px-2.5 py-1 font-appliance text-[0.55rem] uppercase tracking-[0.18em]"
+        style={{
+          backgroundColor: "var(--color-appliance-control-panel-top)",
+          borderColor: "var(--color-appliance-panel-border)",
+          color: "var(--color-appliance-label)",
+        }}
+      >
+        {`${(position + 1).toString().padStart(2, "0")} / ${images.length
+          .toString()
+          .padStart(2, "0")}`}
+      </div>
+      {selectedImage && <Modal src={selectedImage} onClose={closeModal} />}
     </div>
   );
 };
 
-const ProjectCards = ({ src, onClick }: { src: string, onClick: () => void }) => {
+const ProjectCards = ({
+  src,
+  onClick,
+}: {
+  src: string;
+  onClick: () => void;
+}) => {
   return (
-    <div className="relative w-full shrink-0 cursor-pointer" onClick={onClick}>
+    <div
+      className="relative aspect-[16/10] w-full shrink-0 cursor-pointer overflow-hidden rounded-[1rem]"
+      onClick={onClick}
+    >
       <img
-        className={"pointer-events-none relative w-fullmix-blend-multiply"}
+        className="pointer-events-none block h-full w-full object-cover object-top"
         src={src}
         loading="lazy"
         alt="Get a better browser!"
@@ -129,12 +161,19 @@ const ProjectCards = ({ src, onClick }: { src: string, onClick: () => void }) =>
   );
 };
 
-const Modal = ({ src, onClose }: { src: string, onClose: () => void }) => {
-
+const Modal = ({ src, onClose }: { src: string; onClose: () => void }) => {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75" onClick={onClose}>
-      <div className="relative w-full h-full flex items-center justify-center">
-        <img src={src} className="max-w-full max-h-full" alt="Preview" onClick={(e) => e.stopPropagation()} />
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75"
+      onClick={onClose}
+    >
+      <div className="relative flex h-full w-full items-center justify-center">
+        <img
+          src={src}
+          className="max-h-full max-w-full"
+          alt="Preview"
+          onClick={(event) => event.stopPropagation()}
+        />
       </div>
     </div>
   );

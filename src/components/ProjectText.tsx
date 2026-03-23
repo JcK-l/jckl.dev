@@ -1,7 +1,11 @@
 import { Carousel } from "./Carousel";
 import { GitHub, Youtube, Code } from "../utility/icons";
+import { ApplianceShell } from "./appliance/ApplianceShell";
+import { ApplianceInsetPanel } from "./appliance/ApplianceInsetPanel";
 
 interface ProjectTextProps {
+  projectId: number;
+  totalProjects: number;
   title: string;
   description: string;
   imageFolder?: string;
@@ -12,6 +16,8 @@ interface ProjectTextProps {
 }
 
 export const ProjectText = ({
+  projectId,
+  totalProjects,
   title,
   description,
   imageFolder,
@@ -20,51 +26,149 @@ export const ProjectText = ({
   youtubeLink,
   demoLink,
 }: ProjectTextProps) => {
-  const anyLink = Boolean(githubLink || youtubeLink || demoLink);
+  const links = [
+    githubLink ? { href: githubLink, icon: <GitHub />, label: "repo" } : null,
+    youtubeLink ? { href: youtubeLink, icon: <Youtube />, label: "video" } : null,
+    demoLink ? { href: demoLink, icon: <Code />, label: "demo" } : null,
+  ].filter((link): link is { href: string; icon: JSX.Element; label: string } =>
+    Boolean(link)
+  );
+  const projectLabel = projectId.toString().padStart(2, "0");
+  const totalLabel = totalProjects.toString().padStart(2, "0");
 
   return (
-    <div className="relative my-auto w-full sm:h-auto">
-      {imageFolder && numberImages ? (
-        <Carousel imageFolder={imageFolder} numberImages={numberImages} />
-      ) : null}
-      <div className="relative mb-2 flex items-center justify-center gap-3">
-        <h5 className="h5-text relative block font-bold text-titleColor">
-          {title}
-        </h5>
-        {!anyLink ? null : (
-          <svg width="2" viewBox="0 -1 2 26" xmlns="http://www.w3.org/2000/svg">
-            <line
-              x1="1"
-              y1="0"
-              x2="1"
-              y2="24"
-              stroke="var(--color-text-color)"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+    <ApplianceShell className="w-full px-5 py-5 md:px-7" radius="1.75rem">
+      <div
+        className="flex items-start justify-between gap-4 border-b pb-4"
+        style={{ borderColor: "var(--color-appliance-shell-border)" }}
+      >
+        <div className="space-y-1.5">
+          <p
+            className="text-[0.56rem] uppercase tracking-[0.3em]"
+            style={{ color: "var(--color-appliance-label)" }}
+          >
+            Project Module {projectLabel}
+          </p>
+          <p
+            className="text-[0.86rem] tracking-[0.08em] sm:text-[0.98rem]"
+            style={{ color: "var(--color-appliance-label-soft)" }}
+          >
+            active build archive
+          </p>
+        </div>
+        <div className="flex shrink-0 items-center gap-3">
+          <span
+            className="rounded-full border px-3 py-1 font-appliance text-[0.55rem] uppercase tracking-[0.2em]"
+            style={{
+              backgroundColor: "var(--color-appliance-control-panel-top)",
+              borderColor: "var(--color-appliance-panel-border)",
+              color: "var(--color-appliance-label)",
+            }}
+          >
+            {projectLabel} / {totalLabel}
+          </span>
+          <span className="flex items-center gap-2">
+            <span
+              className="h-2.5 w-2.5 rounded-full"
+              style={{ backgroundColor: "var(--color-extra2)", boxShadow: "0 0 10px var(--color-extra2)"}}
             />
-          </svg>
-        )}
-        <div className="flex gap-2">
-          {!githubLink ? null : (
-            <a href={githubLink} target="_blank" rel="noreferrer noopener">
-              <GitHub />
-            </a>
+            <span
+              className="font-appliance text-[0.55rem] uppercase tracking-[0.2em]"
+              style={{ color: "var(--color-appliance-label)" }}
+            >
+              Live
+            </span>
+          </span>
+        </div>
+      </div>
+
+      <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)]">
+        <ApplianceInsetPanel className="px-4 py-4 sm:px-5 sm:py-5">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <p
+              className="font-appliance text-[0.56rem] uppercase tracking-[0.24em]"
+              style={{ color: "var(--color-appliance-label)" }}
+            >
+              Preview Reel
+            </p>
+            <p
+              className="font-appliance text-[0.56rem] uppercase tracking-[0.24em]"
+              style={{ color: "var(--color-appliance-label)" }}
+            >
+              {numberImages
+                ? `${numberImages.toString().padStart(2, "0")} frames`
+                : "no frames"}
+            </p>
+          </div>
+
+          {imageFolder && numberImages ? (
+            <Carousel imageFolder={imageFolder} numberImages={numberImages} />
+          ) : (
+            <div
+              className="flex min-h-[18rem] items-center justify-center rounded-[1rem] border px-6 py-10 text-center font-appliance text-[0.68rem] uppercase tracking-[0.18em]"
+              style={{
+                borderColor: "var(--color-appliance-panel-border)",
+                color: "var(--color-appliance-label)",
+              }}
+            >
+              Preview offline
+            </div>
           )}
-          {!youtubeLink ? null : (
-            <a href={youtubeLink} target="_blank" rel="noreferrer noopener">
-              <Youtube />
-            </a>
-          )}
-          {!demoLink ? null : (
-            <a href={demoLink} target="_blank" rel="noreferrer noopener">
-              <Code />
-            </a>
+        </ApplianceInsetPanel>
+
+        <div className="flex flex-col gap-4">
+          <ApplianceInsetPanel className="px-4 py-4 sm:px-5 sm:py-5">
+            <p
+              className="font-appliance text-[0.56rem] uppercase tracking-[0.24em]"
+              style={{ color: "var(--color-appliance-label)" }}
+            >
+              Project Overview
+            </p>
+            <h3
+              className="mt-3 font-heading text-[1.55rem] font-extrabold leading-tight sm:text-[1.8rem]"
+              style={{ color: "var(--color-appliance-label-soft)" }}
+            >
+              {title}
+            </h3>
+            <p
+              className="mt-4 font-sans text-[1rem] leading-7"
+              style={{ color: "var(--color-appliance-label-soft)" }}
+            >
+              {description}
+            </p>
+          </ApplianceInsetPanel>
+
+          {!links.length ? null : (
+            <div className="grid gap-2 sm:grid-cols-3">
+              {links.map((link) => (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="block"
+                >
+                  <ApplianceInsetPanel className="h-full px-3 py-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <span
+                        className="font-appliance text-[0.58rem] uppercase tracking-[0.22em]"
+                        style={{ color: "var(--color-appliance-label)" }}
+                      >
+                        {link.label}
+                      </span>
+                      <span
+                        style={{ color: "var(--color-appliance-label-soft)" }}
+                      >
+                        {link.icon}
+                      </span>
+                    </div>
+                  </ApplianceInsetPanel>
+                </a>
+              ))}
+            </div>
           )}
         </div>
       </div>
-      <p className="p-text mx-auto mb-4 w-full text-center md:w-2/3">
-        {description}
-      </p>
-    </div>
+    </ApplianceShell>
   );
 };

@@ -364,6 +364,41 @@ const Contact = () => {
   }, [isNegativeEndingActive, shouldPlayContactStatic]);
 
   useEffect(() => {
+    if (!shouldPlayContactStatic) {
+      return;
+    }
+
+    const updateContactStaticBubble = () => {
+      const playback = staticPlaybackRef.current;
+      const nextOpacity = getContactStaticVisualOpacity();
+
+      if (playback !== null) {
+        rampPlaybackGain(
+          playback,
+          getContactStaticTargetGain(isNegativeEndingActive)
+        );
+      }
+
+      setCrtScreenOpacity((currentOpacity) => {
+        return Math.abs(currentOpacity - nextOpacity) < 0.01
+          ? currentOpacity
+          : nextOpacity;
+      });
+    };
+
+    updateContactStaticBubble();
+    window.addEventListener("scroll", updateContactStaticBubble, {
+      passive: true,
+    });
+    window.addEventListener("resize", updateContactStaticBubble);
+
+    return () => {
+      window.removeEventListener("scroll", updateContactStaticBubble);
+      window.removeEventListener("resize", updateContactStaticBubble);
+    };
+  }, [isNegativeEndingActive, shouldPlayContactStatic]);
+
+  useEffect(() => {
     if (shouldHideContact) {
       return;
     }
