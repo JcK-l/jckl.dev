@@ -1,6 +1,8 @@
-import { motion } from "framer-motion";
+import { motion, useAnimation } from "framer-motion";
+import { useEffect, useRef } from "react";
 
 interface StarProps {
+  animate?: boolean;
   turnOff?: boolean;
 }
 
@@ -69,6 +71,11 @@ const getPulseTransition = (delay: number) => ({
   delay,
 });
 
+const settleTransition = {
+  duration: 0.35,
+  ease: "easeOut" as const,
+};
+
 const starStyle = {
   strokeWidth: 0.0965762,
   fill: "var(--color-yellow)",
@@ -80,9 +87,47 @@ const offStarStyle = {
 };
 
 // https://www.svgrepo.com/svg/525539/star
-export const Stars = ({ turnOff }: StarProps) => {
+export const Stars = ({ animate = true, turnOff }: StarProps) => {
+  const controls = useAnimation();
+  const rootRef = useRef<SVGSVGElement>(null);
+
+  useEffect(() => {
+    if (turnOff || !animate) {
+      controls.stop();
+      controls.set("rest");
+      return;
+    }
+
+    const element = rootRef.current;
+
+    if (!element) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          void controls.start("twinkle");
+          return;
+        }
+
+        controls.stop();
+        void controls.start("rest");
+      },
+      { threshold: 0.2 }
+    );
+
+    observer.observe(element);
+
+    return () => {
+      observer.disconnect();
+      controls.stop();
+    };
+  }, [animate, controls, turnOff]);
+
   return (
     <svg
+      ref={rootRef}
       className="relative mx-auto w-full lg:w-9/12"
       viewBox="0 0 59.26923 36"
       fill="none"
@@ -123,26 +168,59 @@ export const Stars = ({ turnOff }: StarProps) => {
           <g key={star.id}>
             <motion.path
               d={star.d}
-              animate={{ opacity: [0.08, 0.22, 0.08] }}
-              transition={getPulseTransition(star.delay)}
+              animate={controls}
+              custom={star.delay}
               filter="url(#backgroundStarGlowStrong)"
+              initial="rest"
               pointerEvents="none"
               style={starStyle}
+              variants={{
+                rest: {
+                  opacity: 0.08,
+                  transition: settleTransition,
+                },
+                twinkle: (delay: number) => ({
+                  opacity: [0.08, 0.22, 0.08],
+                  transition: getPulseTransition(delay),
+                }),
+              }}
             />
             <motion.path
               d={star.d}
-              animate={{ opacity: [0.22, 0.54, 0.22] }}
-              transition={getPulseTransition(star.delay)}
+              animate={controls}
+              custom={star.delay}
               filter="url(#backgroundStarGlowSoft)"
+              initial="rest"
               pointerEvents="none"
               style={starStyle}
+              variants={{
+                rest: {
+                  opacity: 0.22,
+                  transition: settleTransition,
+                },
+                twinkle: (delay: number) => ({
+                  opacity: [0.22, 0.54, 0.22],
+                  transition: getPulseTransition(delay),
+                }),
+              }}
             />
             <motion.path
               d={star.d}
               id={star.id}
-              animate={{ opacity: [0.88, 1, 0.88] }}
-              transition={getPulseTransition(star.delay)}
+              animate={controls}
+              custom={star.delay}
+              initial="rest"
               style={starStyle}
+              variants={{
+                rest: {
+                  opacity: 0.88,
+                  transition: settleTransition,
+                },
+                twinkle: (delay: number) => ({
+                  opacity: [0.88, 1, 0.88],
+                  transition: getPulseTransition(delay),
+                }),
+              }}
             />
           </g>
         )

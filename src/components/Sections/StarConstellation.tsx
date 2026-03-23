@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, useAnimation } from "framer-motion";
 import { BetweenLands } from "../BetweenLands";
 import { PuzzlePieceTransfer } from "../puzzle/PuzzlePieceTransfer";
 import { puzzleGroups } from "../../data/puzzleGroups";
@@ -68,6 +68,11 @@ const getPulseTransition = (delay: number) => ({
   delay,
 });
 
+const settleTransition = {
+  duration: 0.35,
+  ease: "easeOut" as const,
+};
+
 const getStarStyle = (strokeWidth: number) => ({
   strokeWidth,
   fill: "var(--color-yellow)",
@@ -120,7 +125,9 @@ const starsPieceIds =
 const StarConstellation = () => {
   const [isPressed, setIsPressed] = useState<boolean>(false);
   const [transferKey, setTransferKey] = useState(0);
+  const sectionRef = useRef<HTMLDivElement>(null);
   const constellationRef = useRef<SVGSVGElement>(null);
+  const constellationControls = useAnimation();
   const endingState = useStore($endingState);
   const binaryState = useStore($gameState);
   const dispensedGroups = useStore($dispensedGroups);
@@ -147,6 +154,40 @@ const StarConstellation = () => {
     setTransferKey((currentKey) => currentKey + 1);
   }, [dispensedGroups.stars, hasStarsUnlocked]);
 
+  useEffect(() => {
+    if (isPressed) {
+      constellationControls.stop();
+      constellationControls.set("rest");
+      return;
+    }
+
+    const element = sectionRef.current;
+
+    if (!element) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          void constellationControls.start("twinkle");
+          return;
+        }
+
+        constellationControls.stop();
+        void constellationControls.start("rest");
+      },
+      { threshold: 0.2 }
+    );
+
+    observer.observe(element);
+
+    return () => {
+      observer.disconnect();
+      constellationControls.stop();
+    };
+  }, [constellationControls, isPressed]);
+
   const handleActivate = () => {
     gameStateSetBit(GameStateFlags.FLAG_STARS_ALIGN);
     setIsPressed(true);
@@ -168,6 +209,7 @@ const StarConstellation = () => {
       }
       renderItem={(shift) => (
         <motion.div
+          ref={sectionRef}
           className="relative select-none mix-blend-screen"
           style={{ y: shift }}
         >
@@ -207,65 +249,64 @@ const StarConstellation = () => {
                 </filter>
               </defs>
               {constellationStars.map((star) => (
-                <motion.g
-                  key={star.id}
-                  animate={{ scale: [1, 1.01, 1] }}
-                  transition={
-                    !isPressed
-                      ? getPulseTransition(star.delay)
-                      : { duration: 0.35, ease: "easeOut" }
-                  }
-                  style={{
-                    transformBox: "fill-box",
-                    transformOrigin: "center",
-                  }}
-                >
+                <g key={star.id}>
                   <motion.path
                     d={star.d}
-                    animate={
-                      !isPressed
-                        ? { opacity: [0.1, 0.28, 0.1] }
-                        : { opacity: 0.12 }
-                    }
-                    transition={
-                      !isPressed
-                        ? getPulseTransition(star.delay)
-                        : { duration: 0.35, ease: "easeOut" }
-                    }
+                    animate={constellationControls}
+                    custom={star.delay}
                     filter="url(#starGlowStrong)"
+                    initial="rest"
                     pointerEvents="none"
                     style={getStarStyle(star.strokeWidth)}
+                    variants={{
+                      rest: {
+                        opacity: 0.12,
+                        transition: settleTransition,
+                      },
+                      twinkle: (delay: number) => ({
+                        opacity: [0.1, 0.28, 0.1],
+                        transition: getPulseTransition(delay),
+                      }),
+                    }}
                   />
                   <motion.path
                     d={star.d}
-                    animate={
-                      !isPressed
-                        ? { opacity: [0.28, 0.68, 0.28] }
-                        : { opacity: 0.34 }
-                    }
-                    transition={
-                      !isPressed
-                        ? getPulseTransition(star.delay)
-                        : { duration: 0.35, ease: "easeOut" }
-                    }
+                    animate={constellationControls}
+                    custom={star.delay}
                     filter="url(#starGlowSoft)"
+                    initial="rest"
                     pointerEvents="none"
                     style={getStarStyle(star.strokeWidth)}
+                    variants={{
+                      rest: {
+                        opacity: 0.34,
+                        transition: settleTransition,
+                      },
+                      twinkle: (delay: number) => ({
+                        opacity: [0.28, 0.68, 0.28],
+                        transition: getPulseTransition(delay),
+                      }),
+                    }}
                   />
                   <motion.path
                     d={star.d}
-                    animate={
-                      !isPressed ? { opacity: [0.9, 1, 0.9] } : { opacity: 1 }
-                    }
                     id={star.id}
-                    transition={
-                      !isPressed
-                        ? getPulseTransition(star.delay)
-                        : { duration: 0.35, ease: "easeOut" }
-                    }
+                    animate={constellationControls}
+                    custom={star.delay}
+                    initial="rest"
                     style={getStarStyle(star.strokeWidth)}
+                    variants={{
+                      rest: {
+                        opacity: 1,
+                        transition: settleTransition,
+                      },
+                      twinkle: (delay: number) => ({
+                        opacity: [0.9, 1, 0.9],
+                        transition: getPulseTransition(delay),
+                      }),
+                    }}
                   />
-                </motion.g>
+                </g>
               ))}
 
               <motion.g
