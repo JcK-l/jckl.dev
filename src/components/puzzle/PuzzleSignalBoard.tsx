@@ -82,7 +82,7 @@ export const PuzzleSignalBoard = ({
         >
           {showReturnToOriginal ? (
             <p className="text-[0.72rem] leading-6 tracking-[0.08em]">
-              Signal lock complete. Picture stabilized.{" "}
+              Transmission complete. The original timeline awaits, should you wish to {" "}
               <button
                 type="button"
                 className="focus:ring-white/60 inline cursor-pointer rounded-sm font-semibold underline underline-offset-4 transition-colors hover:text-extra2 focus:outline-none focus:ring-2"
@@ -90,9 +90,8 @@ export const PuzzleSignalBoard = ({
                   exitEndingToOriginal();
                 }}
               >
-                Return
+                return
               </button>{" "}
-              the cache to the original timeline when you're ready.
             </p>
           ) : (
             <p className="text-[0.72rem] tracking-[0.08em]">
