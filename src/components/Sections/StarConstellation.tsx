@@ -7,6 +7,7 @@ import {
   $gameState,
   setBit as gameStateSetBit,
   GameStateFlags,
+  hasBit as gameStateHasBit,
 } from "../../stores/gameStateStore";
 import {
   $dispensedGroups,
@@ -142,8 +143,10 @@ const StarConstellation = () => {
   const endingState = useStore($endingState);
   const binaryState = useStore($gameState);
   const dispensedGroups = useStore($dispensedGroups);
-  const hasStarsUnlocked =
-    (binaryState & (1 << GameStateFlags.FLAG_STARS_ALIGN)) !== 0;
+  const hasStarsUnlocked = gameStateHasBit(
+    binaryState,
+    GameStateFlags.FLAG_STARS_ALIGN
+  );
   const hasTriggeredTransferRef = useRef(hasStarsUnlocked);
   const starGlowLevels = isPressed
     ? {

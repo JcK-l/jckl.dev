@@ -11,6 +11,10 @@ export enum GameStateFlags {
   // Add more flags as needed
 }
 
+export const hasBit = (value: number, bitPosition: number): boolean => {
+  return (value & (1 << bitPosition)) !== 0;
+};
+
 export const setBit = (bitPosition: number) => {
   $gameState.set($gameState.get() | (1 << bitPosition));
 };
@@ -24,5 +28,5 @@ export const toggleBit = (bitPosition: number) => {
 };
 
 export const isBitSet = (bitPosition: number): boolean => {
-  return ($gameState.get() & (1 << bitPosition)) !== 0;
+  return hasBit($gameState.get(), bitPosition);
 };

@@ -1,6 +1,6 @@
 const pieceImageReadyCache = new Map<string, Promise<void>>();
 
-export const preloadPieceImage = (src: string) => {
+const preloadPieceImage = (src: string) => {
   const cachedPromise = pieceImageReadyCache.get(src);
 
   if (cachedPromise) {

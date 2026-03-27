@@ -15,7 +15,7 @@ export type CachedAudioPlayback = {
   stop: () => void;
 };
 
-export const getAudioContext = (): AudioContext => {
+const getAudioContext = (): AudioContext => {
   if (!audioContext) {
     audioContext = new AudioContext();
   }
@@ -32,7 +32,7 @@ export const resumeAudioContext = async (): Promise<AudioContext> => {
   return context;
 };
 
-export const getAudioBuffer = async (url: string): Promise<AudioBuffer> => {
+const getAudioBuffer = async (url: string): Promise<AudioBuffer> => {
   const cachedBuffer = audioBufferCache.get(url);
 
   if (cachedBuffer) {

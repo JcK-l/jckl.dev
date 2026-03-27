@@ -11,7 +11,11 @@ import {
   $dispensedGroups,
   markPuzzleGroupDispensed,
 } from "../../stores/puzzleDispenseStore";
-import { $gameState, GameStateFlags } from "../../stores/gameStateStore";
+import {
+  $gameState,
+  GameStateFlags,
+  hasBit as gameStateHasBit,
+} from "../../stores/gameStateStore";
 import { $endingState, isEndingActive } from "../../stores/endingStore";
 
 const BREAKPOINTS = {
@@ -96,8 +100,10 @@ const Connection = () => {
   const isNegativeEndingActive = isEndingActive("negative", endingState);
   const isNeutralEndingActive = isEndingActive("neutral", endingState);
   const isPositiveEndingActive = isEndingActive("positive", endingState);
-  const hasConnectionUnlocked =
-    (binaryState & (1 << GameStateFlags.FLAG_CONNECTION)) !== 0;
+  const hasConnectionUnlocked = gameStateHasBit(
+    binaryState,
+    GameStateFlags.FLAG_CONNECTION
+  );
   const hasTriggeredTransferRef = useRef(hasConnectionUnlocked);
 
   useEffect(() => {

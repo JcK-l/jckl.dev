@@ -3,6 +3,7 @@ import {
   $gameState,
   GameStateFlags,
   clearBit as clearGameStateBit,
+  hasBit,
   setBit as setGameStateBit,
 } from "../stores/gameStateStore";
 import {
@@ -18,7 +19,7 @@ export const crtPieceIds =
   puzzleGroups.find((group) => group.key === "crt")?.pieces ?? [];
 
 export const hasFinalCacheUnlocked = (gameState = $gameState.get()) => {
-  return (gameState & (1 << GameStateFlags.FLAG_SECRET)) !== 0;
+  return hasBit(gameState, GameStateFlags.FLAG_SECRET);
 };
 
 export const prepareFinalCacheEnding = () => {

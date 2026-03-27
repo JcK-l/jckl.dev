@@ -5,7 +5,11 @@ import { ProjectText } from "../ProjectText";
 import { projects } from "../../data/ProjectData";
 import { $offScriptCount } from "../../stores/offScriptCountStore";
 import { $phoneNumber, $phoneResultMode } from "../../stores/phoneStore";
-import { $gameState, GameStateFlags } from "../../stores/gameStateStore";
+import {
+  $gameState,
+  GameStateFlags,
+  hasBit as gameStateHasBit,
+} from "../../stores/gameStateStore";
 import {
   $endingState,
   hasUnlockedAllEndings,
@@ -49,8 +53,10 @@ const Call = () => {
     phoneNumber === null
       ? undefined
       : projects.find((entry) => entry.id === phoneNumber);
-  const hasConnectionUnlocked =
-    (gameState & (1 << GameStateFlags.FLAG_CONNECTION)) !== 0;
+  const hasConnectionUnlocked = gameStateHasBit(
+    gameState,
+    GameStateFlags.FLAG_CONNECTION
+  );
   const shouldShowPhone = isFinal && hasConnectionUnlocked;
 
   if (!shouldShowPhone && mode !== "number") {

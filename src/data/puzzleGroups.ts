@@ -1,4 +1,4 @@
-import { GameStateFlags } from "../stores/gameStateStore";
+import { GameStateFlags, hasBit } from "../stores/gameStateStore";
 
 export type PuzzleGroupKey = "stars" | "hand" | "connection" | "crt";
 
@@ -55,15 +55,12 @@ export const createDispensedGroups = (): DispensedGroups => ({
   crt: false,
 });
 
-export const isFlagActive = (binaryState: number, flag: GameStateFlags) =>
-  (binaryState & (1 << flag)) !== 0;
-
 export const getNextPuzzleHint = (
   binaryState: number,
   totalPlacedPieces: number
 ) => {
   const nextUnsolvedGroup = puzzleGroups.find((group) => {
-    return !isFlagActive(binaryState, group.flag);
+    return !hasBit(binaryState, group.flag);
   });
 
   if (nextUnsolvedGroup == null) {
