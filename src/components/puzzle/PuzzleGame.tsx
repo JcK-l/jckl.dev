@@ -6,7 +6,7 @@ import { PuzzleSignalBoard } from "./PuzzleSignalBoard";
 import { pieces as originalPieces } from "../../data/PuzzleData";
 import { puzzleGroups, type DispensedGroups } from "../../data/puzzleGroups";
 import { usePuzzleContext } from "../../hooks/useDataContext";
-import { $gameState } from "../../stores/gameStateStore";
+import { $gameState, hasBit } from "../../stores/gameStateStore";
 import { $dispensedGroups } from "../../stores/puzzleDispenseStore";
 import { setPuzzlePieceSize } from "../../stores/puzzleLayoutStore";
 import { $puzzleResetRequest } from "../../stores/puzzleResetStore";
@@ -16,15 +16,18 @@ const originalPieceSize = { width: 300, height: 300 };
 const scale = 0.27;
 const createPlacedPieces = () => Array(originalPieces.length).fill(false);
 
-const isPieceDispensed = (
+const isPieceAvailable = (
   pieceIndex: number,
-  dispensedGroups: DispensedGroups
+  dispensedGroups: DispensedGroups,
+  binaryState: number
 ) => {
   const group = puzzleGroups.find((candidateGroup) => {
     return candidateGroup.pieces.includes(pieceIndex + 1);
   });
 
-  return group == null ? false : dispensedGroups[group.key];
+  return group == null
+    ? false
+    : dispensedGroups[group.key] || hasBit(binaryState, group.flag);
 };
 
 const scaleCoordinateList = (coordinateList: string, factor: number) =>
@@ -114,7 +117,7 @@ export const PuzzleGame = () => {
 
   useEffect(() => {
     const dispensedPiecePaths = puzzleGroups.flatMap((group) => {
-      if (!dispensedGroups[group.key]) {
+      if (!dispensedGroups[group.key] && !hasBit(binaryState, group.flag)) {
         return [];
       }
 
@@ -126,7 +129,7 @@ export const PuzzleGame = () => {
     }
 
     void preloadPieceImages(dispensedPiecePaths);
-  }, [dispensedGroups]);
+  }, [binaryState, dispensedGroups]);
 
   useEffect(() => {
     if (
@@ -187,7 +190,10 @@ export const PuzzleGame = () => {
         totalPlacedPieces={totalPlacedPieces}
       />
       {pieces.map((piece, index) => {
-        if (placedPieces[index] || !isPieceDispensed(index, dispensedGroups)) {
+        if (
+          placedPieces[index] ||
+          !isPieceAvailable(index, dispensedGroups, binaryState)
+        ) {
           return null;
         }
 

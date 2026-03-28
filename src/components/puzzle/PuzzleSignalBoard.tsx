@@ -4,6 +4,7 @@ import {
   getNextPuzzleHint,
   type DispensedGroups,
 } from "../../data/puzzleGroups";
+import { hasBit } from "../../stores/gameStateStore";
 import { $endingState, isEndingActive } from "../../stores/endingStore";
 import { exitEndingToOriginal } from "../../utility/endingMode";
 import { ApplianceShell } from "../appliance/ApplianceShell";
@@ -47,7 +48,8 @@ export const PuzzleSignalBoard = ({
           </div>
           <div className="flex gap-3">
             {puzzleGroups.map((group) => {
-              const isOn = dispensedGroups[group.key];
+              const isOn =
+                dispensedGroups[group.key] || hasBit(binaryState, group.flag);
 
               return (
                 <div

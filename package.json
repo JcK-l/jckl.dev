@@ -7,6 +7,9 @@
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "astro": "astro",
     "fonts:convert": "node scripts/convert-fonts.mjs",
     "images:hero": "node scripts/generate-hero-images.mjs",
@@ -32,9 +35,14 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/react": "^16.3.2",
+    "@vitest/coverage-v8": "^4.1.2",
+    "jsdom": "^29.0.1",
     "prettier": "^2.8.8",
     "prettier-plugin-tailwindcss": "^0.3.0",
     "react-scan": "^0.5.3",
-    "ttf2woff2": "^8.0.1"
+    "ttf2woff2": "^8.0.1",
+    "vitest": "^4.1.2"
   }
 }
