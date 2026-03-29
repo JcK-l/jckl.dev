@@ -10,12 +10,15 @@ import StarConstellation from "../components/Sections/StarConstellation";
 import CrtMission from "../components/Sections/CrtMission";
 import { ReactScanDebug } from "../components/ReactScanDebug";
 import { ThemeDebugToggle } from "../components/ThemeDebugToggle";
+import { E2EStateBootstrap } from "../components/E2EStateBootstrap";
 
 const showThemeDebugToggle = import.meta.env.DEV;
 const showReactScanDebug = import.meta.env.DEV;
+const showE2EStateBootstrap = import.meta.env.DEV;
 ---
 
 <Layout title="Welcome to my site!">
+  {showE2EStateBootstrap ? <E2EStateBootstrap client:load /> : null}
   {showThemeDebugToggle ? <ThemeDebugToggle client:load /> : null}
   {showReactScanDebug ? <ReactScanDebug client:load /> : null}
   <main>

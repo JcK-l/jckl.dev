@@ -1,0 +1,289 @@
+---
+import Layout from "../../layouts/MainLayout.astro";
+import {
+  ADMIN_SESSION_COOKIE_NAME,
+  verifyAdminSessionValue,
+} from "../../server/adminSession";
+import {
+  listNightlyWorkflowRuns,
+  type WorkflowRunSummary,
+} from "../../server/githubActions";
+
+export const prerender = false;
+
+const adminPassword = import.meta.env.ADMIN_DASHBOARD_PASSWORD ?? "";
+const sessionSecret = import.meta.env.ADMIN_DASHBOARD_SECRET ?? "";
+const dashboardToken = import.meta.env.GITHUB_ACTIONS_DASHBOARD_TOKEN;
+const repoOwner = import.meta.env.GITHUB_ACTIONS_REPO_OWNER ?? "JcK-l";
+const repoName = import.meta.env.GITHUB_ACTIONS_REPO_NAME ?? "jckl.dev";
+const workflowFile =
+  import.meta.env.GITHUB_ACTIONS_WORKFLOW_FILE ?? "nightly-e2e.yml";
+const sessionCookie =
+  Astro.cookies.get(ADMIN_SESSION_COOKIE_NAME)?.value ?? null;
+const isConfigured = adminPassword !== "" && sessionSecret !== "";
+const isAuthenticated =
+  isConfigured && verifyAdminSessionValue(sessionCookie, sessionSecret);
+const error = Astro.url.searchParams.get("error");
+
+const formatTimestamp = (value: string) => {
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(value));
+};
+
+const formatDuration = (startValue: string, endValue: string) => {
+  const durationMs =
+    new Date(endValue).getTime() - new Date(startValue).getTime();
+
+  if (!Number.isFinite(durationMs) || durationMs <= 0) {
+    return "-";
+  }
+
+  const totalMinutes = Math.round(durationMs / 60000);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  if (hours === 0) {
+    return `${minutes}m`;
+  }
+
+  return `${hours}h ${minutes}m`;
+};
+
+const getConclusionLabel = (run: WorkflowRunSummary) => {
+  if (run.status !== "completed") {
+    return run.status;
+  }
+
+  return run.conclusion ?? "unknown";
+};
+
+const getConclusionClasses = (run: WorkflowRunSummary) => {
+  const conclusion = getConclusionLabel(run);
+
+  if (conclusion === "success") {
+    return "border-green/30 bg-green/10 text-green";
+  }
+
+  if (conclusion === "failure" || conclusion === "cancelled") {
+    return "border-red/30 bg-red/10 text-red";
+  }
+
+  return "border-secondary/20 bg-secondary/10 text-secondary";
+};
+
+let runs: WorkflowRunSummary[] = [];
+let loadError = "";
+
+if (isAuthenticated) {
+  try {
+    runs = await listNightlyWorkflowRuns({
+      owner: repoOwner,
+      repo: repoName,
+      token: dashboardToken,
+      workflowFile,
+    });
+  } catch (caughtError) {
+    loadError =
+      caughtError instanceof Error
+        ? caughtError.message
+        : "Failed to load the GitHub Actions dashboard.";
+  }
+}
+---
+
+<Layout title="Admin Test Dashboard">
+  <main class="page-margins py-12 sm:py-16">
+    <div class="mx-auto max-w-5xl">
+      <div class="mb-8 flex items-start justify-between gap-4">
+        <div>
+          <p class="font-mono text-[0.72rem] uppercase tracking-[0.2em] text-secondary">
+            Admin
+          </p>
+          <h1 class="h2-text mt-2 text-titleColor">Nightly Test Dashboard</h1>
+          <p class="mt-3 max-w-2xl text-sm leading-7 text-textColor/80 sm:text-base">
+            This page reads the latest GitHub Actions runs for the nightly
+            Playwright workflow for this repository. The dashboard lives on{" "}
+            <span class="font-semibold">jckl.dev</span>, but the nightly job
+            currently runs the suite against a fresh CI build so seeded
+            regression flows can stay private.
+          </p>
+        </div>
+        {isAuthenticated ? (
+          <form action="/api/admin/logout" method="POST">
+            <button
+              type="submit"
+              class="rounded-full border border-secondary/25 px-4 py-2 text-sm font-semibold text-secondary transition hover:bg-secondary hover:text-white"
+            >
+              Log Out
+            </button>
+          </form>
+        ) : null}
+      </div>
+
+      {!isConfigured ? (
+        <div class="rounded-[1.75rem] border border-red/20 bg-red/5 px-6 py-6 text-red">
+          <p class="font-semibold">Dashboard configuration is incomplete.</p>
+          <p class="mt-2 text-sm leading-7">
+            Set <code>ADMIN_DASHBOARD_PASSWORD</code> and{" "}
+            <code>ADMIN_DASHBOARD_SECRET</code> in Netlify before using this page.
+          </p>
+        </div>
+      ) : !isAuthenticated ? (
+        <div class="rounded-[2rem] border border-secondary/15 bg-white/55 px-6 py-8 shadow-sm backdrop-blur-[2px] sm:px-8">
+          <p class="font-mono text-[0.72rem] uppercase tracking-[0.2em] text-secondary">
+            Restricted Access
+          </p>
+          <h2 class="mt-3 font-heading text-2xl font-bold text-titleColor">
+            Sign in to view nightly runs
+          </h2>
+          <p class="mt-3 max-w-xl text-sm leading-7 text-textColor/80 sm:text-base">
+            This lightweight admin gate is app-level so it works on Netlify free.
+          </p>
+
+          {error === "invalid-password" ? (
+            <p class="mt-4 rounded-xl border border-red/20 bg-red/5 px-4 py-3 text-sm text-red">
+              The password was incorrect.
+            </p>
+          ) : error === "missing-config" ? (
+            <p class="mt-4 rounded-xl border border-red/20 bg-red/5 px-4 py-3 text-sm text-red">
+              The dashboard is missing its required environment configuration.
+            </p>
+          ) : null}
+
+          <form action="/api/admin/login" method="POST" class="mt-6 max-w-md">
+            <label for="password" class="mb-2 block text-sm font-semibold text-titleColor">
+              Admin Password
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              required
+              class="w-full rounded-2xl border border-secondary/20 bg-white px-4 py-3 text-base text-textColor outline-none transition focus:border-secondary focus:ring-2 focus:ring-secondary/25"
+            />
+            <button
+              type="submit"
+              class="mt-4 rounded-full bg-secondary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary"
+            >
+              Open Dashboard
+            </button>
+          </form>
+        </div>
+      ) : (
+        <div class="space-y-6">
+          <div class="grid gap-4 md:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+            <div class="rounded-[2rem] border border-secondary/15 bg-white/55 px-6 py-6 shadow-sm backdrop-blur-[2px]">
+              <p class="font-mono text-[0.72rem] uppercase tracking-[0.2em] text-secondary">
+                Workflow
+              </p>
+              <h2 class="mt-3 font-heading text-2xl font-bold text-titleColor">
+                {workflowFile}
+              </h2>
+              <p class="mt-3 text-sm leading-7 text-textColor/80">
+                Source repo: <span class="font-semibold">{repoOwner}/{repoName}</span>
+              </p>
+              <p class="mt-2 text-sm leading-7 text-textColor/80">
+                Execution mode: <span class="font-semibold">GitHub Actions CI build</span>
+              </p>
+            </div>
+            <div class="rounded-[2rem] border border-secondary/15 bg-white/55 px-6 py-6 shadow-sm backdrop-blur-[2px]">
+              <p class="font-mono text-[0.72rem] uppercase tracking-[0.2em] text-secondary">
+                Latest Result
+              </p>
+              {runs[0] ? (
+                <>
+                  <div
+                    class={`mt-4 inline-flex rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${getConclusionClasses(
+                      runs[0]
+                    )}`}
+                  >
+                    {getConclusionLabel(runs[0])}
+                  </div>
+                  <p class="mt-4 text-sm leading-7 text-textColor/80">
+                    Run #{runs[0].runNumber} finished {formatTimestamp(runs[0].updatedAt)}
+                  </p>
+                  <a
+                    href={runs[0].htmlUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    class="mt-4 inline-flex text-sm font-semibold text-secondary underline underline-offset-4"
+                  >
+                    Open run on GitHub
+                  </a>
+                </>
+              ) : (
+                <p class="mt-4 text-sm leading-7 text-textColor/80">
+                  No runs found yet.
+                </p>
+              )}
+            </div>
+          </div>
+
+          {loadError ? (
+            <p class="rounded-[1.5rem] border border-red/20 bg-red/5 px-5 py-4 text-sm text-red">
+              {loadError}
+            </p>
+          ) : null}
+
+          <div class="rounded-[2rem] border border-secondary/15 bg-white/55 px-4 py-4 shadow-sm backdrop-blur-[2px] sm:px-6">
+            <div class="overflow-x-auto">
+              <table class="min-w-full border-separate border-spacing-y-3">
+                <thead>
+                  <tr class="text-left text-[0.72rem] uppercase tracking-[0.18em] text-secondary">
+                    <th class="px-3 py-2">Run</th>
+                    <th class="px-3 py-2">Status</th>
+                    <th class="px-3 py-2">Branch</th>
+                    <th class="px-3 py-2">Event</th>
+                    <th class="px-3 py-2">Started</th>
+                    <th class="px-3 py-2">Duration</th>
+                    <th class="px-3 py-2">Link</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {runs.map((run) => (
+                    <tr class="rounded-2xl bg-fgColor/70 text-sm text-textColor">
+                      <td class="rounded-l-2xl px-3 py-3 align-top">
+                        <p class="font-semibold text-titleColor">#{run.runNumber}</p>
+                        <p class="mt-1 text-xs text-textColor/60">{run.displayTitle}</p>
+                      </td>
+                      <td class="px-3 py-3 align-top">
+                        <span
+                          class={`inline-flex rounded-full border px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.16em] ${getConclusionClasses(
+                            run
+                          )}`}
+                        >
+                          {getConclusionLabel(run)}
+                        </span>
+                      </td>
+                      <td class="px-3 py-3 align-top">{run.headBranch}</td>
+                      <td class="px-3 py-3 align-top uppercase">{run.event}</td>
+                      <td class="px-3 py-3 align-top">{formatTimestamp(run.createdAt)}</td>
+                      <td class="px-3 py-3 align-top">
+                        {formatDuration(run.createdAt, run.updatedAt)}
+                      </td>
+                      <td class="rounded-r-2xl px-3 py-3 align-top">
+                        <a
+                          href={run.htmlUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          class="font-semibold text-secondary underline underline-offset-4"
+                        >
+                          Open
+                        </a>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  </main>
+</Layout>
