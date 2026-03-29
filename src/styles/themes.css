@@ -28,6 +28,7 @@
   --color-transition2: #B7CFD3;
   --color-appliance-label: #1D3557;
   --color-appliance-label-soft: #356481;
+  --color-appliance-copy: #2B5877;
   --color-appliance-shell-surface: #D7E1EB;
   --color-appliance-shell-border: #1D355722;
   --color-appliance-shell-pattern: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0)), repeating-linear-gradient(38deg, rgba(29,53,87,0.035) 0px, rgba(29,53,87,0.035) 1px, transparent 1px, transparent 10px), repeating-linear-gradient(-36deg, rgba(255,255,255,0.18) 0px, rgba(255,255,255,0.18) 1px, transparent 1px, transparent 13px);
@@ -87,6 +88,7 @@
   --color-transition2: #424850;
   --color-appliance-label: #212529;
   --color-appliance-label-soft: #495057;
+  --color-appliance-copy: #3E4851;
   --color-appliance-shell-surface: #BDC5CC;
   --color-appliance-shell-border: #21252926;
   --color-appliance-shell-pattern: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0)), repeating-linear-gradient(38deg, rgba(33,37,41,0.045) 0px, rgba(33,37,41,0.045) 1px, transparent 1px, transparent 10px), repeating-linear-gradient(-36deg, rgba(255,255,255,0.14) 0px, rgba(255,255,255,0.14) 1px, transparent 1px, transparent 13px);
@@ -146,6 +148,7 @@
   --color-transition2: #C4C0D6;
   --color-appliance-label: #5E548E;
   --color-appliance-label-soft: #655A92;
+  --color-appliance-copy: #5B5189;
   --color-appliance-shell-surface: #E4DDE8;
   --color-appliance-shell-border: #5E548E22;
   --color-appliance-shell-pattern: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0)), repeating-linear-gradient(38deg, rgba(94,84,142,0.038) 0px, rgba(94,84,142,0.038) 1px, transparent 1px, transparent 10px), repeating-linear-gradient(-36deg, rgba(255,255,255,0.16) 0px, rgba(255,255,255,0.16) 1px, transparent 1px, transparent 13px);
@@ -205,6 +208,7 @@
   --color-transition2: #A63743;
   --color-appliance-label: #461220;
   --color-appliance-label-soft: #8C2F39;
+  --color-appliance-copy: #7B3740;
   --color-appliance-shell-surface: #E5D0D3;
   --color-appliance-shell-border: #46122022;
   --color-appliance-shell-pattern: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0)), repeating-linear-gradient(38deg, rgba(70,18,32,0.038) 0px, rgba(70,18,32,0.038) 1px, transparent 1px, transparent 10px), repeating-linear-gradient(-36deg, rgba(255,255,255,0.15) 0px, rgba(255,255,255,0.15) 1px, transparent 1px, transparent 13px);

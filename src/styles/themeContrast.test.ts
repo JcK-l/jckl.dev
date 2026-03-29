@@ -118,7 +118,7 @@ const contrastPairs: ContrastPair[] = [
   },
   {
     label: "appliance body copy on control panel",
-    foreground: "color-appliance-label-soft",
+    foreground: "color-appliance-copy",
     background: "color-appliance-control-surface",
     minimumRatio: 4.5,
   },

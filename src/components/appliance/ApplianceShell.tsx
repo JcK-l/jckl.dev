@@ -35,7 +35,7 @@ export const ApplianceShell = ({
           style={{ borderColor: "var(--color-appliance-panel-highlight)" }}
         />
       ) : null}
-      <div className="relative">{children}</div>
+      <div className="relative h-full">{children}</div>
     </div>
   );
 };

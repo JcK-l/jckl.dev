@@ -14,7 +14,7 @@ export const projects: Project[] = [
     id: 1,
     title: "vulkan-renderer",
     description:
-      "A proof-of-concept transitioning Met.3D's graphics rendering from OpenGL to Vulkan. Created as part of my bachelor’s thesis exploring modern rendering techniques.",
+      "A proof-of-concept moving Met.3D's graphics pipeline from OpenGL to Vulkan during my bachelor's thesis. It focuses on modern rendering infrastructure and cleaner renderer architecture.",
     imageFolder: "/vulkan-renderer",
     numberImages: 5,
     githubLink: "https://github.com/JcK-l/vulkan-renderer",
@@ -23,7 +23,7 @@ export const projects: Project[] = [
     id: 2,
     title: "tornado-vis",
     description:
-      "A Qt application that brings tornado data to life with isolines, streamlines, and detailed visualizations. A whirlwind of science and programming.",
+      "A Qt desktop app that turns tornado data into isolines, streamlines, and atmospheric field views. It blends scientific visualization work with graphics-focused tooling.",
     imageFolder: "/tornado-vis",
     numberImages: 4,
     githubLink: "https://github.com/JcK-l/tornado-vis",
@@ -32,7 +32,7 @@ export const projects: Project[] = [
     id: 3,
     title: "proud-detectives",
     description:
-      "An Android app inspired by Cluedo, combining mystery and strategy to test your detective skills. Developed collaboratively in just two weeks.",
+      "An Android app inspired by Cluedo, built with a team in two weeks. It turns deduction, movement, and note-taking into a compact social mystery game.",
     imageFolder: "/proud-detectives",
     numberImages: 12,
     githubLink: "https://github.com/JcK-l/proud-detectives",
@@ -42,7 +42,7 @@ export const projects: Project[] = [
     id: 4,
     title: "simple-lights",
     description:
-      "A straightforward WebGL project with forward rendering for lights. Future plans? Clustered shading to take it up a notch.",
+      "A straightforward WebGL lighting sandbox focused on forward rendering and clean scene setup. It also became the playground for exploring where clustered shading could go next.",
     imageFolder: "/simple-lights",
     numberImages: 3,
     githubLink: "https://github.com/JcK-l/simple-lights",
@@ -52,7 +52,7 @@ export const projects: Project[] = [
     id: 5,
     title: "homework-latex",
     description:
-      "A public LaTeX template I created to simplify writing homework during university. Clean, structured, and ready for math-heavy assignments.",
+      "A public LaTeX template I built to make university homework faster to write and easier to format. It is structured for math-heavy assignments without the usual setup friction.",
     imageFolder: "/homework-latex",
     numberImages: 2,
     githubLink: "https://github.com/JcK-l/homework-latex",
@@ -61,9 +61,16 @@ export const projects: Project[] = [
     id: 6,
     title: "jckl.dev",
     description:
-      "The website you're on right now. Dive in, explore, and maybe uncover a secret or two along the way.",
+      "The website you're on right now: a portfolio experiment built as an interactive puzzle box. It mixes projects, narrative, and hidden routes you can uncover while exploring.",
     imageFolder: "/jckl-website",
     numberImages: 1,
     githubLink: "https://github.com/JcK-l/jckl.dev",
+  },
+  {
+    id: 7,
+    title: "online-chess",
+    description:
+      "Built an online chess web app using an AI-assisted workflow with code review and manual testing. It is a playable browser build focused on quick matches and a clean live experience.",
+    demoLink: "https://chess.jckl.dev",
   },
 ];
