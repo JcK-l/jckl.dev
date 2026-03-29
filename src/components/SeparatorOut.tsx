@@ -28,6 +28,12 @@ interface SeparatorOutProps {
 
 const crtReadySoundFiles = ["/tvSounds/on.mp3", "/tvSounds/onAndOff.mp3"];
 const CRT_SOUND_GAIN = 0.25;
+const crtHitAreaStyle = {
+  left: "51.75%",
+  top: "0.1%",
+  width: "14.2%",
+  height: "38.2%",
+} as const;
 
 export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
   (props, ref) => {
@@ -72,7 +78,7 @@ export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
       }
     };
 
-    const handleCrtKeyDown = (event: ReactKeyboardEvent<SVGSVGElement>) => {
+    const handleCrtKeyDown = (event: ReactKeyboardEvent<HTMLButtonElement>) => {
       if (event.key !== "Enter" && event.key !== " ") {
         return;
       }
@@ -131,52 +137,58 @@ export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
         {(displayCrt || props.middleLayer) && (
           <div className="pointer-events-none absolute inset-0 z-20">
             {displayCrt && (
-              <svg
-                aria-disabled={isSoundPlaying || endingState.isActive}
-                aria-label={crtButtonLabel}
-                className="pointer-events-auto absolute inset-0 block h-full w-full"
-                cursor={`${
-                  gameStateIsBitSet(GameStateFlags.FLAG_CRT) || isSoundPlaying
-                    ? "default"
-                    : "pointer"
-                }`}
-                focusable="true"
-                onClick={() => {
-                  void activateCrt();
-                }}
-                onKeyDown={handleCrtKeyDown}
-                role="button"
-                tabIndex={0}
-                viewBox="0 0 960 279.177"
-                version="1.1"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <defs id="defs1" />
-                <g
-                  id="layer1"
-                  transform="matrix(0.72152775,-0.06209045,0.06209045,0.72152775,479.11345,-77.145299)"
+              <>
+                <button
+                  type="button"
+                  aria-disabled={isSoundPlaying || endingState.isActive}
+                  aria-label={crtButtonLabel}
+                  className="crt-trigger-button pointer-events-auto absolute"
+                  disabled={isSoundPlaying || endingState.isActive}
+                  onClick={() => {
+                    void activateCrt();
+                  }}
+                  onKeyDown={handleCrtKeyDown}
+                  style={crtHitAreaStyle}
+                />
+                <svg
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 block h-full w-full"
+                  viewBox="0 0 960 279.177"
+                  version="1.1"
+                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  <image
-                    width="176.3889"
-                    height="132.29167"
-                    preserveAspectRatio="none"
-                    xlinkHref={crtImage}
-                    id="tv"
-                    x="14.018737"
-                    y="123.32362"
-                  />
-                  <image
-                    width="123.47222"
-                    height="97.013885"
-                    preserveAspectRatio="none"
-                    opacity={crtScreenOpacity}
-                    xlinkHref={crtScreen}
-                    id="screen"
-                    x="26.629618"
-                    y="136.32681"
-                  />
-                </g>
-              </svg>
+                  <defs id="defs1" />
+                  <g
+                    className="crt-visual"
+                    id="layer1"
+                    transform="matrix(0.72152775,-0.06209045,0.06209045,0.72152775,479.11345,-77.145299)"
+                  >
+                    <image
+                      className="crt-trigger-image"
+                      draggable="false"
+                      width="176.3889"
+                      height="132.29167"
+                      preserveAspectRatio="none"
+                      xlinkHref={crtImage}
+                      id="tv"
+                      x="14.018737"
+                      y="123.32362"
+                    />
+                    <image
+                      className="crt-trigger-screen"
+                      draggable="false"
+                      width="123.47222"
+                      height="97.013885"
+                      preserveAspectRatio="none"
+                      opacity={crtScreenOpacity}
+                      xlinkHref={crtScreen}
+                      id="screen"
+                      x="26.629618"
+                      y="136.32681"
+                    />
+                  </g>
+                </svg>
+              </>
             )}
             {props.middleLayer ? (
               <div className="pointer-events-auto absolute inset-0">
