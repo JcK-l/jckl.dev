@@ -17,13 +17,29 @@ export const TypingText = ({
 }) => {
   const [displayedText, setDisplayedText] = useState("");
   const [index, setIndex] = useState(0);
+  const prefersReducedMotion =
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   useEffect(() => {
+    if (prefersReducedMotion) {
+      setDisplayedText(text);
+      setIndex(text.length);
+
+      const completeTimeout = setTimeout(onComplete, 0);
+      return () => clearTimeout(completeTimeout);
+    }
+
     setDisplayedText("");
     setIndex(0);
-  }, [text]);
+  }, [onComplete, prefersReducedMotion, text]);
 
   useEffect(() => {
+    if (prefersReducedMotion) {
+      return;
+    }
+
     if (index < text.length) {
       const nextDelay =
         typingDelayJitter <= 0
@@ -46,6 +62,7 @@ export const TypingText = ({
     index,
     onComplete,
     onCompleteDelay,
+    prefersReducedMotion,
     text,
     typingDelay,
     typingDelayJitter,

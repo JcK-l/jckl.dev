@@ -10,6 +10,7 @@ test("PhoneWave still accepts retries after a viewport resize", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/#connection");
 
   const connectionSection = page.locator("section#connection");

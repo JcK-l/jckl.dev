@@ -20,10 +20,6 @@ vi.mock("../utility/audioContext", () => ({
 
 import { SeparatorOut } from "./SeparatorOut";
 
-const getCrtTrigger = (container: HTMLElement) => {
-  return container.querySelector("svg.pointer-events-auto");
-};
-
 describe("SeparatorOut", () => {
   beforeEach(() => {
     $endingState.set(createDefaultEndingState());
@@ -45,12 +41,10 @@ describe("SeparatorOut", () => {
         (1 << GameStateFlags.FLAG_CONNECTION)
     );
 
-    const { container } = render(<SeparatorOut isCrt />);
-    const crtTrigger = getCrtTrigger(container);
+    const { getByRole } = render(<SeparatorOut isCrt />);
+    const crtTrigger = getByRole("button", { name: /crt cache relay/i });
 
-    expect(crtTrigger).toBeTruthy();
-
-    fireEvent.click(crtTrigger!);
+    fireEvent.click(crtTrigger);
 
     await waitFor(() => {
       expect(audioMocks.resumeAudioContext).toHaveBeenCalledTimes(1);
@@ -68,12 +62,10 @@ describe("SeparatorOut", () => {
         (1 << GameStateFlags.FLAG_LEND_A_HAND)
     );
 
-    const { container } = render(<SeparatorOut isCrt />);
-    const crtTrigger = getCrtTrigger(container);
+    const { getByRole } = render(<SeparatorOut isCrt />);
+    const crtTrigger = getByRole("button", { name: /crt cache relay/i });
 
-    expect(crtTrigger).toBeTruthy();
-
-    fireEvent.click(crtTrigger!);
+    fireEvent.click(crtTrigger);
 
     await waitFor(() => {
       expect(audioMocks.startCachedAudio).toHaveBeenCalledWith(
@@ -98,16 +90,32 @@ describe("SeparatorOut", () => {
       })
     );
 
-    const { container } = render(<SeparatorOut isCrt />);
-    const crtTrigger = getCrtTrigger(container);
+    const { getByRole } = render(<SeparatorOut isCrt />);
+    const crtTrigger = getByRole("button", { name: /crt cache relay/i });
 
-    expect(crtTrigger).toBeTruthy();
-
-    fireEvent.click(crtTrigger!);
+    fireEvent.click(crtTrigger);
     await Promise.resolve();
 
     expect(audioMocks.resumeAudioContext).not.toHaveBeenCalled();
     expect(audioMocks.startCachedAudio).not.toHaveBeenCalled();
     expect(hasBit($gameState.get(), GameStateFlags.FLAG_CRT)).toBe(false);
+  });
+
+  it("supports keyboard activation for the CRT trigger", async () => {
+    $gameState.set(
+      (1 << GameStateFlags.FLAG_STARS_ALIGN) |
+        (1 << GameStateFlags.FLAG_LEND_A_HAND) |
+        (1 << GameStateFlags.FLAG_CONNECTION)
+    );
+
+    const { getByRole } = render(<SeparatorOut isCrt />);
+    const crtTrigger = getByRole("button", { name: /crt cache relay/i });
+
+    fireEvent.keyDown(crtTrigger, { key: "Enter" });
+
+    await waitFor(() => {
+      expect(audioMocks.resumeAudioContext).toHaveBeenCalledTimes(1);
+      expect(hasBit($gameState.get(), GameStateFlags.FLAG_CRT)).toBe(true);
+    });
   });
 });

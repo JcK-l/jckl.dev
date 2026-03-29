@@ -1,8 +1,8 @@
-name: Nightly E2E (CI Build)
+name: Nightly E2E (Production)
 
 on:
   schedule:
-    - cron: "0 2 * * *"
+    - cron: "30 2 * * *"
   workflow_dispatch:
 
 permissions:
@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CI: true
+      PLAYWRIGHT_BASE_URL: https://jckl.dev
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -29,14 +30,14 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Run Playwright CI regression suite
-        run: npm run test:e2e:ci
+      - name: Run Playwright production smoke suite
+        run: npm run test:e2e:production
 
       - name: Upload Playwright HTML report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
+          name: playwright-report-production
           if-no-files-found: ignore
           path: playwright-report
           retention-days: 14
@@ -45,7 +46,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-results
+          name: playwright-results-production
           if-no-files-found: ignore
           path: test-results
           retention-days: 14

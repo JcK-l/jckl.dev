@@ -1,4 +1,8 @@
-import type { CSSProperties, ReactNode } from "react";
+import type {
+  CSSProperties,
+  KeyboardEvent as ReactKeyboardEvent,
+  ReactNode,
+} from "react";
 
 type PhonePadProps = {
   bottomLeftDanger?: boolean;
@@ -66,6 +70,23 @@ const callButtonStyle = {
   strokeLinejoin: "bevel",
 } as const;
 
+const createSvgButtonProps = (label: string, onActivate: () => void) => ({
+  "aria-label": label,
+  cursor: "pointer" as const,
+  focusable: true,
+  onClick: onActivate,
+  onKeyDown: (event: ReactKeyboardEvent<SVGGElement>) => {
+    if (event.key !== "Enter" && event.key !== " ") {
+      return;
+    }
+
+    event.preventDefault();
+    onActivate();
+  },
+  role: "button" as const,
+  tabIndex: 0,
+});
+
 export const PhonePad = ({
   bottomLeftDanger = false,
   bottomRightHighlighted = false,
@@ -112,8 +133,7 @@ export const PhonePad = ({
               <g
                 className="phone-pad-button phone-pad-call"
                 id="call"
-                cursor="pointer"
-                onClick={onCall}
+                {...createSvgButtonProps("Call", onCall)}
                 transform="translate(-13.470384,-39.288619)"
               >
                 <circle
@@ -136,8 +156,7 @@ export const PhonePad = ({
             <g
               className="phone-pad-button phone-pad-digit"
               id="2"
-              onClick={() => onDigit("2")}
-              cursor="pointer"
+              {...createSvgButtonProps("2", () => onDigit("2"))}
               transform="translate(-13.470384,-39.288619)"
             >
               <circle
@@ -154,8 +173,7 @@ export const PhonePad = ({
             <g
               className="phone-pad-button phone-pad-digit"
               id="5"
-              onClick={() => onDigit("5")}
-              cursor="pointer"
+              {...createSvgButtonProps("5", () => onDigit("5"))}
               transform="translate(-13.470384,-39.288619)"
             >
               <circle
@@ -172,8 +190,7 @@ export const PhonePad = ({
             <g
               className="phone-pad-button phone-pad-digit"
               id="8"
-              onClick={() => onDigit("8")}
-              cursor="pointer"
+              {...createSvgButtonProps("8", () => onDigit("8"))}
               transform="translate(-13.470384,-39.288619)"
             >
               <circle
@@ -190,8 +207,7 @@ export const PhonePad = ({
             <g
               className="phone-pad-button phone-pad-digit"
               id="0"
-              onClick={() => onDigit("0")}
-              cursor="pointer"
+              {...createSvgButtonProps("0", () => onDigit("0"))}
               transform="translate(-13.470384,-39.288619)"
             >
               <circle
@@ -209,8 +225,7 @@ export const PhonePad = ({
               <g
                 className="phone-pad-button phone-pad-cancel"
                 id="cancel"
-                onClick={onCancel}
-                cursor="pointer"
+                {...createSvgButtonProps("Cancel", onCancel)}
                 transform="translate(-13.470384,-39.288619)"
               >
                 <path
@@ -252,8 +267,7 @@ export const PhonePad = ({
             <g
               className="phone-pad-button phone-pad-digit"
               id="3"
-              onClick={() => onDigit("3")}
-              cursor="pointer"
+              {...createSvgButtonProps("3", () => onDigit("3"))}
               transform="translate(-13.470384,-39.288619)"
             >
               <circle
@@ -270,8 +284,7 @@ export const PhonePad = ({
             <g
               className="phone-pad-button phone-pad-digit"
               id="6"
-              onClick={() => onDigit("6")}
-              cursor="pointer"
+              {...createSvgButtonProps("6", () => onDigit("6"))}
               transform="translate(-13.470384,-39.288619)"
             >
               <circle
@@ -288,8 +301,7 @@ export const PhonePad = ({
             <g
               className="phone-pad-button phone-pad-digit"
               id="9"
-              onClick={() => onDigit("9")}
-              cursor="pointer"
+              {...createSvgButtonProps("9", () => onDigit("9"))}
               transform="translate(-13.470384,-39.288619)"
             >
               <circle
@@ -306,8 +318,7 @@ export const PhonePad = ({
             <g
               className="phone-pad-button phone-pad-submit"
               id="hashtag"
-              onClick={onBottomRight}
-              cursor="pointer"
+              {...createSvgButtonProps("Hash", onBottomRight)}
               transform="translate(-13.470384,-39.288619)"
             >
               <circle
@@ -324,8 +335,7 @@ export const PhonePad = ({
             <g
               className="phone-pad-button phone-pad-digit"
               id="1"
-              onClick={() => onDigit("1")}
-              cursor="pointer"
+              {...createSvgButtonProps("1", () => onDigit("1"))}
               transform="translate(-13.470384,-39.288619)"
             >
               <circle
@@ -342,8 +352,7 @@ export const PhonePad = ({
             <g
               className="phone-pad-button phone-pad-digit"
               id="4"
-              onClick={() => onDigit("4")}
-              cursor="pointer"
+              {...createSvgButtonProps("4", () => onDigit("4"))}
               transform="translate(-13.470384,-39.288619)"
             >
               <circle
@@ -360,8 +369,7 @@ export const PhonePad = ({
             <g
               className="phone-pad-button phone-pad-digit"
               id="7"
-              onClick={() => onDigit("7")}
-              cursor="pointer"
+              {...createSvgButtonProps("7", () => onDigit("7"))}
               transform="translate(-13.470384,-39.288619)"
             >
               <circle
@@ -380,8 +388,7 @@ export const PhonePad = ({
                 bottomLeftDanger ? " phone-pad-secondary-danger" : ""
               }`}
               id="star"
-              onClick={onBottomLeft}
-              cursor="pointer"
+              {...createSvgButtonProps("Star", onBottomLeft)}
               transform="translate(-13.470384,-39.288619)"
             >
               <circle

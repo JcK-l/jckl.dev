@@ -78,6 +78,19 @@ export const routeSentimentResponse = async (
   });
 };
 
+export const routeSentimentFailure = async (
+  page: Page,
+  errorMessage = "Temporal relay offline"
+) => {
+  await page.route("**/api/openai", async (route) => {
+    await route.fulfill({
+      body: JSON.stringify({ error: errorMessage }),
+      contentType: "application/json",
+      status: 500,
+    });
+  });
+};
+
 export const fillContactForm = async (
   page: Page,
   values: {
@@ -115,4 +128,23 @@ export const submitContactForm = async (
 
 export const getSection = (page: Page, id: string): Locator => {
   return page.locator(`section#${id}`);
+};
+
+export const clickPhonePadButton = async (scope: Locator, id: string) => {
+  const accessibleLabelById: Record<string, string> = {
+    call: "Call",
+    cancel: "Cancel",
+    hashtag: "Hash",
+    star: "Star",
+  };
+  const label = accessibleLabelById[id] ?? id;
+  const button = scope.getByRole("button", { exact: true, name: label });
+
+  if (id === "call" || id === "cancel") {
+    await button.dispatchEvent("click");
+    return;
+  }
+
+  await button.focus();
+  await button.press("Enter");
 };

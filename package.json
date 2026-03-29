@@ -11,6 +11,8 @@
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
+    "test:e2e:ci": "playwright test e2e/*.spec.ts",
+    "test:e2e:production": "playwright test e2e/production",
     "test:e2e:headed": "playwright test --headed",
     "astro": "astro",
     "fonts:convert": "node scripts/convert-fonts.mjs",

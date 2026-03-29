@@ -58,6 +58,34 @@ const applyContactReadySeed = () => {
   $pastDate.set("May 14, 2023");
 };
 
+const applyCrtReadySeed = () => {
+  $gameState.set(
+    (1 << GameStateFlags.FLAG_STARS_ALIGN) |
+      (1 << GameStateFlags.FLAG_LEND_A_HAND) |
+      (1 << GameStateFlags.FLAG_CONNECTION)
+  );
+  $dispensedGroups.set({
+    stars: true,
+    hand: true,
+    connection: true,
+    crt: false,
+  });
+  $currentDate.set("Mar 29, 2026");
+  $pastDate.set("May 14, 2023");
+};
+
+const applyCrtIncompleteSeed = () => {
+  $gameState.set(1 << GameStateFlags.FLAG_LEND_A_HAND);
+  $dispensedGroups.set({
+    stars: false,
+    hand: true,
+    connection: false,
+    crt: false,
+  });
+  $currentDate.set("Mar 29, 2026");
+  $pastDate.set("May 14, 2023");
+};
+
 const applyEndingReturnReadySeed = () => {
   $gameState.set(
     (1 << GameStateFlags.FLAG_STARS_ALIGN) |
@@ -106,6 +134,39 @@ const applyEndingReturnReadySeed = () => {
   };
 };
 
+const applyFinalUnlockedSeed = () => {
+  $gameState.set(
+    (1 << GameStateFlags.FLAG_STARS_ALIGN) |
+      (1 << GameStateFlags.FLAG_LEND_A_HAND) |
+      (1 << GameStateFlags.FLAG_CONNECTION) |
+      (1 << GameStateFlags.FLAG_CRT) |
+      (1 << GameStateFlags.FLAG_SECRET)
+  );
+  $dispensedGroups.set({
+    stars: true,
+    hand: true,
+    connection: true,
+    crt: true,
+  });
+  $endingState.set({
+    discoveredSentiments: {
+      negative: true,
+      neutral: true,
+      positive: true,
+    },
+    isActive: false,
+    pendingDiscovery: null,
+    selectedSentiment: null,
+    settledVideos: {
+      negative: true,
+      neutral: true,
+      positive: true,
+    },
+  });
+  $currentDate.set("Mar 29, 2026");
+  $pastDate.set("May 14, 2023");
+};
+
 export const E2EStateBootstrap = () => {
   useEffect(() => {
     window.__jcklE2EReady__ = false;
@@ -119,8 +180,20 @@ export const E2EStateBootstrap = () => {
       applyContactReadySeed();
     }
 
+    if (seed === "crt-ready") {
+      applyCrtReadySeed();
+    }
+
+    if (seed === "crt-incomplete") {
+      applyCrtIncompleteSeed();
+    }
+
     if (seed === "ending-return-ready") {
       applyEndingReturnReadySeed();
+    }
+
+    if (seed === "final-unlocked") {
+      applyFinalUnlockedSeed();
     }
 
     window.__jcklE2EReady__ = true;

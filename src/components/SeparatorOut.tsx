@@ -1,4 +1,10 @@
-import { forwardRef, useEffect, useState, type ReactNode } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type ReactNode,
+} from "react";
 import { useStore } from "@nanostores/react";
 import { crtImage, crtScreen } from "../data/crtImage";
 import {
@@ -31,6 +37,49 @@ export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
     const displayCrt =
       props.isCrt && gameStateIsBitSet(GameStateFlags.FLAG_LEND_A_HAND);
     const crtScreenOpacity = props.crtScreenOpacity ?? 0;
+    const isCrtReady =
+      gameStateIsBitSet(GameStateFlags.FLAG_STARS_ALIGN) &&
+      gameStateIsBitSet(GameStateFlags.FLAG_LEND_A_HAND) &&
+      gameStateIsBitSet(GameStateFlags.FLAG_CONNECTION);
+    const crtButtonLabel = isCrtReady
+      ? "Power on CRT cache relay"
+      : "Check CRT cache relay";
+
+    const activateCrt = async () => {
+      if (isSoundPlaying || endingState.isActive) {
+        return;
+      }
+
+      setIsSoundPlaying(true);
+      await resumeAudioContext();
+
+      try {
+        const soundFile = isCrtReady
+          ? "/tvSounds/on.mp3"
+          : "/tvSounds/onAndOff.mp3";
+
+        if (isCrtReady) {
+          setBit(GameStateFlags.FLAG_CRT);
+        }
+
+        const playback = await startCachedAudio(soundFile, {
+          gain: CRT_SOUND_GAIN,
+        });
+
+        await playback.ended;
+      } finally {
+        setIsSoundPlaying(false);
+      }
+    };
+
+    const handleCrtKeyDown = (event: ReactKeyboardEvent<SVGSVGElement>) => {
+      if (event.key !== "Enter" && event.key !== " ") {
+        return;
+      }
+
+      event.preventDefault();
+      void activateCrt();
+    };
 
     useEffect(() => {
       void preloadAudioBuffers(crtReadySoundFiles);
@@ -83,42 +132,21 @@ export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
           <div className="pointer-events-none absolute inset-0 z-20">
             {displayCrt && (
               <svg
+                aria-disabled={isSoundPlaying || endingState.isActive}
+                aria-label={crtButtonLabel}
                 className="pointer-events-auto absolute inset-0 block h-full w-full"
                 cursor={`${
                   gameStateIsBitSet(GameStateFlags.FLAG_CRT) || isSoundPlaying
                     ? "default"
                     : "pointer"
                 }`}
-                onClick={async () => {
-                  if (isSoundPlaying || endingState.isActive) {
-                    return;
-                  }
-
-                  setIsSoundPlaying(true);
-                  await resumeAudioContext();
-
-                  try {
-                    const isCrtReady =
-                      gameStateIsBitSet(GameStateFlags.FLAG_STARS_ALIGN) &&
-                      gameStateIsBitSet(GameStateFlags.FLAG_LEND_A_HAND) &&
-                      gameStateIsBitSet(GameStateFlags.FLAG_CONNECTION);
-                    const soundFile = isCrtReady
-                      ? "/tvSounds/on.mp3"
-                      : "/tvSounds/onAndOff.mp3";
-
-                    if (isCrtReady) {
-                      setBit(GameStateFlags.FLAG_CRT);
-                    }
-
-                    const playback = await startCachedAudio(soundFile, {
-                      gain: CRT_SOUND_GAIN,
-                    });
-
-                    await playback.ended;
-                  } finally {
-                    setIsSoundPlaying(false);
-                  }
+                focusable="true"
+                onClick={() => {
+                  void activateCrt();
                 }}
+                onKeyDown={handleCrtKeyDown}
+                role="button"
+                tabIndex={0}
                 viewBox="0 0 960 279.177"
                 version="1.1"
                 xmlns="http://www.w3.org/2000/svg"

@@ -82,4 +82,39 @@ describe("TypingText", () => {
     });
     expect(screen.getByText("Z")).toBeTruthy();
   });
+
+  it("renders immediately when reduced motion is preferred", () => {
+    const onComplete = vi.fn();
+
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn().mockImplementation((query: string) => ({
+        addEventListener: vi.fn(),
+        addListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+        matches: query === "(prefers-reduced-motion: reduce)",
+        media: query,
+        onchange: null,
+        removeEventListener: vi.fn(),
+        removeListener: vi.fn(),
+      }))
+    );
+
+    render(
+      <TypingText
+        text="Reduced motion"
+        onComplete={onComplete}
+        typingDelay={10}
+        onCompleteDelay={20}
+      />
+    );
+
+    expect(screen.getByText("Reduced motion")).toBeTruthy();
+
+    act(() => {
+      vi.runAllTimers();
+    });
+
+    expect(onComplete).toHaveBeenCalledTimes(1);
+  });
 });

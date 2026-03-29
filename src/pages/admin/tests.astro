@@ -5,7 +5,9 @@ import {
   verifyAdminSessionValue,
 } from "../../server/adminSession";
 import {
+  getWorkflowRunDiagnostics,
   listNightlyWorkflowRuns,
+  type WorkflowRunDiagnostics,
   type WorkflowRunSummary,
 } from "../../server/githubActions";
 
@@ -16,14 +18,70 @@ const sessionSecret = import.meta.env.ADMIN_DASHBOARD_SECRET ?? "";
 const dashboardToken = import.meta.env.GITHUB_ACTIONS_DASHBOARD_TOKEN;
 const repoOwner = import.meta.env.GITHUB_ACTIONS_REPO_OWNER ?? "JcK-l";
 const repoName = import.meta.env.GITHUB_ACTIONS_REPO_NAME ?? "jckl.dev";
-const workflowFile =
+const legacyWorkflowFile =
   import.meta.env.GITHUB_ACTIONS_WORKFLOW_FILE ?? "nightly-e2e.yml";
+const ciWorkflowFile =
+  import.meta.env.GITHUB_ACTIONS_CI_WORKFLOW_FILE ?? legacyWorkflowFile;
+const productionWorkflowFile =
+  import.meta.env.GITHUB_ACTIONS_PRODUCTION_WORKFLOW_FILE ??
+  "nightly-e2e-production.yml";
 const sessionCookie =
   Astro.cookies.get(ADMIN_SESSION_COOKIE_NAME)?.value ?? null;
 const isConfigured = adminPassword !== "" && sessionSecret !== "";
 const isAuthenticated =
   isConfigured && verifyAdminSessionValue(sessionCookie, sessionSecret);
 const error = Astro.url.searchParams.get("error");
+const requestedSuiteParam = Astro.url.searchParams.get("suite");
+const requestedRunParam = Astro.url.searchParams.get("run");
+const requestedRunId =
+  requestedRunParam !== null && /^\d+$/.test(requestedRunParam)
+    ? Number.parseInt(requestedRunParam, 10)
+    : null;
+
+type DashboardSuiteKey = "ci" | "production";
+
+type DashboardSuiteConfig = {
+  baseUrl: string;
+  description: string;
+  executionMode: string;
+  flowScope: string;
+  key: DashboardSuiteKey;
+  label: string;
+  workflowFile: string;
+};
+
+type DashboardSuiteData = {
+  config: DashboardSuiteConfig;
+  error: string;
+  runs: WorkflowRunSummary[];
+};
+
+const dashboardSuites: DashboardSuiteConfig[] = [
+  {
+    baseUrl: "http://127.0.0.1:4321",
+    description: "Full seeded regression suite against the CI build.",
+    executionMode: "GitHub Actions CI build",
+    flowScope: "Seeded and private regression flows",
+    key: "ci",
+    label: "CI Build Regression",
+    workflowFile: ciWorkflowFile,
+  },
+  {
+    baseUrl: "https://jckl.dev",
+    description: "Production-safe smoke subset against the live site.",
+    executionMode: "Live production site",
+    flowScope: "Public flows only",
+    key: "production",
+    label: "Production Smoke",
+    workflowFile: productionWorkflowFile,
+  },
+];
+
+const selectedSuiteKey = dashboardSuites.some(
+  (suite) => suite.key === requestedSuiteParam
+)
+  ? (requestedSuiteParam as DashboardSuiteKey)
+  : "ci";
 
 const formatTimestamp = (value: string) => {
   return new Intl.DateTimeFormat("en-GB", {
@@ -76,24 +134,103 @@ const getConclusionClasses = (run: WorkflowRunSummary) => {
   return "border-secondary/20 bg-secondary/10 text-secondary";
 };
 
-let runs: WorkflowRunSummary[] = [];
-let loadError = "";
+const getJobConclusionClasses = (conclusion: string | null, status: string) => {
+  if (status !== "completed") {
+    return "border-secondary/20 bg-secondary/10 text-secondary";
+  }
+
+  if (conclusion === "success") {
+    return "border-green/30 bg-green/10 text-green";
+  }
+
+  if (conclusion === "failure" || conclusion === "cancelled") {
+    return "border-red/30 bg-red/10 text-red";
+  }
+
+  return "border-secondary/20 bg-secondary/10 text-secondary";
+};
+
+const getStepStatusLabel = (conclusion: string | null, status: string) => {
+  return status === "completed" ? conclusion ?? "unknown" : status;
+};
+
+const formatBytes = (value: number) => {
+  if (value < 1024) {
+    return `${value} B`;
+  }
+
+  if (value < 1024 * 1024) {
+    return `${(value / 1024).toFixed(1)} KB`;
+  }
+
+  return `${(value / (1024 * 1024)).toFixed(1)} MB`;
+};
+
+let suiteData: DashboardSuiteData[] = [];
+let selectedSuiteData: DashboardSuiteData | null = null;
+let selectedRun: WorkflowRunSummary | null = null;
+let selectedRunDiagnostics: WorkflowRunDiagnostics | null = null;
+let selectedRunMissing = false;
 
 if (isAuthenticated) {
-  try {
-    runs = await listNightlyWorkflowRuns({
-      owner: repoOwner,
-      repo: repoName,
-      token: dashboardToken,
-      workflowFile,
-    });
-  } catch (caughtError) {
-    loadError =
-      caughtError instanceof Error
-        ? caughtError.message
-        : "Failed to load the GitHub Actions dashboard.";
+  const suiteResults = await Promise.all(
+    dashboardSuites.map(async (suite): Promise<DashboardSuiteData> => {
+      try {
+        const runs = await listNightlyWorkflowRuns({
+          owner: repoOwner,
+          repo: repoName,
+          token: dashboardToken,
+          workflowFile: suite.workflowFile,
+        });
+
+        return {
+          config: suite,
+          error: "",
+          runs,
+        };
+      } catch (caughtError) {
+        return {
+          config: suite,
+          error:
+            caughtError instanceof Error
+              ? caughtError.message
+              : "Failed to load workflow runs.",
+          runs: [],
+        };
+      }
+    })
+  );
+
+  suiteData = suiteResults;
+  selectedSuiteData =
+    suiteData.find((suite) => suite.config.key === selectedSuiteKey) ?? null;
+
+  if (selectedSuiteData !== null) {
+    if (requestedRunId !== null) {
+      selectedRun =
+        selectedSuiteData.runs.find((run) => run.id === requestedRunId) ?? null;
+      selectedRunMissing = selectedRun === null;
+    }
+
+    if (selectedRun === null) {
+      selectedRun = selectedSuiteData.runs[0] ?? null;
+    }
+
+    if (!selectedSuiteData.error) {
+      selectedRunDiagnostics = await getWorkflowRunDiagnostics({
+        owner: repoOwner,
+        repo: repoName,
+        run: selectedRun,
+        token: dashboardToken,
+      });
+    }
   }
 }
+
+const isViewingHistoricalRun =
+  selectedRun !== null &&
+  selectedSuiteData?.runs[0] !== undefined &&
+  selectedRun.id !== selectedSuiteData.runs[0].id;
 ---
 
 <Layout title="Admin Test Dashboard">
@@ -106,11 +243,9 @@ if (isAuthenticated) {
           </p>
           <h1 class="h2-text mt-2 text-titleColor">Nightly Test Dashboard</h1>
           <p class="mt-3 max-w-2xl text-sm leading-7 text-textColor/80 sm:text-base">
-            This page reads the latest GitHub Actions runs for the nightly
-            Playwright workflow for this repository. The dashboard lives on{" "}
-            <span class="font-semibold">jckl.dev</span>, but the nightly job
-            currently runs the suite against a fresh CI build so seeded
-            regression flows can stay private.
+            This page reads the GitHub Actions runs for both Playwright suites:
+            the full CI-build regression flow and the production-safe smoke
+            subset that targets <span class="font-semibold">jckl.dev</span>.
           </p>
         </div>
         {isAuthenticated ? (
@@ -176,58 +311,329 @@ if (isAuthenticated) {
         </div>
       ) : (
         <div class="space-y-6">
-          <div class="grid gap-4 md:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
-            <div class="rounded-[2rem] border border-secondary/15 bg-white/55 px-6 py-6 shadow-sm backdrop-blur-[2px]">
-              <p class="font-mono text-[0.72rem] uppercase tracking-[0.2em] text-secondary">
-                Workflow
-              </p>
-              <h2 class="mt-3 font-heading text-2xl font-bold text-titleColor">
-                {workflowFile}
-              </h2>
-              <p class="mt-3 text-sm leading-7 text-textColor/80">
-                Source repo: <span class="font-semibold">{repoOwner}/{repoName}</span>
-              </p>
-              <p class="mt-2 text-sm leading-7 text-textColor/80">
-                Execution mode: <span class="font-semibold">GitHub Actions CI build</span>
-              </p>
-            </div>
-            <div class="rounded-[2rem] border border-secondary/15 bg-white/55 px-6 py-6 shadow-sm backdrop-blur-[2px]">
-              <p class="font-mono text-[0.72rem] uppercase tracking-[0.2em] text-secondary">
-                Latest Result
-              </p>
-              {runs[0] ? (
-                <>
-                  <div
-                    class={`mt-4 inline-flex rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${getConclusionClasses(
-                      runs[0]
-                    )}`}
-                  >
-                    {getConclusionLabel(runs[0])}
-                  </div>
-                  <p class="mt-4 text-sm leading-7 text-textColor/80">
-                    Run #{runs[0].runNumber} finished {formatTimestamp(runs[0].updatedAt)}
+          <div class="grid gap-4 md:grid-cols-2">
+            {suiteData.map((suite) => {
+              const latestRun = suite.runs[0] ?? null;
+              const isSelectedSuite = suite.config.key === selectedSuiteKey;
+
+              return (
+                <div
+                  class={`rounded-[2rem] border px-6 py-6 shadow-sm backdrop-blur-[2px] ${
+                    isSelectedSuite
+                      ? "border-secondary/35 bg-secondary/10"
+                      : "border-secondary/15 bg-white/55"
+                  }`}
+                >
+                  <p class="font-mono text-[0.72rem] uppercase tracking-[0.2em] text-secondary">
+                    {suite.config.label}
                   </p>
+                  <h2 class="mt-3 font-heading text-2xl font-bold text-titleColor">
+                    {suite.config.workflowFile}
+                  </h2>
+                  <p class="mt-3 text-sm leading-7 text-textColor/80">
+                    {suite.config.description}
+                  </p>
+                  <p class="mt-2 text-sm leading-7 text-textColor/80">
+                    Execution mode:{" "}
+                    <span class="font-semibold">{suite.config.executionMode}</span>
+                  </p>
+                  <p class="mt-2 text-sm leading-7 text-textColor/80">
+                    Base URL: <span class="font-semibold">{suite.config.baseUrl}</span>
+                  </p>
+                  <p class="mt-2 text-sm leading-7 text-textColor/80">
+                    Flow scope: <span class="font-semibold">{suite.config.flowScope}</span>
+                  </p>
+
+                  {suite.error ? (
+                    <p class="mt-4 rounded-xl border border-red/20 bg-red/5 px-4 py-3 text-sm text-red">
+                      {suite.error}
+                    </p>
+                  ) : latestRun ? (
+                    <>
+                      <div
+                        class={`mt-4 inline-flex rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${getConclusionClasses(
+                          latestRun
+                        )}`}
+                      >
+                        {getConclusionLabel(latestRun)}
+                      </div>
+                      <p class="mt-4 text-sm leading-7 text-textColor/80">
+                        Latest run #{latestRun.runNumber} finished{" "}
+                        {formatTimestamp(latestRun.updatedAt)}
+                      </p>
+                    </>
+                  ) : (
+                    <p class="mt-4 text-sm leading-7 text-textColor/80">
+                      No runs found yet.
+                    </p>
+                  )}
+
                   <a
-                    href={runs[0].htmlUrl}
-                    target="_blank"
-                    rel="noreferrer"
+                    href={`/admin/tests?suite=${suite.config.key}`}
                     class="mt-4 inline-flex text-sm font-semibold text-secondary underline underline-offset-4"
                   >
-                    Open run on GitHub
+                    {isSelectedSuite ? "Viewing suite" : "View suite"}
                   </a>
-                </>
-              ) : (
-                <p class="mt-4 text-sm leading-7 text-textColor/80">
-                  No runs found yet.
-                </p>
-              )}
-            </div>
+                </div>
+              );
+            })}
           </div>
 
-          {loadError ? (
-            <p class="rounded-[1.5rem] border border-red/20 bg-red/5 px-5 py-4 text-sm text-red">
-              {loadError}
+          {selectedSuiteData ? (
+            <div class="grid gap-4 md:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+              <div class="rounded-[2rem] border border-secondary/15 bg-white/55 px-6 py-6 shadow-sm backdrop-blur-[2px]">
+                <p class="font-mono text-[0.72rem] uppercase tracking-[0.2em] text-secondary">
+                  Selected Suite
+                </p>
+                <h2 class="mt-3 font-heading text-2xl font-bold text-titleColor">
+                  {selectedSuiteData.config.label}
+                </h2>
+                <p class="mt-3 text-sm leading-7 text-textColor/80">
+                  Workflow file:{" "}
+                  <span class="font-semibold">{selectedSuiteData.config.workflowFile}</span>
+                </p>
+                <p class="mt-2 text-sm leading-7 text-textColor/80">
+                  Source repo: <span class="font-semibold">{repoOwner}/{repoName}</span>
+                </p>
+                <p class="mt-2 text-sm leading-7 text-textColor/80">
+                  Execution mode:{" "}
+                  <span class="font-semibold">
+                    {selectedSuiteData.config.executionMode}
+                  </span>
+                </p>
+                <p class="mt-2 text-sm leading-7 text-textColor/80">
+                  Base URL:{" "}
+                  <span class="font-semibold">{selectedSuiteData.config.baseUrl}</span>
+                </p>
+              </div>
+              <div class="rounded-[2rem] border border-secondary/15 bg-white/55 px-6 py-6 shadow-sm backdrop-blur-[2px]">
+                <p class="font-mono text-[0.72rem] uppercase tracking-[0.2em] text-secondary">
+                  Selected Run
+                </p>
+                {selectedRun ? (
+                  <>
+                    <div
+                      class={`mt-4 inline-flex rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${getConclusionClasses(
+                        selectedRun
+                      )}`}
+                    >
+                      {getConclusionLabel(selectedRun)}
+                    </div>
+                    <p class="mt-4 text-sm leading-7 text-textColor/80">
+                      Run #{selectedRun.runNumber} finished{" "}
+                      {formatTimestamp(selectedRun.updatedAt)}
+                    </p>
+                    {isViewingHistoricalRun ? (
+                      <p class="mt-2 text-sm leading-7 text-textColor/70">
+                        Viewing a previous run from the table below.{" "}
+                        <a
+                          href={`/admin/tests?suite=${selectedSuiteKey}`}
+                          class="font-semibold text-secondary underline underline-offset-4"
+                        >
+                          View latest
+                        </a>
+                      </p>
+                    ) : null}
+                    <a
+                      href={selectedRun.htmlUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      class="mt-4 inline-flex text-sm font-semibold text-secondary underline underline-offset-4"
+                    >
+                      Open run on GitHub
+                    </a>
+                  </>
+                ) : (
+                  <p class="mt-4 text-sm leading-7 text-textColor/80">
+                    No runs found yet.
+                  </p>
+                )}
+              </div>
+            </div>
+          ) : null}
+
+          {selectedRunMissing ? (
+            <p class="rounded-[1.5rem] border border-secondary/15 bg-secondary/5 px-5 py-4 text-sm text-textColor/80">
+              The requested run could not be found. Showing the latest available run instead.
             </p>
+          ) : null}
+
+          {selectedSuiteData?.error ? (
+            <p class="rounded-[1.5rem] border border-red/20 bg-red/5 px-5 py-4 text-sm text-red">
+              {selectedSuiteData.error}
+            </p>
+          ) : null}
+
+          {selectedRunDiagnostics?.job ? (
+            <div class="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+              <div class="rounded-[2rem] border border-secondary/15 bg-white/55 px-6 py-6 shadow-sm backdrop-blur-[2px]">
+                <p class="font-mono text-[0.72rem] uppercase tracking-[0.2em] text-secondary">
+                  Run Diagnostics
+                </p>
+                <div
+                  class={`mt-4 inline-flex rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${getJobConclusionClasses(
+                    selectedRunDiagnostics.job.conclusion,
+                    selectedRunDiagnostics.job.status
+                  )}`}
+                >
+                  {selectedRunDiagnostics.job.status === "completed"
+                    ? selectedRunDiagnostics.job.conclusion ?? "unknown"
+                    : selectedRunDiagnostics.job.status}
+                </div>
+                <p class="mt-4 text-sm leading-7 text-textColor/80">
+                  Job name: <span class="font-semibold text-titleColor">{selectedRunDiagnostics.job.name}</span>
+                </p>
+                <p class="mt-2 text-sm leading-7 text-textColor/80">
+                  Started: {formatTimestamp(selectedRunDiagnostics.job.startedAt)}
+                </p>
+                <p class="mt-2 text-sm leading-7 text-textColor/80">
+                  Finished: {selectedRunDiagnostics.job.completedAt
+                    ? formatTimestamp(selectedRunDiagnostics.job.completedAt)
+                    : "Still running"}
+                </p>
+                <a
+                  href={selectedRunDiagnostics.job.htmlUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  class="mt-4 inline-flex text-sm font-semibold text-secondary underline underline-offset-4"
+                >
+                  Open job on GitHub
+                </a>
+              </div>
+
+              <div class="rounded-[2rem] border border-secondary/15 bg-white/55 px-6 py-6 shadow-sm backdrop-blur-[2px]">
+                <p class="font-mono text-[0.72rem] uppercase tracking-[0.2em] text-secondary">
+                  Playwright Summary
+                </p>
+                {selectedRunDiagnostics.logSummary ? (
+                  <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    <div class="rounded-2xl border border-green/20 bg-green/5 px-4 py-3">
+                      <p class="text-[0.68rem] uppercase tracking-[0.16em] text-green">Passed</p>
+                      <p class="mt-2 text-2xl font-bold text-titleColor">
+                        {selectedRunDiagnostics.logSummary.passedCount}
+                      </p>
+                    </div>
+                    <div class="rounded-2xl border border-red/20 bg-red/5 px-4 py-3">
+                      <p class="text-[0.68rem] uppercase tracking-[0.16em] text-red">Failed</p>
+                      <p class="mt-2 text-2xl font-bold text-titleColor">
+                        {selectedRunDiagnostics.logSummary.failedCount}
+                      </p>
+                    </div>
+                    <div class="rounded-2xl border border-secondary/20 bg-secondary/10 px-4 py-3">
+                      <p class="text-[0.68rem] uppercase tracking-[0.16em] text-secondary">Flaky</p>
+                      <p class="mt-2 text-2xl font-bold text-titleColor">
+                        {selectedRunDiagnostics.logSummary.flakyCount}
+                      </p>
+                    </div>
+                    <div class="rounded-2xl border border-secondary/20 bg-secondary/10 px-4 py-3">
+                      <p class="text-[0.68rem] uppercase tracking-[0.16em] text-secondary">Skipped</p>
+                      <p class="mt-2 text-2xl font-bold text-titleColor">
+                        {selectedRunDiagnostics.logSummary.skippedCount}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <p class="mt-4 text-sm leading-7 text-textColor/80">
+                    Detailed log parsing was not available for the latest run.
+                  </p>
+                )}
+              </div>
+            </div>
+          ) : null}
+
+          {selectedRunDiagnostics?.job?.steps.length ? (
+            <div class="rounded-[2rem] border border-secondary/15 bg-white/55 px-6 py-6 shadow-sm backdrop-blur-[2px]">
+              <p class="font-mono text-[0.72rem] uppercase tracking-[0.2em] text-secondary">
+                Job Steps
+              </p>
+              <div class="mt-4 grid gap-3 md:grid-cols-2">
+                {selectedRunDiagnostics.job.steps.map((step) => (
+                  <div class="rounded-2xl border border-secondary/15 bg-fgColor/70 px-4 py-4">
+                    <div
+                      class={`inline-flex rounded-full border px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.16em] ${getJobConclusionClasses(
+                        step.conclusion,
+                        step.status
+                      )}`}
+                    >
+                      {getStepStatusLabel(step.conclusion, step.status)}
+                    </div>
+                    <p class="mt-3 font-semibold text-titleColor">{step.name}</p>
+                    <p class="mt-1 text-xs uppercase tracking-[0.16em] text-textColor/50">
+                      Step {step.number}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {selectedRunDiagnostics?.artifacts.length ? (
+            <div class="rounded-[2rem] border border-secondary/15 bg-white/55 px-6 py-6 shadow-sm backdrop-blur-[2px]">
+              <p class="font-mono text-[0.72rem] uppercase tracking-[0.2em] text-secondary">
+                Run Artifacts
+              </p>
+              <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                {selectedRunDiagnostics.artifacts.map((artifact) => (
+                  <div class="rounded-2xl border border-secondary/15 bg-fgColor/70 px-4 py-4">
+                    <p class="font-semibold text-titleColor">{artifact.name}</p>
+                    <p class="mt-2 text-sm text-textColor/70">
+                      {formatBytes(artifact.sizeInBytes)} · updated {formatTimestamp(artifact.updatedAt)}
+                    </p>
+                    <p class="mt-1 text-xs uppercase tracking-[0.16em] text-textColor/50">
+                      {artifact.expired ? "expired" : "available"}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {selectedRunDiagnostics?.logSummary &&
+          (selectedRunDiagnostics.logSummary.failedTests.length > 0 ||
+            selectedRunDiagnostics.logSummary.flakyTests.length > 0) ? (
+            <div class="grid gap-4 md:grid-cols-2">
+              <div class="rounded-[2rem] border border-red/15 bg-white/55 px-6 py-6 shadow-sm backdrop-blur-[2px]">
+                <p class="font-mono text-[0.72rem] uppercase tracking-[0.2em] text-red">
+                  Failed Tests
+                </p>
+                {selectedRunDiagnostics.logSummary.failedTests.length > 0 ? (
+                  <ul class="mt-4 space-y-3 text-sm leading-7 text-textColor/85">
+                    {selectedRunDiagnostics.logSummary.failedTests.map((testName) => (
+                      <li class="rounded-2xl border border-red/10 bg-red/5 px-4 py-3">
+                        <code class="whitespace-pre-wrap break-words text-[0.82rem]">
+                          {testName}
+                        </code>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p class="mt-4 text-sm leading-7 text-textColor/70">
+                    No failed tests in the latest run.
+                  </p>
+                )}
+              </div>
+
+              <div class="rounded-[2rem] border border-secondary/15 bg-white/55 px-6 py-6 shadow-sm backdrop-blur-[2px]">
+                <p class="font-mono text-[0.72rem] uppercase tracking-[0.2em] text-secondary">
+                  Flaky Tests
+                </p>
+                {selectedRunDiagnostics.logSummary.flakyTests.length > 0 ? (
+                  <ul class="mt-4 space-y-3 text-sm leading-7 text-textColor/85">
+                    {selectedRunDiagnostics.logSummary.flakyTests.map((testName) => (
+                      <li class="rounded-2xl border border-secondary/15 bg-secondary/5 px-4 py-3">
+                        <code class="whitespace-pre-wrap break-words text-[0.82rem]">
+                          {testName}
+                        </code>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p class="mt-4 text-sm leading-7 text-textColor/70">
+                    No flaky tests in the latest run.
+                  </p>
+                )}
+              </div>
+            </div>
           ) : null}
 
           <div class="rounded-[2rem] border border-secondary/15 bg-white/55 px-4 py-4 shadow-sm backdrop-blur-[2px] sm:px-6">
@@ -241,12 +647,18 @@ if (isAuthenticated) {
                     <th class="px-3 py-2">Event</th>
                     <th class="px-3 py-2">Started</th>
                     <th class="px-3 py-2">Duration</th>
-                    <th class="px-3 py-2">Link</th>
+                    <th class="px-3 py-2">Links</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {runs.map((run) => (
-                    <tr class="rounded-2xl bg-fgColor/70 text-sm text-textColor">
+                  {selectedSuiteData?.runs.map((run) => (
+                    <tr
+                      class={`rounded-2xl text-sm text-textColor ${
+                        selectedRun?.id === run.id
+                          ? "bg-secondary/10"
+                          : "bg-fgColor/70"
+                      }`}
+                    >
                       <td class="rounded-l-2xl px-3 py-3 align-top">
                         <p class="font-semibold text-titleColor">#{run.runNumber}</p>
                         <p class="mt-1 text-xs text-textColor/60">{run.displayTitle}</p>
@@ -267,6 +679,12 @@ if (isAuthenticated) {
                         {formatDuration(run.createdAt, run.updatedAt)}
                       </td>
                       <td class="rounded-r-2xl px-3 py-3 align-top">
+                        <a
+                          href={`/admin/tests?suite=${selectedSuiteKey}&run=${run.id}`}
+                          class="mr-4 font-semibold text-secondary underline underline-offset-4"
+                        >
+                          Inspect
+                        </a>
                         <a
                           href={run.htmlUrl}
                           target="_blank"
