@@ -19,7 +19,7 @@ test("contact submission enters ending mode and shows the delivered mail", async
     message: "Playwright says hi",
   });
 
-  await expect(page.getByText(/new email from ada lovelace/i)).toBeVisible({
+  await expect(page.getByText(/message from ada lovelace/i)).toBeVisible({
     timeout: 15_000,
   });
   await expect(page.getByText("Playwright says hi")).toBeVisible({

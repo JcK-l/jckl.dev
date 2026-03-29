@@ -97,17 +97,13 @@ describe("Puzzle", () => {
       vi.advanceTimersByTime(2000);
     });
 
-    expect(container.querySelector("rect")?.style.fill).toBe(
-      "var(--color-primary)"
-    );
-
-    act(() => {
-      vi.advanceTimersByTime(2000);
-    });
-
     await act(async () => {
       await Promise.resolve();
     });
+
+    expect(container.querySelector("rect")?.style.fill).toBe(
+      "var(--color-primary)"
+    );
 
     const video = container.querySelector("video") as HTMLVideoElement | null;
 
@@ -168,7 +164,7 @@ describe("Puzzle", () => {
     const { container, rerender } = render(<Puzzle />);
 
     act(() => {
-      vi.advanceTimersByTime(4000);
+      vi.advanceTimersByTime(2000);
     });
 
     await act(async () => {

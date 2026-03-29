@@ -37,10 +37,8 @@ describe("Email", () => {
       />
     );
 
-    expect(screen.getByText("New email from Ada Lovelace")).toBeTruthy();
-    expect(screen.getByText("A")).toBeTruthy();
-    expect(screen.getByText("Ada Lovelace")).toBeTruthy();
-    expect(screen.getAllByText("ada@example.com")).toHaveLength(2);
+    expect(screen.getByText("Message from Ada Lovelace")).toBeTruthy();
+    expect(screen.getAllByText("ada@example.com")).toHaveLength(1);
     expect(screen.getByText("mail@jckl.dev")).toBeTruthy();
     expect(screen.getAllByText(receivedDate)).toHaveLength(1);
     expect(
@@ -65,8 +63,6 @@ describe("Email", () => {
       />
     );
 
-    expect(screen.getByText("New email")).toBeTruthy();
-    expect(screen.getByText("?")).toBeTruthy();
-    expect(screen.getByText("Unknown sender")).toBeTruthy();
+    expect(screen.getByText("Incoming message")).toBeTruthy();
   });
 });

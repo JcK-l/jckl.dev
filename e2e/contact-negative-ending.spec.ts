@@ -20,7 +20,7 @@ test("negative D-Mail redirects the experience into the rollback timeline", asyn
     message: "This feels wrong somehow",
   });
 
-  await expect(page.getByText(/new email from marty mcfly/i)).toBeVisible({
+  await expect(page.getByText(/message from marty mcfly/i)).toBeVisible({
     timeout: 15_000,
   });
   await expect(page.getByText("This feels wrong somehow")).toBeVisible({

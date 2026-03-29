@@ -13,8 +13,9 @@ interface EmailProps {
 
 export const Email = ({ name, email, message, date, isMail }: EmailProps) => {
   const trimmedName = name.trim();
-  const subject = trimmedName ? `New email from ${trimmedName}` : "New email";
-  const senderInitial = trimmedName.charAt(0).toUpperCase() || "?";
+  const subject = trimmedName
+    ? `Message from ${trimmedName}`
+    : "Incoming message";
   const [inboxDate, setInboxDate] = useState("Today");
 
   useEffect(() => {
@@ -64,31 +65,9 @@ export const Email = ({ name, email, message, date, isMail }: EmailProps) => {
             </p>
           </div>
           <div
-            className="grid gap-4 border-b px-4 py-4 md:grid-cols-[minmax(0,12rem)_1fr]"
+            className="border-b px-4 py-4"
             style={{ borderColor: "var(--color-appliance-screen-border)" }}
           >
-            <div className="flex items-center gap-3">
-              <div
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border font-heading text-base font-bold uppercase"
-                style={{
-                  backgroundColor: "rgba(241,250,238,0.08)",
-                  borderColor: "rgba(241,250,238,0.22)",
-                }}
-              >
-                {senderInitial}
-              </div>
-              <div className="min-w-0">
-                <p className="font-sans text-[0.95rem] font-semibold leading-5">
-                  {trimmedName || "Unknown sender"}
-                </p>
-                <p
-                  className="break-all text-[0.68rem] tracking-[0.06em]"
-                  style={{ color: "var(--color-appliance-screen-muted)" }}
-                >
-                  {email}
-                </p>
-              </div>
-            </div>
             <dl className="grid gap-3 text-[0.72rem] leading-5 sm:grid-cols-3 sm:gap-4">
               <div>
                 <dt
@@ -97,7 +76,9 @@ export const Email = ({ name, email, message, date, isMail }: EmailProps) => {
                 >
                   From
                 </dt>
-                <dd className="mt-1 font-sans text-[0.85rem] leading-5">
+                <dd
+                  className="mt-1 break-all font-sans text-[0.85rem] leading-5"
+                >
                   {email}
                 </dd>
               </div>

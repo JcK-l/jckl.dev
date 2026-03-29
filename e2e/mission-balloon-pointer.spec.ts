@@ -31,7 +31,7 @@ test("a discovered ending balloon can be reopened with a real pointer click", as
   await page.mouse.click(hitPoint.x, hitPoint.y);
 
   await expect(
-    aboutSection.getByText(/new email from loop witness/i)
+    aboutSection.getByText(/message from loop witness/i)
   ).toBeVisible({
     timeout: 15_000,
   });

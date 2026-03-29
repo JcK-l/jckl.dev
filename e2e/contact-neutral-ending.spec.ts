@@ -20,7 +20,7 @@ test("neutral D-Mail keeps the relay in its cold-start state", async ({
     message: "Keep the line steady.",
   });
 
-  await expect(page.getByText(/new email from river song/i)).toBeVisible({
+  await expect(page.getByText(/message from river song/i)).toBeVisible({
     timeout: 15_000,
   });
   await expect(page.getByText("Keep the line steady.")).toBeVisible({

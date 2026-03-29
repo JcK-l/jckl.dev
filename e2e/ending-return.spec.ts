@@ -31,7 +31,7 @@ test("a completed ending can return to the original timeline and be reopened fro
   await page.keyboard.press("Enter");
 
   await expect(
-    aboutSection.getByText(/new email from loop witness/i)
+    aboutSection.getByText(/message from loop witness/i)
   ).toBeVisible({
     timeout: 15_000,
   });

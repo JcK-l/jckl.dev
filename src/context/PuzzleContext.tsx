@@ -1,14 +1,10 @@
-import { createContext, useRef, useState } from "react";
+import { createContext, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
-
-declare global {
-  interface Window {
-    __jcklE2EPuzzleState__?: {
-      lastPiece?: number;
-      totalPlacedPieces?: number;
-    };
-  }
-}
+import {
+  DEBUG_PUZZLE_STATE_EVENT,
+  getDebugPuzzleState,
+  syncDebugPuzzleState,
+} from "../utility/debugState";
 
 interface PuzzleContextType {
   lastPiece: number;
@@ -25,21 +21,19 @@ export const PuzzleContext = createContext<PuzzleContextType | undefined>(undefi
 
 const getInitialPuzzleState = () => {
   if (typeof window === "undefined") {
-    return {
-      lastPiece: 0,
-      totalPlacedPieces: 0,
-    };
+    return getDebugPuzzleState();
   }
 
   const params = new URLSearchParams(window.location.search);
   const isEndingReturnReadySeed =
     params.get("e2e-seed") === "ending-return-ready";
 
+  const debugPuzzleState = getDebugPuzzleState();
+
   return {
-    lastPiece: window.__jcklE2EPuzzleState__?.lastPiece ?? 0,
+    lastPiece: debugPuzzleState.lastPiece,
     totalPlacedPieces:
-      window.__jcklE2EPuzzleState__?.totalPlacedPieces ??
-      (isEndingReturnReadySeed ? 16 : 0),
+      debugPuzzleState.totalPlacedPieces ?? (isEndingReturnReadySeed ? 16 : 0),
   };
 };
 
@@ -49,6 +43,31 @@ export const PuzzleProvider = ({ children }: PuzzleProviderProps) => {
   const [totalPlacedPieces, setTotalPlacedPieces] = useState(
     initialStateRef.current.totalPlacedPieces
   );
+
+  useEffect(() => {
+    const syncFromDebugState = (event: Event) => {
+      const nextPuzzleState =
+        event instanceof CustomEvent
+          ? (event.detail as ReturnType<typeof getDebugPuzzleState>)
+          : getDebugPuzzleState();
+
+      setLastPiece(nextPuzzleState.lastPiece);
+      setTotalPlacedPieces(nextPuzzleState.totalPlacedPieces);
+    };
+
+    window.addEventListener(DEBUG_PUZZLE_STATE_EVENT, syncFromDebugState);
+
+    return () => {
+      window.removeEventListener(DEBUG_PUZZLE_STATE_EVENT, syncFromDebugState);
+    };
+  }, []);
+
+  useEffect(() => {
+    syncDebugPuzzleState({
+      lastPiece,
+      totalPlacedPieces,
+    });
+  }, [lastPiece, totalPlacedPieces]);
 
   return (
     <PuzzleContext.Provider

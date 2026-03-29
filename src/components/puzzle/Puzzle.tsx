@@ -44,7 +44,6 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
   const [videoHeight, setVideoHeight] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
   const [isVideoVisible, setIsVideoVisible] = useState(false);
-  const [shouldPlayVideo, setShouldPlayVideo] = useState(false);
   const { totalPlacedPieces } = usePuzzleContext();
   const selectedSentiment = endingState.selectedSentiment;
   const hasSettledVideo =
@@ -77,31 +76,25 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
     if (totalPlacedPieces !== COMPLETED_PIECE_COUNT) {
       setIsCompleted(false);
       setIsVideoVisible(false);
-      setShouldPlayVideo(false);
       return;
     }
 
     if (hasSettledVideo) {
       setIsCompleted(true);
       setIsVideoVisible(true);
-      setShouldPlayVideo(false);
       return;
     }
 
+    setIsCompleted(false);
     setIsVideoVisible(false);
-    setShouldPlayVideo(false);
 
     const completionTimeout = window.setTimeout(() => {
       setIsCompleted(true);
-    }, COMPLETION_DELAY_MS);
-
-    const videoRevealTimeout = window.setTimeout(() => {
       setIsVideoVisible(true);
-    }, COMPLETION_DELAY_MS + FALL_ANIMATION_DURATION_MS);
+    }, COMPLETION_DELAY_MS);
 
     return () => {
       window.clearTimeout(completionTimeout);
-      window.clearTimeout(videoRevealTimeout);
     };
   }, [hasSettledVideo, totalPlacedPieces]);
 
@@ -136,7 +129,7 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
   useEffect(() => {
     const video = videoRef.current;
 
-    if (!video || !isVideoVisible || hasSettledVideo || !shouldPlayVideo) {
+    if (!video || !isVideoVisible || hasSettledVideo) {
       return;
     }
 
@@ -157,15 +150,7 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
     return () => {
       video.removeEventListener("loadeddata", playVideo);
     };
-  }, [hasSettledVideo, isVideoVisible, selectedVideoSrc, shouldPlayVideo]);
-
-  const handleVideoFadeComplete = () => {
-    if (hasSettledVideo || shouldPlayVideo) {
-      return;
-    }
-
-    setShouldPlayVideo(true);
-  };
+  }, [hasSettledVideo, isVideoVisible, selectedVideoSrc]);
 
   const handleVideoEnded = () => {
     const video = videoRef.current;
@@ -229,7 +214,6 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
           playsInline
           preload="auto"
           src={selectedVideoSrc}
-          onAnimationComplete={handleVideoFadeComplete}
           onEnded={handleVideoEnded}
         />
       ) : null}
