@@ -15,7 +15,7 @@ export const ApplianceShell = ({
 }) => {
   const shellStyle = {
     "--appliance-shell-radius": radius,
-    backgroundColor: "var(--color-appliance-shell-top)",
+    backgroundColor: "var(--color-appliance-shell-surface)",
     borderColor: "var(--color-appliance-shell-border)",
     ...style,
   } as CSSProperties;

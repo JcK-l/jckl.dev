@@ -34,19 +34,14 @@ export const PuzzleSignalBoard = ({
   return (
     <ApplianceShell className="mb-4 p-3">
       <div className="relative p-3">
-        <div className="mb-3 flex items-start justify-between gap-3">
-          <div>
-            <p
-              className="text-[10px] uppercase tracking-[0.24em]"
-              style={{ color: "var(--color-appliance-label)" }}
-            >
-              Signal Board
-            </p>
-            <p className="mt-1 text-[0.72rem] tracking-[0.08em] text-primary">
+        <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="appliance-panel-heading">
+            <p className="appliance-panel-eyebrow">Signal Board</p>
+            <p className="appliance-header-subtitle mt-1">
               piece routing
             </p>
           </div>
-          <div className="flex gap-3">
+          <div className="grid grid-cols-4 gap-x-2 gap-y-2 sm:min-w-[18rem] sm:gap-x-3">
             {puzzleGroups.map((group) => {
               const isOn =
                 dispensedGroups[group.key] || hasBit(binaryState, group.flag);
@@ -54,7 +49,7 @@ export const PuzzleSignalBoard = ({
               return (
                 <div
                   key={group.key}
-                  className="flex flex-col items-center gap-1"
+                  className="flex min-w-0 flex-col items-center gap-1 text-center"
                 >
                   <span className="relative flex h-3 w-3">
                     <span
@@ -69,7 +64,7 @@ export const PuzzleSignalBoard = ({
                     ></span>
                   </span>
                   <span
-                    className="text-[10px] uppercase tracking-[0.18em]"
+                    className="max-w-full text-[9px] uppercase leading-[1.25] tracking-[0.14em] sm:text-[10px] sm:tracking-[0.18em]"
                     style={{ color: "var(--color-appliance-label)" }}
                   >
                     {group.lightLabel}
@@ -96,9 +91,26 @@ export const PuzzleSignalBoard = ({
               </button>{" "}
             </p>
           ) : (
-            <p className="text-[0.72rem] tracking-[0.08em]">
-              {nextHint}
-            </p>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <span
+                className="inline-flex rounded-full border px-2.5 py-1 font-appliance text-[0.55rem] uppercase tracking-[0.2em]"
+                style={{
+                  backgroundColor: "var(--color-appliance-screen-bg)",
+                  borderColor: "var(--color-appliance-screen-accent-bg)",
+                  color: "var(--color-appliance-screen-accent-bg)",
+                }}
+              >
+                Next hint
+              </span>
+              <span
+                aria-hidden="true"
+                className="block h-px w-full sm:h-5 sm:w-px"
+                style={{ backgroundColor: "rgba(241,250,238,0.18)" }}
+              />
+              <p className="flex-1 text-[0.72rem] leading-6 tracking-[0.08em] text-center sm:text-left">
+                {nextHint}
+              </p>
+            </div>
           )}
         </ApplianceTerminal>
       </div>

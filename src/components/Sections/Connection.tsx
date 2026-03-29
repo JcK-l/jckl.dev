@@ -44,19 +44,12 @@ const ConnectionStatusPanel = ({
     showHighlight
   >
     <div
-      className="flex items-start gap-4 border-b pb-4"
+      className="appliance-panel-header"
       style={{ borderColor: "var(--color-appliance-shell-border)" }}
     >
-      <div className="space-y-1.5">
-        <p
-          className="text-[0.56rem] uppercase tracking-[0.3em]"
-          style={{ color: "var(--color-appliance-label)" }}
-        >
-          future gadget no. 8
-        </p>
-        <p className="text-[0.86rem] tracking-[0.08em] text-[var(--color-primary)] sm:text-[0.98rem]">
-          PhoneWave (name subject to change)
-        </p>
+      <div className="appliance-panel-heading">
+        <p className="appliance-panel-eyebrow">future gadget no. 8</p>
+        <p className="appliance-header-subtitle">PhoneWave (name subject to change)</p>
       </div>
     </div>
     <div className="mt-5">
@@ -73,7 +66,7 @@ const ConnectionStatusPanel = ({
               line.tone === "muted"
                 ? "text-[var(--color-appliance-screen-muted)]"
                 : line.tone === "warning"
-                ? "text-[var(--color-baloon1)]"
+                ? "text-[var(--color-appliance-screen-failure)]"
                 : "text-[var(--color-appliance-screen-text)]"
             }`}
           >

@@ -25,7 +25,7 @@ export const ThemeDebugToggle = () => {
         cycleDebugTheme();
       }}
       style={{
-        backgroundColor: "var(--color-appliance-control-panel-top)",
+        backgroundColor: "var(--color-appliance-control-surface)",
         borderColor: "var(--color-appliance-panel-border)",
         color: "var(--color-primary)",
       }}

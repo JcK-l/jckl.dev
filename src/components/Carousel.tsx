@@ -125,7 +125,7 @@ export const Carousel = ({
       <div
         className="pointer-events-none absolute bottom-3 right-3 z-20 rounded-full border px-2.5 py-1 font-appliance text-[0.55rem] uppercase tracking-[0.18em]"
         style={{
-          backgroundColor: "var(--color-appliance-control-panel-top)",
+          backgroundColor: "var(--color-appliance-control-surface)",
           borderColor: "var(--color-appliance-panel-border)",
           color: "var(--color-appliance-label)",
         }}

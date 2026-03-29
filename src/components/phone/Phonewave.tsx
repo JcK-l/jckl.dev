@@ -190,22 +190,12 @@ export const Phonewave = ({
       radius="2rem"
     >
       <div
-        className="flex items-start justify-between gap-4 border-b pb-4"
+        className="appliance-panel-header"
         style={{ borderColor: "var(--color-appliance-shell-border)" }}
       >
-        <div className="space-y-1.5">
-          <p
-            className="text-[0.56rem] uppercase tracking-[0.3em]"
-            style={{ color: "var(--color-appliance-label)" }}
-          >
-            future gadget no. 8
-          </p>
-          <p
-            className="text-[0.86rem] tracking-[0.08em] sm:text-[0.98rem]"
-            style={{ color: "var(--color-appliance-label-soft)" }}
-          >
-            PhoneWave (name subject to change)
-          </p>
+        <div className="appliance-panel-heading">
+          <p className="appliance-panel-eyebrow">future gadget no. 8</p>
+          <p className="appliance-header-subtitle">PhoneWave (name subject to change)</p>
         </div>
       </div>
       <div className="mt-5 grid flex-1 gap-4 lg:grid-cols-[minmax(0,1fr)_17.25rem] lg:gap-5">

@@ -18,8 +18,8 @@ export const ApplianceInsetPanel = ({
       className={`relative overflow-hidden rounded-[1.1rem] border ${className}`}
       style={
         {
-          backgroundColor: "var(--color-appliance-control-panel-top)",
-          borderColor: "var(--color-appliance-control-panel-border)",
+          backgroundColor: "var(--color-appliance-control-surface)",
+          borderColor: "var(--color-appliance-control-border)",
         } as CSSProperties
       }
     >

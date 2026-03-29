@@ -98,10 +98,10 @@ export const PhonewaveTimerControls = ({
                   style={{
                     backgroundColor: isSelected
                       ? statusColor
-                      : "var(--color-appliance-control-panel-bottom)",
+                      : "var(--color-appliance-control-surface)",
                     borderColor: isSelected
                       ? statusColor
-                      : "var(--color-appliance-control-panel-border)",
+                      : "var(--color-appliance-control-border)",
                     boxShadow: isSelected
                       ? "inset 0 1px 0 rgba(255,255,255,0.22)"
                       : "inset 0 1px 0 rgba(255,255,255,0.58)",
@@ -141,9 +141,8 @@ export const PhonewaveTimerControls = ({
               className="rounded-[1rem] border px-0 py-3 tabular-nums text-[1rem] uppercase tracking-[0.18em] text-[var(--color-primary)] transition active:translate-y-[1px]"
               onClick={() => onDigit(digit)}
               style={{
-                background:
-                  "linear-gradient(180deg, var(--color-appliance-control-button-top), var(--color-appliance-control-button-bottom))",
-                borderColor: "var(--color-appliance-control-button-border)",
+                backgroundColor: "var(--color-appliance-button-surface)",
+                borderColor: "var(--color-appliance-button-border)",
                 boxShadow: "inset 0 1px 0 rgba(255,255,255,0.55)",
               }}
             >
@@ -155,9 +154,8 @@ export const PhonewaveTimerControls = ({
             className="rounded-[1rem] border px-0 py-3 text-[0.7rem] uppercase tracking-[0.22em] text-[var(--color-baloon1)] transition active:translate-y-[1px]"
             onClick={onBack}
             style={{
-              background:
-                "linear-gradient(180deg, var(--color-appliance-control-danger-top), var(--color-appliance-control-danger-bottom))",
-              borderColor: "var(--color-appliance-control-danger-border)",
+              backgroundColor: "var(--color-appliance-danger-surface)",
+              borderColor: "var(--color-appliance-danger-border)",
               boxShadow: "inset 0 1px 0 rgba(255,255,255,0.45)",
             }}
           >
@@ -168,9 +166,8 @@ export const PhonewaveTimerControls = ({
             className="rounded-[1rem] border px-0 py-3 tabular-nums text-[1rem] uppercase tracking-[0.18em] text-[var(--color-primary)] transition active:translate-y-[1px]"
             onClick={() => onDigit("0")}
             style={{
-              background:
-                "linear-gradient(180deg, var(--color-appliance-control-button-top), var(--color-appliance-control-button-bottom))",
-              borderColor: "var(--color-appliance-control-button-border)",
+              backgroundColor: "var(--color-appliance-button-surface)",
+              borderColor: "var(--color-appliance-button-border)",
               boxShadow: "inset 0 1px 0 rgba(255,255,255,0.55)",
             }}
           >

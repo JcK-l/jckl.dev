@@ -45,13 +45,11 @@ describe("AboutProfileDeck", () => {
   it("shows the locked archive state before any profile module is unlocked", () => {
     render(<AboutProfileDeck />);
 
-    expect(screen.getByText("Archive warming")).toBeTruthy();
     expect(
       screen.getByText("Place 04 pieces to bring the first profile module online.")
     ).toBeTruthy();
     expect(screen.getByText("next unlock 04")).toBeTruthy();
     expect(screen.getByText("Profile archive is warming up.")).toBeTruthy();
-    expect(screen.getByText("Newest note pinned")).toBeTruthy();
     expect(screen.getAllByRole("button", { name: /open about card/i }).length).toBe(
       1
     );
@@ -62,9 +60,10 @@ describe("AboutProfileDeck", () => {
 
     render(<AboutProfileDeck />);
 
-    expect(screen.getByText("2 of 3 online")).toBeTruthy();
+    expect(
+      screen.getByText("Swipe through unlocked notes or keep assembling pieces to reach 12.")
+    ).toBeTruthy();
     expect(screen.getByText("next unlock 12")).toBeTruthy();
-    expect(screen.getByText(/Drag or swipe through 2 unlocked notes/i)).toBeTruthy();
     expect(screen.getByText("Pattern matching keeps me hooked.")).toBeTruthy();
     expect(screen.getByText("Music is how I clear the buffer.")).toBeTruthy();
 
@@ -89,10 +88,9 @@ describe("AboutProfileDeck", () => {
 
     render(<AboutProfileDeck />);
 
-    expect(screen.getByText("All modules online")).toBeTruthy();
     expect(
       screen.getByText(
-        "All profile modules are online. Swipe back through the stack or finish the puzzle to close the loop."
+        "All profile modules are online. Swipe through the stack or finish the puzzle to close the loop."
       )
     ).toBeTruthy();
     expect(screen.getByText("next unlock complete")).toBeTruthy();

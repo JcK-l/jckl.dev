@@ -30,27 +30,14 @@ const Projects = () => {
       <div className="flex flex-col gap-6">
         <ApplianceShell className="w-full px-5 py-5 md:px-7" radius="1.6rem">
           <div
-            className="flex items-start justify-between gap-4 border-b pb-4"
+            className="appliance-panel-header"
             style={{ borderColor: "var(--color-appliance-shell-border)" }}
           >
-            <div className="space-y-1.5">
-              <p
-                className="text-[0.56rem] uppercase tracking-[0.3em]"
-                style={{ color: "var(--color-appliance-label)" }}
-              >
-                Project Selector
-              </p>
-              <p
-                className="text-[0.86rem] tracking-[0.08em] sm:text-[0.98rem]"
-                style={{ color: "var(--color-appliance-label-soft)" }}
-              >
-                appliance routing
-              </p>
+            <div className="appliance-panel-heading">
+              <p className="appliance-panel-eyebrow">Project Selector</p>
+              <p className="appliance-header-subtitle">appliance routing</p>
             </div>
-            <p
-              className="font-appliance text-[0.58rem] uppercase tracking-[0.22em]"
-              style={{ color: "var(--color-appliance-label)" }}
-            >
+            <p className="appliance-panel-chip-muted">
               {activeProject
                 ? `${activeProject.id.toString().padStart(2, "0")} active`
                 : "standby"}

@@ -103,7 +103,7 @@ describe("PhonewaveScreen", () => {
     expect(typingLine.textContent).toBe("[result] line rejected");
     expect(typingLine.getAttribute("data-on-complete-delay")).toBe("180");
     expect(typingLine.getAttribute("data-class-name")).toContain(
-      "text-[var(--color-baloon1)]"
+      "text-[var(--color-appliance-screen-failure)]"
     );
 
     fireEvent.click(typingLine);

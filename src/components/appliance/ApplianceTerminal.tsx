@@ -29,12 +29,12 @@ export const ApplianceTerminal = ({
       />
       {headerLabel || headerMeta ? (
         <div
-          className="relative mb-4 flex items-center justify-between gap-3 border-b pb-3 font-appliance"
+          className="relative mb-3.5 flex flex-col gap-2 border-b pb-3 font-appliance sm:flex-row sm:items-center sm:justify-between"
           style={{ borderColor: "var(--color-appliance-screen-border)" }}
         >
           {headerLabel ? (
             <p
-              className="text-[0.55rem] uppercase tracking-[0.24em]"
+              className="min-w-0 text-[0.56rem] uppercase leading-4 tracking-[0.24em]"
               style={{ color: "var(--color-appliance-screen-muted)" }}
             >
               {headerLabel}
@@ -44,7 +44,7 @@ export const ApplianceTerminal = ({
           )}
           {headerMeta ? (
             <p
-              className="text-[0.55rem] tracking-[0.1em]"
+              className="break-words text-[0.56rem] leading-4 tracking-[0.12em] sm:text-right"
               style={{ color: "var(--color-appliance-screen-muted)" }}
             >
               {headerMeta}
@@ -53,7 +53,7 @@ export const ApplianceTerminal = ({
         </div>
       ) : null}
       <div
-        className={`relative font-appliance tabular-nums ${bodyClassName}`}
+        className={`relative font-appliance tabular-nums leading-6 ${bodyClassName}`}
         style={{ color: "var(--color-appliance-screen-text)" }}
       >
         {children}

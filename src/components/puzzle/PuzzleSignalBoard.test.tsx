@@ -65,6 +65,7 @@ describe("PuzzleSignalBoard", () => {
       />
     );
 
+    expect(screen.getByText("Next hint")).toBeTruthy();
     expect(screen.getByText("Look up. The pattern was always there.")).toBeTruthy();
 
     const connectionLabel = screen.getByText("Connection");

@@ -32,26 +32,14 @@ export const Email = ({ name, email, message, date, isMail }: EmailProps) => {
   return (
     <ApplianceShell className="relative w-full p-3" showHighlight>
       <div className="p-3">
-        <div className="mb-3 flex items-start justify-between gap-3">
-          <div>
-            <p
-              className="text-[10px] uppercase tracking-[0.24em]"
-              style={{ color: "var(--color-appliance-label)" }}
-            >
-              Mail Viewer
-            </p>
-            <p className="mt-1 text-[0.72rem] tracking-[0.08em] text-primary">
+        <div className="appliance-panel-header mb-3">
+          <div className="appliance-panel-heading">
+            <p className="appliance-panel-eyebrow">Mail Viewer</p>
+            <p className="appliance-header-subtitle mt-1">
               incoming correspondence
             </p>
           </div>
-          <span
-            className="rounded-full border px-3 py-1 font-appliance text-[0.55rem] uppercase tracking-[0.2em]"
-            style={{
-              backgroundColor: "var(--color-appliance-control-panel-top)",
-              borderColor: "var(--color-appliance-panel-border)",
-              color: "var(--color-primary)",
-            }}
-          >
+          <span className="appliance-panel-chip" style={{ color: "var(--color-primary)" }}>
             Read
           </span>
         </div>

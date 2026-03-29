@@ -39,32 +39,15 @@ export const ProjectText = ({
   return (
     <ApplianceShell className="w-full px-5 py-5 md:px-7" radius="1.75rem">
       <div
-        className="flex items-start justify-between gap-4 border-b pb-4"
+        className="appliance-panel-header"
         style={{ borderColor: "var(--color-appliance-shell-border)" }}
       >
-        <div className="space-y-1.5">
-          <p
-            className="text-[0.56rem] uppercase tracking-[0.3em]"
-            style={{ color: "var(--color-appliance-label)" }}
-          >
-            Project Module {projectLabel}
-          </p>
-          <p
-            className="text-[0.86rem] tracking-[0.08em] sm:text-[0.98rem]"
-            style={{ color: "var(--color-appliance-label-soft)" }}
-          >
-            active build archive
-          </p>
+        <div className="appliance-panel-heading">
+          <p className="appliance-panel-eyebrow">Project Module {projectLabel}</p>
+          <p className="appliance-header-subtitle">active build archive</p>
         </div>
-        <div className="flex shrink-0 items-center gap-3">
-          <span
-            className="rounded-full border px-3 py-1 font-appliance text-[0.55rem] uppercase tracking-[0.2em]"
-            style={{
-              backgroundColor: "var(--color-appliance-control-panel-top)",
-              borderColor: "var(--color-appliance-panel-border)",
-              color: "var(--color-appliance-label)",
-            }}
-          >
+        <div className="appliance-panel-chip-group">
+          <span className="appliance-panel-chip">
             {projectLabel} / {totalLabel}
           </span>
           <span className="flex items-center gap-2">

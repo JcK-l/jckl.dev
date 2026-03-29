@@ -74,7 +74,6 @@ const getStatusCopy = (unlockedCount: number, nextModule?: AboutModule) => {
 
   if (unlockedCount === 0) {
     return {
-      label: "Archive warming",
       message: "Place 04 pieces to bring the first profile module online.",
       meta: nextUnlockMeta,
     };
@@ -82,16 +81,14 @@ const getStatusCopy = (unlockedCount: number, nextModule?: AboutModule) => {
 
   if (!nextModule) {
     return {
-      label: "All modules online",
       message:
-        "All profile modules are online. Swipe back through the stack or finish the puzzle to close the loop.",
+        "All profile modules are online. Swipe through the stack or finish the puzzle to close the loop.",
       meta: nextUnlockMeta,
     };
   }
 
   return {
-    label: `${unlockedCount} of ${ABOUT_MODULES.length} online`,
-    message: `The newest module is live. Swipe through unlocked notes or keep assembling pieces to reach ${formatCounter(
+    message: `Swipe through unlocked notes or keep assembling pieces to reach ${formatCounter(
       nextModule.range.min,
     )}.`,
     meta: nextUnlockMeta,
@@ -120,32 +117,15 @@ const AboutModuleCard = ({
   return (
     <ApplianceShell className="w-full px-5 py-5 md:px-7" radius="1.75rem">
       <div
-        className="flex items-start justify-between gap-4 border-b pb-4"
+        className="appliance-panel-header"
         style={{ borderColor: "var(--color-appliance-shell-border)" }}
       >
-        <div className="space-y-1.5">
-          <p
-            className="text-[0.56rem] uppercase tracking-[0.3em]"
-            style={{ color: "var(--color-appliance-label)" }}
-          >
-            {code}
-          </p>
-          <p
-            className="text-[0.86rem] tracking-[0.08em] sm:text-[0.98rem]"
-            style={{ color: "var(--color-appliance-label-soft)" }}
-          >
-            personal archive
-          </p>
+        <div className="appliance-panel-heading">
+          <p className="appliance-panel-eyebrow">{code}</p>
+          <p className="appliance-header-subtitle">personal archive</p>
         </div>
-        <div className="flex shrink-0 items-center gap-3">
-          <span
-            className="rounded-full border px-3 py-1 font-appliance text-[0.55rem] uppercase tracking-[0.2em]"
-            style={{
-              backgroundColor: "var(--color-appliance-control-panel-top)",
-              borderColor: "var(--color-appliance-panel-border)",
-              color: "var(--color-appliance-label)",
-            }}
-          >
+        <div className="appliance-panel-chip-group">
+          <span className="appliance-panel-chip">
             {rangeLabel}
           </span>
           <span className="flex items-center gap-2">
@@ -318,24 +298,14 @@ export const AboutProfileDeck = () => {
     <div className="flex w-full flex-col gap-4">
       <ApplianceShell className="w-full px-5 py-5 md:px-7" radius="1.5rem">
         <div
-          className="flex items-start justify-between gap-4 border-b pb-4"
+          className="appliance-panel-header"
           style={{ borderColor: "var(--color-appliance-shell-border)" }}
         >
-          <div className="space-y-1.5">
-            <p
-              className="text-[0.56rem] uppercase tracking-[0.3em]"
-              style={{ color: "var(--color-appliance-label)" }}
-            >
-              Profile Archive
-            </p>
-            <p
-              className="text-[0.86rem] tracking-[0.08em] sm:text-[0.98rem]"
-              style={{ color: "var(--color-appliance-label-soft)" }}
-            >
-              appliance notes
-            </p>
+          <div className="appliance-panel-heading">
+            <p className="appliance-panel-eyebrow">Profile Archive</p>
+            <p className="appliance-header-subtitle">appliance notes</p>
           </div>
-          <div className="flex gap-2">
+          <div className="appliance-panel-chip-group">
             {ABOUT_MODULES.map((module) => {
               const isUnlocked = unlockedModules.some(
                 (unlockedModule) => unlockedModule.id === module.id,
@@ -365,13 +335,7 @@ export const AboutProfileDeck = () => {
 
         <div className="mt-5">
           <ApplianceInsetPanel className="px-4 py-4">
-            <div className="grid gap-3 md:grid-cols-[auto_minmax(0,1fr)_auto] md:items-center">
-              <p
-                className="font-appliance text-[0.58rem] uppercase tracking-[0.22em]"
-                style={{ color: "var(--color-appliance-label)" }}
-              >
-                {statusCopy.label}
-              </p>
+            <div className="flex flex-col gap-3 md:grid md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
               <p
                 className="font-appliance text-[0.72rem] leading-6"
                 style={{ color: "var(--color-appliance-label-soft)" }}
@@ -379,8 +343,7 @@ export const AboutProfileDeck = () => {
                 {statusCopy.message}
               </p>
               <p
-                className="font-appliance text-[0.58rem] uppercase tracking-[0.22em]"
-                style={{ color: "var(--color-appliance-label)" }}
+                className="appliance-panel-chip-muted"
               >
                 {statusCopy.meta}
               </p>
@@ -445,15 +408,7 @@ export const AboutProfileDeck = () => {
         </motion.div>
       </div>
 
-      <div className="mt-3 flex items-center justify-between gap-3 px-1">
-        <p
-          className="font-appliance text-[0.58rem] uppercase tracking-[0.22em]"
-          style={{ color: "var(--color-appliance-label)" }}
-        >
-          {visibleModules.length > 1
-            ? `Drag or swipe through ${visibleModules.length} unlocked notes`
-            : "Newest note pinned"}
-        </p>
+      <div className="mt-3 flex items-center justify-center gap-3 px-1">
         <div className="flex items-center gap-2">
           {visibleModules.map((module, index) => {
             const isActive = activeIndex === index;

@@ -10,8 +10,8 @@ export type PhonewaveLine = {
 
 const toneClassNames: Record<PhonewaveTone, string> = {
   neutral: "text-[var(--color-appliance-screen-text)]",
-  success: "text-[var(--color-green)]",
-  failure: "text-[var(--color-baloon1)]",
+  success: "text-[var(--color-appliance-screen-success)]",
+  failure: "font-semibold text-[var(--color-appliance-screen-failure)]",
   muted: "text-[var(--color-appliance-screen-muted)]",
 };
 
