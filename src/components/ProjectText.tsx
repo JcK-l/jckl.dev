@@ -51,7 +51,7 @@ export const ProjectText = ({
 
   return (
     <ApplianceShell
-      className={`w-full px-5 py-5 md:px-7 ${className}`}
+      className={`w-full px-4 py-5 sm:px-5 sm:py-5 md:px-7 ${className}`}
       radius="1.75rem"
     >
       <div className="flex flex-col">
@@ -83,7 +83,7 @@ export const ProjectText = ({
         </div>
 
         <div className={`${mobileNavigator ? "mt-1" : "mt-5"} flex flex-1 flex-col gap-3`}>
-          <ApplianceInsetPanel className="px-4 py-4 sm:px-5 sm:py-5">
+          <ApplianceInsetPanel className="px-3 py-4 sm:px-4 sm:py-4">
             <div className="mb-3 flex items-center justify-between gap-3">
               <p
                 className="font-appliance text-[0.56rem] uppercase tracking-[0.24em]"
@@ -120,7 +120,7 @@ export const ProjectText = ({
             onTouchStart={onMobileOverviewTouchStart}
             onTouchEnd={onMobileOverviewTouchEnd}
           >
-            <ApplianceInsetPanel className="flex flex-col px-4 py-4 sm:px-5 sm:py-5 md:min-h-[12.75rem]">
+            <ApplianceInsetPanel className="flex flex-col px-3 py-4 sm:px-4 sm:py-4 md:min-h-[12.75rem]">
               <p
                 className="font-appliance text-[0.56rem] uppercase tracking-[0.24em]"
                 style={{ color: "var(--color-appliance-label-soft)" }}

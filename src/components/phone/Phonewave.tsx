@@ -186,7 +186,7 @@ export const Phonewave = ({
 
   return (
     <ApplianceShell
-      className={`mx-auto flex min-h-[24rem] w-full flex-col px-5 py-5 md:px-7 lg:h-full ${className}`}
+      className={`mx-auto flex min-h-[24rem] w-full flex-col px-4 py-4 sm:px-5 sm:py-5 md:px-7 lg:h-full ${className}`}
       radius="2rem"
     >
       <div
@@ -198,7 +198,7 @@ export const Phonewave = ({
           <p className="appliance-header-subtitle">PhoneWave (name subject to change)</p>
         </div>
       </div>
-      <div className="mt-5 grid flex-1 gap-4 lg:grid-cols-[minmax(0,1fr)_17.25rem] lg:gap-5">
+      <div className="mt-4 grid flex-1 gap-3 sm:mt-5 sm:gap-4 lg:grid-cols-[minmax(0,1fr)_17.25rem] lg:gap-5">
         <PhonewaveScreen
           animate={variant === "result"}
           className="lg:mr-1"

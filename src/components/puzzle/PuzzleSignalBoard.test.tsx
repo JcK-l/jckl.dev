@@ -65,8 +65,8 @@ describe("PuzzleSignalBoard", () => {
       />
     );
 
-    expect(screen.getByText("Next hint")).toBeTruthy();
-    expect(screen.getByText("Look up. The pattern was always there.")).toBeTruthy();
+    expect(screen.getByRole("button", { name: /next hint/i })).toBeTruthy();
+    expect(screen.queryByText("Look up. The pattern was always there.")).toBeNull();
 
     const connectionLabel = screen.getByText("Connection");
     const connectionLight = connectionLabel.parentElement?.querySelector(
@@ -75,5 +75,47 @@ describe("PuzzleSignalBoard", () => {
 
     expect(connectionLight).toBeTruthy();
     expect(connectionLight?.style.boxShadow).toContain("var(--color-extra2)");
+  });
+
+  it("reveals the next hint only after the button is pressed", () => {
+    render(
+      <PuzzleSignalBoard
+        binaryState={0}
+        dispensedGroups={createDispensedGroups()}
+        totalPlacedPieces={0}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /next hint/i }));
+
+    expect(screen.queryByRole("button", { name: /next hint/i })).toBeNull();
+    expect(screen.getByText("Look up. The pattern was always there.")).toBeTruthy();
+  });
+
+  it("resets the hint back to the button when the next hint changes", () => {
+    const { rerender } = render(
+      <PuzzleSignalBoard
+        binaryState={0}
+        dispensedGroups={createDispensedGroups()}
+        totalPlacedPieces={0}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /next hint/i }));
+    expect(screen.getByText("Look up. The pattern was always there.")).toBeTruthy();
+
+    rerender(
+      <PuzzleSignalBoard
+        binaryState={1 << GameStateFlags.FLAG_STARS_ALIGN}
+        dispensedGroups={createDispensedGroups()}
+        totalPlacedPieces={4}
+      />
+    );
+
+    expect(screen.getByRole("button", { name: /next hint/i })).toBeTruthy();
+    expect(screen.queryByText("Look up. The pattern was always there.")).toBeNull();
+    expect(
+      screen.queryByText("Something is out of place. Someone is still waiting on the handoff.")
+    ).toBeNull();
   });
 });

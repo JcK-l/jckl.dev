@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export const TypingText = ({
   className,
@@ -17,23 +17,30 @@ export const TypingText = ({
 }) => {
   const [displayedText, setDisplayedText] = useState("");
   const [index, setIndex] = useState(0);
+  const onCompleteRef = useRef(onComplete);
   const prefersReducedMotion =
     typeof window !== "undefined" &&
     typeof window.matchMedia === "function" &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
+
+  useEffect(() => {
     if (prefersReducedMotion) {
       setDisplayedText(text);
       setIndex(text.length);
 
-      const completeTimeout = setTimeout(onComplete, 0);
+      const completeTimeout = setTimeout(() => {
+        onCompleteRef.current();
+      }, 0);
       return () => clearTimeout(completeTimeout);
     }
 
     setDisplayedText("");
     setIndex(0);
-  }, [onComplete, prefersReducedMotion, text]);
+  }, [prefersReducedMotion, text]);
 
   useEffect(() => {
     if (prefersReducedMotion) {
@@ -55,12 +62,13 @@ export const TypingText = ({
       }, nextDelay);
       return () => clearTimeout(timeout);
     } else {
-      const completeTimeout = setTimeout(onComplete, onCompleteDelay); // Small delay before triggering onComplete
+      const completeTimeout = setTimeout(() => {
+        onCompleteRef.current();
+      }, onCompleteDelay);
       return () => clearTimeout(completeTimeout);
     }
   }, [
     index,
-    onComplete,
     onCompleteDelay,
     prefersReducedMotion,
     text,

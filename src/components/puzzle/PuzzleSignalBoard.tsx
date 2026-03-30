@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useStore } from "@nanostores/react";
 import {
   puzzleGroups,
@@ -30,11 +31,19 @@ export const PuzzleSignalBoard = ({
   const isPuzzleComplete = totalPlacedPieces >= totalPuzzlePieces;
   const showReturnToOriginal =
     isPuzzleComplete && isEndingActive(undefined, endingState);
+  const [isHintVisible, setIsHintVisible] = useState(false);
+
+  useEffect(() => {
+    setIsHintVisible(false);
+  }, [nextHint, showReturnToOriginal]);
 
   return (
     <ApplianceShell className="mb-4 p-3">
       <div className="relative p-3">
-        <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div
+          className="appliance-panel-header"
+          style={{ borderColor: "var(--color-appliance-shell-border)" }}
+        >
           <div className="appliance-panel-heading">
             <p className="appliance-panel-eyebrow">Signal Board</p>
             <p className="appliance-header-subtitle mt-1">
@@ -75,7 +84,8 @@ export const PuzzleSignalBoard = ({
           </div>
         </div>
         <ApplianceTerminal
-          className="rounded-[0.95rem] px-3 py-3"
+          className="mt-4 rounded-[0.95rem] px-3 py-3"
+          bodyClassName="flex min-h-[4.5rem] flex-col justify-center sm:min-h-[4rem]"
         >
           {showReturnToOriginal ? (
             <p className="text-[0.72rem] leading-6 tracking-[0.08em]">
@@ -90,26 +100,29 @@ export const PuzzleSignalBoard = ({
                 return
               </button>{" "}
             </p>
+          ) : isHintVisible ? (
+            <p
+              aria-live="polite"
+              className="text-[0.72rem] leading-6 tracking-[0.08em] text-center"
+            >
+              {nextHint}
+            </p>
           ) : (
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-              <span
-                className="inline-flex rounded-full border px-2.5 py-1 font-appliance text-[0.55rem] uppercase tracking-[0.2em]"
+            <div className="flex items-center justify-center">
+              <button
+                type="button"
+                className="focus:ring-white/60 inline-flex cursor-pointer items-center rounded-full border px-2.5 py-1 font-appliance text-[0.55rem] uppercase tracking-[0.2em] transition-[transform,opacity] duration-200 motion-safe:animate-pulse hover:motion-safe:animate-none focus:outline-none focus:ring-2 active:scale-[0.98]"
                 style={{
                   backgroundColor: "var(--color-appliance-screen-bg)",
                   borderColor: "var(--color-appliance-screen-accent-bg)",
                   color: "var(--color-appliance-screen-accent-bg)",
                 }}
+                onClick={() => {
+                  setIsHintVisible(true);
+                }}
               >
                 Next hint
-              </span>
-              <span
-                aria-hidden="true"
-                className="block h-px w-full sm:h-5 sm:w-px"
-                style={{ backgroundColor: "rgba(241,250,238,0.18)" }}
-              />
-              <p className="flex-1 text-[0.72rem] leading-6 tracking-[0.08em] text-center sm:text-left">
-                {nextHint}
-              </p>
+              </button>
             </div>
           )}
         </ApplianceTerminal>

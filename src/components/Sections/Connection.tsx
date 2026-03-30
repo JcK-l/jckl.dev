@@ -39,7 +39,7 @@ const ConnectionStatusPanel = ({
   lines: Array<{ tone?: "default" | "muted" | "warning"; value: string }>;
 }) => (
   <ApplianceShell
-    className="mx-auto w-full px-5 py-5 md:px-7"
+    className="mx-auto w-full px-4 py-4 sm:px-5 sm:py-5 md:px-7"
     radius="2rem"
     showHighlight
   >
@@ -98,13 +98,15 @@ const Connection = () => {
     GameStateFlags.FLAG_CONNECTION
   );
   const hasTriggeredTransferRef = useRef(hasConnectionUnlocked);
+  const connectionPanelVariant = isPositiveEndingActive
+    ? "hidden"
+    : isNegativeEndingActive
+    ? "negative"
+    : isNeutralEndingActive
+    ? "neutral"
+    : "phonewave";
 
   useEffect(() => {
-    const element = phonewaveRef.current;
-
-    if (!element) {
-      return;
-    }
     const updateReservedHeight = (nextHeight: number) => {
       const overlapAllowance =
         window.innerWidth < BREAKPOINTS.sm
@@ -131,6 +133,35 @@ const Connection = () => {
       );
     };
 
+    const measureHeight = () => {
+      const element = phonewaveRef.current;
+
+      if (!element) {
+        return;
+      }
+
+      const nextHeight = Math.max(
+        element.clientHeight,
+        Math.round(element.getBoundingClientRect().height)
+      );
+
+      if (nextHeight > 0) {
+        updateReservedHeight(nextHeight);
+      }
+    };
+
+    let frameId = 0;
+    let followUpFrameId = 0;
+    const scheduleMeasurement = () => {
+      window.cancelAnimationFrame(frameId);
+      window.cancelAnimationFrame(followUpFrameId);
+
+      frameId = window.requestAnimationFrame(() => {
+        measureHeight();
+        followUpFrameId = window.requestAnimationFrame(measureHeight);
+      });
+    };
+
     const resizeObserver = new ResizeObserver((entries) => {
       const entry = entries[0];
 
@@ -141,17 +172,26 @@ const Connection = () => {
       updateReservedHeight(entry.contentRect.height);
     });
     const handleResize = () => {
-      updateReservedHeight(element.clientHeight);
+      scheduleMeasurement();
     };
 
+    const element = phonewaveRef.current;
+
+    if (!element) {
+      return;
+    }
+
     resizeObserver.observe(element);
+    scheduleMeasurement();
     window.addEventListener("resize", handleResize);
 
     return () => {
+      window.cancelAnimationFrame(frameId);
+      window.cancelAnimationFrame(followUpFrameId);
       resizeObserver.disconnect();
       window.removeEventListener("resize", handleResize);
     };
-  }, []);
+  }, [connectionPanelVariant, mode]);
 
   useEffect(() => {
     const hasJustUnlocked =
@@ -196,13 +236,6 @@ const Connection = () => {
     pendingConnectionTransfer,
   ]);
 
-  const connectionPanelVariant = isPositiveEndingActive
-    ? "hidden"
-    : isNegativeEndingActive
-    ? "negative"
-    : isNeutralEndingActive
-    ? "neutral"
-    : "phonewave";
   const reservedPanelHeight =
     connectionPanelVariant === "hidden" ? 176 : reservedHeight;
   const middleLayerContent =
@@ -276,8 +309,9 @@ const Connection = () => {
       separatorOutMiddleLayer={
         middleLayerContent === null ? null : (
           <div
+            data-testid="connection-floating-panel"
             ref={phonewaveRef}
-            className="pointer-events-auto absolute bottom-[50%] left-1/2 w-[94%] max-w-[52rem] -translate-x-1/2 sm:bottom-[50%] sm:w-[88%] tablet:bottom-[50%] tablet:w-[82%] lg:bottom-[41%] lg:left-[63%] lg:w-[72%] xl:bottom-[47%] xl:left-[68%] xl:w-[65%] desk:bottom-[50%] desk:left-[69%] desk:w-[60%] desk-l:bottom-[53%] desk-l:left-[72%] desk-l:w-[56%] desk-xl:bottom-[8%] desk-xl:left-[62%] desk-xl:w-[52%]"
+            className="pointer-events-auto absolute bottom-[50%] left-1/2 w-[95.5%] max-w-[52rem] -translate-x-1/2 sm:bottom-[50%] sm:w-[88%] tablet:bottom-[50%] tablet:w-[82%] lg:bottom-[41%] lg:left-[63%] lg:w-[72%] xl:bottom-[47%] xl:left-[68%] xl:w-[65%] desk:bottom-[50%] desk:left-[69%] desk:w-[60%] desk-l:bottom-[53%] desk-l:left-[72%] desk-l:w-[56%] desk-xl:bottom-[8%] desk-xl:left-[62%] desk-xl:w-[52%]"
             style={{ maxWidth: "min(52rem, calc(100vw - 1rem))" }}
           >
             {middleLayerContent}

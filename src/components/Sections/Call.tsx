@@ -26,7 +26,7 @@ const ResultBlock = ({
   title?: string;
   children: ReactNode;
 }) => (
-  <div className="bg-white/40 rounded-[2rem] p-5 md:p-8">
+  <div className="bg-white/40 rounded-[2rem] p-4 sm:p-5 md:p-8">
     {!title ? null : (
       <h5 className="h4-text mb-4 text-center font-bold text-titleColor">
         {title}
@@ -84,7 +84,7 @@ const Call = () => {
       return (
         <a
           href="https://steins-gate.fandom.com/wiki/Divergence_Meter"
-          className="bg-white/40 mx-auto block w-full rounded-[2rem] p-5 md:w-7/12 md:p-8"
+          className="bg-white/40 mx-auto block w-full rounded-[2rem] p-4 sm:p-5 md:w-7/12 md:p-8"
           target="_blank"
           rel="noreferrer noopener"
         >
@@ -203,7 +203,7 @@ const Call = () => {
 
       if (offScriptCount >= 6) {
         return (
-          <div className="bg-white/40 rounded-[2rem] p-5 md:p-8">
+          <div className="bg-white/40 rounded-[2rem] p-4 sm:p-5 md:p-8">
             <img
               src="/areYouSerious.avif"
               alt="..."
@@ -230,7 +230,7 @@ const Call = () => {
 
     if (shouldShowPhone) {
       return (
-        <div className="p-text bg-white/30 rounded-[2rem] px-5 py-6 text-center text-titleColor md:px-8 lg:text-left">
+        <div className="p-text bg-white/30 rounded-[2rem] px-4 py-5 text-center text-titleColor sm:px-5 sm:py-6 md:px-8 lg:text-left">
           Dial a number on the phone to reveal a result.
         </div>
       );
@@ -249,7 +249,7 @@ const Call = () => {
       <div
         className={
           shouldShowPhone
-            ? "grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,22rem)] lg:items-stretch lg:gap-10"
+            ? "grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,22rem)] lg:items-stretch lg:gap-10"
             : "mx-auto max-w-[58rem]"
         }
       >

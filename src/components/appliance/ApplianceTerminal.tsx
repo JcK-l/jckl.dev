@@ -15,7 +15,7 @@ export const ApplianceTerminal = ({
 }) => {
   return (
     <div
-      className={`relative overflow-hidden rounded-[1.05rem] border px-4 py-4 ${className}`}
+      className={`relative overflow-hidden rounded-[1.05rem] border px-3 py-3 sm:px-4 sm:py-4 ${className}`}
       style={{
         backgroundColor: "var(--color-appliance-screen-bg)",
         borderColor: "var(--color-appliance-screen-border)",

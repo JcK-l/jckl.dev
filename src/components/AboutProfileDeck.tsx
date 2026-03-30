@@ -296,7 +296,10 @@ export const AboutProfileDeck = () => {
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <ApplianceShell className="w-full px-5 py-5 md:px-7" radius="1.5rem">
+      <ApplianceShell
+        className="w-full px-4 py-5 sm:px-5 sm:py-5 md:px-7"
+        radius="1.5rem"
+      >
         <div
           className="appliance-panel-header"
           style={{ borderColor: "var(--color-appliance-shell-border)" }}
@@ -334,7 +337,7 @@ export const AboutProfileDeck = () => {
         </div>
 
         <div className="mt-5">
-          <ApplianceInsetPanel className="px-4 py-4">
+          <ApplianceInsetPanel className="px-3 py-4 sm:px-4 sm:py-4">
             <div className="flex flex-col gap-3 md:grid md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
               <p
                 className="font-appliance text-[0.72rem] leading-6"

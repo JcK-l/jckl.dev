@@ -19,7 +19,7 @@ describe("getNextPuzzleHint", () => {
     ]);
 
     expect(getNextPuzzleHint(solvedPrelude, 11)).toBe(
-      "The signal is ready. All that remains is to send it."
+      "The screen flickers to life. All that's left is to send the signal."
     );
   });
 

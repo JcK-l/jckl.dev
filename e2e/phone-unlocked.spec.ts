@@ -32,3 +32,48 @@ test("the unlocked phone becomes available and accepts keypad input", async ({
     timeout: 15_000,
   });
 });
+
+test("the floating connection panel stays inside its section on mobile after the final unlock", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/?e2e-seed=final-unlocked#call");
+  await waitForE2EReady(page);
+
+  const callSection = getSection(page, "call");
+  await callSection.scrollIntoViewIfNeeded();
+  await expect(
+    callSection.getByText(/dial a number on the phone to reveal a result/i)
+  ).toBeVisible({ timeout: 15_000 });
+
+  const layout = await page.evaluate(() => {
+    const getDocRect = (selector: string) => {
+      const element = document.querySelector(selector);
+
+      if (!(element instanceof Element)) {
+        return null;
+      }
+
+      const rect = element.getBoundingClientRect();
+
+      return {
+        bottom: rect.bottom + window.scrollY,
+        height: rect.height,
+        top: rect.top + window.scrollY,
+      };
+    };
+
+    return {
+      connectionSection: getDocRect("section#connection"),
+      floatingPanel: getDocRect("[data-testid='connection-floating-panel']"),
+      projectsSection: getDocRect("section#projects"),
+    };
+  });
+
+  expect(layout.projectsSection).not.toBeNull();
+  expect(layout.connectionSection).not.toBeNull();
+  expect(layout.floatingPanel).not.toBeNull();
+  expect(layout.floatingPanel?.top).toBeGreaterThanOrEqual(
+    (layout.projectsSection?.bottom ?? 0) - 8
+  );
+});

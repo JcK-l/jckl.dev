@@ -83,6 +83,48 @@ describe("TypingText", () => {
     expect(screen.getByText("Z")).toBeTruthy();
   });
 
+  it("does not restart typing when only the completion callback changes", () => {
+    const firstOnComplete = vi.fn();
+    const secondOnComplete = vi.fn();
+
+    const { container, rerender } = render(
+      <TypingText
+        text="AB"
+        onComplete={firstOnComplete}
+        typingDelay={10}
+        onCompleteDelay={20}
+      />
+    );
+
+    act(() => {
+      vi.advanceTimersByTime(10);
+    });
+    expect(screen.getByText("A")).toBeTruthy();
+
+    rerender(
+      <TypingText
+        text="AB"
+        onComplete={secondOnComplete}
+        typingDelay={10}
+        onCompleteDelay={20}
+      />
+    );
+
+    expect(container.querySelector("p")?.textContent).toBe("A");
+
+    act(() => {
+      vi.advanceTimersByTime(10);
+    });
+    expect(screen.getByText("AB")).toBeTruthy();
+
+    act(() => {
+      vi.advanceTimersByTime(20);
+    });
+
+    expect(firstOnComplete).not.toHaveBeenCalled();
+    expect(secondOnComplete).toHaveBeenCalledTimes(1);
+  });
+
   it("renders immediately when reduced motion is preferred", () => {
     const onComplete = vi.fn();
 

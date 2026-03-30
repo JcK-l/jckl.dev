@@ -26,7 +26,7 @@ export const puzzleGroups: PuzzleGroup[] = [
     key: "hand",
     label: "a helping hand",
     lightLabel: "Handoff",
-    hint: "Something is out of place. Someone is still waiting for it.",
+    hint: "Something is out of place. Someone is still waiting on the handoff.",
     flag: GameStateFlags.FLAG_LEND_A_HAND,
     pieces: [15, 11, 3, 8],
   },
@@ -34,7 +34,7 @@ export const puzzleGroups: PuzzleGroup[] = [
     key: "connection",
     label: "the connection",
     lightLabel: "Connection",
-    hint: "The answer isn't now. Tune to a different year.",
+    hint: "The answer isn't in the present. Tune to a different year.",
     flag: GameStateFlags.FLAG_CONNECTION,
     pieces: [16, 10, 2, 4],
   },
@@ -42,7 +42,7 @@ export const puzzleGroups: PuzzleGroup[] = [
     key: "crt",
     label: "the CRT cache",
     lightLabel: "Transmit",
-    hint: "The screen flickers to life. Someone in the past is waiting to receive.",
+    hint: "The screen flickers awake. Someone in the past is waiting to receive.",
     flag: GameStateFlags.FLAG_SECRET,
     pieces: [9, 7, 6, 14],
   },
@@ -68,7 +68,7 @@ export const getNextPuzzleHint = (
   }
 
   if (nextUnsolvedGroup.key === "crt" && totalPlacedPieces < 12) {
-    return "The signal is ready. All that remains is to send it.";
+    return "The screen flickers to life. All that's left is to send the signal.";
   }
 
   return nextUnsolvedGroup.hint;
