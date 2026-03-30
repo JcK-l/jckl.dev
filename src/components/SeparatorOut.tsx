@@ -8,8 +8,9 @@ import {
 import { useStore } from "@nanostores/react";
 import { crtImage, crtScreen } from "../data/crtImage";
 import {
+  $gameState,
   GameStateFlags,
-  isBitSet as gameStateIsBitSet,
+  hasBit,
   setBit,
 } from "../stores/gameStateStore";
 import { $endingState } from "../stores/endingStore";
@@ -37,16 +38,18 @@ const crtHitAreaStyle = {
 
 export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
   (props, ref) => {
+    const gameState = useStore($gameState);
     const endingState = useStore($endingState);
     const [isSoundPlaying, setIsSoundPlaying] = useState(false);
 
-    const displayCrt =
-      props.isCrt && gameStateIsBitSet(GameStateFlags.FLAG_LEND_A_HAND);
+    const hasHandoff = hasBit(gameState, GameStateFlags.FLAG_LEND_A_HAND);
+    const isCrtPowered = hasBit(gameState, GameStateFlags.FLAG_CRT);
+    const displayCrt = props.isCrt && hasHandoff;
     const crtScreenOpacity = props.crtScreenOpacity ?? 0;
     const isCrtReady =
-      gameStateIsBitSet(GameStateFlags.FLAG_STARS_ALIGN) &&
-      gameStateIsBitSet(GameStateFlags.FLAG_LEND_A_HAND) &&
-      gameStateIsBitSet(GameStateFlags.FLAG_CONNECTION);
+      hasBit(gameState, GameStateFlags.FLAG_STARS_ALIGN) &&
+      hasHandoff &&
+      hasBit(gameState, GameStateFlags.FLAG_CONNECTION);
     const crtButtonLabel = isCrtReady
       ? "Power on CRT cache relay"
       : "Check CRT cache relay";
@@ -139,24 +142,28 @@ export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
           <div className="pointer-events-none absolute inset-0 z-20">
             {displayCrt && (
               <>
-                <button
-                  type="button"
-                  aria-disabled={isSoundPlaying || endingState.isActive}
-                  aria-label={crtButtonLabel}
-                  className="crt-trigger-button pointer-events-auto absolute"
-                  disabled={isSoundPlaying || endingState.isActive}
-                  onClick={() => {
-                    void activateCrt();
-                  }}
-                  onKeyDown={handleCrtKeyDown}
-                  style={crtHitAreaStyle}
-                />
+                {!isCrtPowered ? (
+                  <button
+                    type="button"
+                    aria-disabled={isSoundPlaying || endingState.isActive}
+                    aria-label={crtButtonLabel}
+                    data-state={isCrtReady ? "ready" : "pending"}
+                    className="crt-trigger-button pointer-events-auto absolute"
+                    disabled={isSoundPlaying || endingState.isActive}
+                    onClick={() => {
+                      void activateCrt();
+                    }}
+                    onKeyDown={handleCrtKeyDown}
+                    style={crtHitAreaStyle}
+                  />
+                ) : null}
                 <svg
                   aria-hidden="true"
-                  className="pointer-events-none absolute inset-0 block h-full w-full"
+                  className="pointer-events-none absolute inset-0 block h-full w-full overflow-visible"
                   viewBox="0 0 960 279.177"
                   version="1.1"
                   xmlns="http://www.w3.org/2000/svg"
+                  style={{ overflow: "visible" }}
                 >
                   <defs id="defs1" />
                   <g

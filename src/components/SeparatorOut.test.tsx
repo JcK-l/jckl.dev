@@ -44,6 +44,8 @@ describe("SeparatorOut", () => {
     const { getByRole } = render(<SeparatorOut isCrt />);
     const crtTrigger = getByRole("button", { name: /crt cache relay/i });
 
+    expect(crtTrigger.getAttribute("data-state")).toBe("ready");
+
     fireEvent.click(crtTrigger);
 
     await waitFor(() => {
@@ -64,6 +66,8 @@ describe("SeparatorOut", () => {
 
     const { getByRole } = render(<SeparatorOut isCrt />);
     const crtTrigger = getByRole("button", { name: /crt cache relay/i });
+
+    expect(crtTrigger.getAttribute("data-state")).toBe("pending");
 
     fireEvent.click(crtTrigger);
 
@@ -117,6 +121,20 @@ describe("SeparatorOut", () => {
       expect(audioMocks.resumeAudioContext).toHaveBeenCalledTimes(1);
       expect(hasBit($gameState.get(), GameStateFlags.FLAG_CRT)).toBe(true);
     });
+  });
+
+  it("removes the CRT trigger once the relay is already powered on", () => {
+    $gameState.set(
+      (1 << GameStateFlags.FLAG_STARS_ALIGN) |
+        (1 << GameStateFlags.FLAG_LEND_A_HAND) |
+        (1 << GameStateFlags.FLAG_CONNECTION) |
+        (1 << GameStateFlags.FLAG_CRT)
+    );
+
+    const { queryByRole, container } = render(<SeparatorOut isCrt />);
+
+    expect(queryByRole("button", { name: /crt cache relay/i })).toBeNull();
+    expect(container.querySelector(".crt-trigger-image")).toBeTruthy();
   });
 
   it("keeps the decorative separator clouds click-through", () => {
