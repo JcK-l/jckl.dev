@@ -16,20 +16,49 @@ import { applyThemeForSentiment, toggleThemes } from "../utility/toggleTheme";
 const ENDING_SECTION_ID = "about";
 const ORIGINAL_SECTION_ID = "crtMission";
 
-const jumpToSection = (sectionId: string) => {
+type ScrollAlignment = "start" | "center";
+
+const jumpToSection = (
+  sectionId: string,
+  alignment: ScrollAlignment = "start"
+) => {
   if (typeof document === "undefined" || typeof window === "undefined") {
     return;
   }
 
-  const targetSection = document.getElementById(sectionId);
+  const targetElement = document.getElementById(sectionId);
 
-  if (!targetSection) {
+  if (!targetElement) {
     return;
   }
 
-  const targetBounds = targetSection.getBoundingClientRect();
-  const viewportHeight =
-    window.innerHeight || document.documentElement.clientHeight;
+  const targetBounds = targetElement.getBoundingClientRect();
+  const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+  const prefersReducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
+  ).matches;
+  const behavior = prefersReducedMotion ? "auto" : "smooth";
+
+  if (alignment === "center") {
+    const viewportCenter = viewportHeight / 2;
+    const sectionCenter = targetBounds.top + targetBounds.height / 2;
+    const isAlreadyNearViewportCenter =
+      Math.abs(sectionCenter - viewportCenter) <= 48;
+
+    if (isAlreadyNearViewportCenter) {
+      return;
+    }
+
+    const currentScrollTop =
+      window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
+
+    window.scrollTo({
+      behavior,
+      top: Math.max(0, currentScrollTop + sectionCenter - viewportCenter),
+    });
+    return;
+  }
+
   const isAlreadyNearViewportTop =
     targetBounds.top >= -24 && targetBounds.top <= viewportHeight * 0.35;
 
@@ -37,12 +66,8 @@ const jumpToSection = (sectionId: string) => {
     return;
   }
 
-  const prefersReducedMotion = window.matchMedia(
-    "(prefers-reduced-motion: reduce)"
-  ).matches;
-
-  targetSection.scrollIntoView({
-    behavior: prefersReducedMotion ? "auto" : "smooth",
+  targetElement.scrollIntoView({
+    behavior,
     block: "start",
   });
 };
@@ -70,14 +95,19 @@ export const exitEndingToOriginal = () => {
   applyThemeForSentiment(null);
   clearEndingSelection();
   resetFinalCacheToOriginal();
-  jumpToSection(ORIGINAL_SECTION_ID);
 
   if (typeof window === "undefined") {
     commitPendingEndingDiscovery();
+    jumpToSection(ORIGINAL_SECTION_ID, "center");
     return;
   }
 
   window.requestAnimationFrame(() => {
     commitPendingEndingDiscovery();
+
+    // Let the original timeline and rediscovered balloons settle before measuring.
+    window.requestAnimationFrame(() => {
+      jumpToSection(ORIGINAL_SECTION_ID, "center");
+    });
   });
 };

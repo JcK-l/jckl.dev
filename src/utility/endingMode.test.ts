@@ -59,6 +59,10 @@ describe("endingMode", () => {
         dispatchEvent: vi.fn(),
       }))
     );
+    Object.defineProperty(window, "innerHeight", {
+      configurable: true,
+      value: 800,
+    });
     document.body.innerHTML = "";
   });
 
@@ -99,20 +103,29 @@ describe("endingMode", () => {
   });
 
   it("exits the active ending, resets the final cache, and commits pending discovery on the next frame", () => {
+    const scrollTo = vi.fn();
     const section = document.createElement("section");
     section.id = "crtMission";
     section.getBoundingClientRect = vi.fn(() => ({
-      top: 420,
+      top: 360,
       left: 0,
       right: 0,
-      bottom: 620,
+      bottom: 760,
       width: 0,
-      height: 200,
+      height: 400,
       x: 0,
-      y: 420,
+      y: 360,
       toJSON: () => ({}),
     })) as typeof section.getBoundingClientRect;
     section.scrollIntoView = vi.fn();
+    Object.defineProperty(window, "scrollTo", {
+      configurable: true,
+      value: scrollTo,
+    });
+    Object.defineProperty(window, "scrollY", {
+      configurable: true,
+      value: 120,
+    });
     document.body.appendChild(section);
 
     setSelectedEnding("positive", true);
@@ -130,9 +143,10 @@ describe("endingMode", () => {
     expect(getEndingState().pendingDiscovery).toBeNull();
     expect(getEndingState().discoveredSentiments.neutral).toBe(true);
     expect(getEndingState().settledVideos.positive).toBe(true);
-    expect(section.scrollIntoView).toHaveBeenCalledWith({
+    expect(section.scrollIntoView).not.toHaveBeenCalled();
+    expect(scrollTo).toHaveBeenCalledWith({
       behavior: "smooth",
-      block: "start",
+      top: 280,
     });
   });
 });

@@ -39,3 +39,42 @@ test("a completed ending can return to the original timeline and be reopened fro
     timeout: 15_000,
   });
 });
+
+test("returning on a narrow viewport keeps the mission section centered", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/?e2e-seed=ending-return-ready#about");
+  await waitForE2EReady(page);
+
+  const aboutSection = getSection(page, "about");
+  await aboutSection.scrollIntoViewIfNeeded();
+  await aboutSection.getByRole("button", { name: /return/i }).click();
+
+  const viewport = page.viewportSize();
+
+  if (!viewport) {
+    throw new Error("Viewport size was not available.");
+  }
+
+  const missionSection = getSection(page, "crtMission");
+
+  await expect.poll(
+    async () => {
+      const box = await missionSection.boundingBox();
+
+      if (box === null) {
+        return Number.POSITIVE_INFINITY;
+      }
+
+      return Math.abs(box.y + box.height / 2 - viewport.height / 2);
+    },
+    { timeout: 15_000 }
+  ).toBeLessThanOrEqual(8);
+
+  await expect(
+    missionSection.getByRole("button", {
+      name: /switch to the negative timeline/i,
+    })
+  ).toBeVisible({ timeout: 15_000 });
+});
