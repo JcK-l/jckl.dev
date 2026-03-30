@@ -28,9 +28,10 @@ export const clearSelectedPhonewaveField = async (scope: Locator) => {
   await scope.getByRole("button", { name: /bksp/i }).click();
 };
 
-export const getElementAtLocatorCenter = async (
+export const getElementAtLocatorPoint = async (
   page: Page,
-  locator: Locator
+  locator: Locator,
+  ratios: { x: number; y: number } = { x: 0.5, y: 0.5 }
 ) => {
   const box = await locator.boundingBox();
 
@@ -39,8 +40,8 @@ export const getElementAtLocatorCenter = async (
   }
 
   const point = {
-    x: box.x + box.width / 2,
-    y: box.y + box.height / 2,
+    x: box.x + box.width * ratios.x,
+    y: box.y + box.height * ratios.y,
   };
 
   const elementData = await page.evaluate(({ x, y }) => {
@@ -63,6 +64,10 @@ export const getElementAtLocatorCenter = async (
     ...point,
     ...elementData,
   };
+};
+
+export const getElementAtLocatorCenter = async (page: Page, locator: Locator) => {
+  return getElementAtLocatorPoint(page, locator);
 };
 
 export const routeSentimentResponse = async (

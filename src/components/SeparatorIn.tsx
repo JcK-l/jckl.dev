@@ -15,17 +15,18 @@ export const SeparatorIn = forwardRef<HTMLDivElement, SeparatorInProps>(
       >
         {props.middleLayer ? (
           <div className="pointer-events-none absolute inset-0 z-30">
-            <div className="pointer-events-auto absolute inset-0">
+            <div className="pointer-events-none absolute inset-0">
               {props.middleLayer}
             </div>
           </div>
         ) : null}
         <svg
-          className="relative z-40 -mb-px block h-auto w-full"
+          className="pointer-events-none relative z-40 -mb-px block h-auto w-full"
           version="1.1"
           viewBox="0 0 960 279.177"
           xmlns="http://www.w3.org/2000/svg"
           overflow="visible"
+          aria-hidden="true"
         >
           <path
             style={{

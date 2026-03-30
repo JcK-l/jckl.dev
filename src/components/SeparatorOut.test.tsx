@@ -118,4 +118,32 @@ describe("SeparatorOut", () => {
       expect(hasBit($gameState.get(), GameStateFlags.FLAG_CRT)).toBe(true);
     });
   });
+
+  it("keeps the decorative separator clouds click-through", () => {
+    const { container } = render(<SeparatorOut />);
+    const decorativeClouds = container.querySelector("svg");
+
+    expect(decorativeClouds?.getAttribute("class")).toContain(
+      "pointer-events-none"
+    );
+  });
+
+  it("keeps middle and under layer wrappers click-through", () => {
+    const { container } = render(
+      <SeparatorOut
+        middleLayer={<button type="button">Middle layer</button>}
+        underLayer={<div>Under layer</div>}
+      />
+    );
+
+    const fullInsetWrappers = Array.from(
+      container.querySelectorAll(".absolute.inset-0")
+    ).map((element) => element.getAttribute("class") ?? "");
+
+    expect(
+      fullInsetWrappers.some((className) =>
+        className.includes("pointer-events-auto absolute inset-0")
+      )
+    ).toBe(false);
+  });
 });

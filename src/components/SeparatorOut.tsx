@@ -102,16 +102,17 @@ export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
       >
         {props.underLayer ? (
           <div className="pointer-events-none absolute inset-0 z-0">
-            <div className="pointer-events-auto absolute inset-0">
+            <div className="pointer-events-none absolute inset-0">
               {props.underLayer}
             </div>
           </div>
         ) : null}
         <svg
-          className="relative z-10 block h-auto w-full translate-y-px"
+          className="pointer-events-none relative z-10 block h-auto w-full translate-y-px"
           viewBox="0 0 960 279.177"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
         >
           <path
             style={{
@@ -191,7 +192,7 @@ export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
               </>
             )}
             {props.middleLayer ? (
-              <div className="pointer-events-auto absolute inset-0">
+              <div className="pointer-events-none absolute inset-0">
                 {props.middleLayer}
               </div>
             ) : null}

@@ -100,16 +100,11 @@ const getContactSectionBubbleStrength = () => {
 };
 
 const getContactStaticTargetGain = (isNegativeEndingActive: boolean) => {
-  const bubbleStrength = getContactSectionBubbleStrength();
   const baseGain = isNegativeEndingActive
     ? negativeEndingStaticGain
     : originalEndingStaticGain;
 
-  return baseGain * bubbleStrength;
-};
-
-const getContactStaticVisualOpacity = () => {
-  return getContactSectionBubbleStrength();
+  return baseGain * getContactSectionBubbleStrength();
 };
 
 const rampPlaybackGain = (
@@ -153,7 +148,6 @@ const Contact = () => {
   const [pendingTransfer, setPendingTransfer] = useState(false);
   const [transferSourcePoint, setTransferSourcePoint] =
     useState<ViewportPoint | null>(null);
-  const [crtScreenOpacity, setCrtScreenOpacity] = useState(0);
   const [reservedContentHeight, setReservedContentHeight] = useState(0);
   const submitButtonRef = useRef<HTMLButtonElement>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
@@ -299,7 +293,6 @@ const Contact = () => {
     if (!shouldPlayContactStatic) {
       staticPlaybackRef.current?.stop();
       staticPlaybackRef.current = null;
-      setCrtScreenOpacity(0);
       return;
     }
 
@@ -326,7 +319,6 @@ const Contact = () => {
         playback,
         getContactStaticTargetGain(isNegativeEndingActive)
       );
-      setCrtScreenOpacity(getContactStaticVisualOpacity());
     };
 
     void startStaticPlayback();
@@ -342,25 +334,6 @@ const Contact = () => {
         staticPlaybackRef.current = null;
       }
     };
-  }, [shouldPlayContactStatic]);
-
-  useEffect(() => {
-    if (!shouldPlayContactStatic) {
-      return;
-    }
-
-    const playback = staticPlaybackRef.current;
-    const nextOpacity = getContactStaticVisualOpacity();
-
-    if (playback !== null) {
-      rampPlaybackGain(playback, getContactStaticTargetGain(isNegativeEndingActive));
-    }
-
-    setCrtScreenOpacity((currentOpacity) => {
-      return Math.abs(currentOpacity - nextOpacity) < 0.01
-        ? currentOpacity
-        : nextOpacity;
-    });
   }, [isNegativeEndingActive, shouldPlayContactStatic]);
 
   useEffect(() => {
@@ -368,33 +341,49 @@ const Contact = () => {
       return;
     }
 
-    const updateContactStaticBubble = () => {
-      const playback = staticPlaybackRef.current;
-      const nextOpacity = getContactStaticVisualOpacity();
+    const playback = staticPlaybackRef.current;
 
-      if (playback !== null) {
-        rampPlaybackGain(
-          playback,
-          getContactStaticTargetGain(isNegativeEndingActive)
-        );
+    if (playback !== null) {
+      rampPlaybackGain(playback, getContactStaticTargetGain(isNegativeEndingActive));
+    }
+  }, [isNegativeEndingActive, shouldPlayContactStatic]);
+
+  useEffect(() => {
+    if (!shouldPlayContactStatic) {
+      return;
+    }
+
+    let frameId = 0;
+
+    const updateContactStaticBubble = () => {
+      frameId = 0;
+      const playback = staticPlaybackRef.current;
+
+      if (playback === null) {
+        return;
       }
 
-      setCrtScreenOpacity((currentOpacity) => {
-        return Math.abs(currentOpacity - nextOpacity) < 0.01
-          ? currentOpacity
-          : nextOpacity;
-      });
+      rampPlaybackGain(playback, getContactStaticTargetGain(isNegativeEndingActive));
+    };
+
+    const scheduleContactStaticBubbleUpdate = () => {
+      if (frameId !== 0) {
+        return;
+      }
+
+      frameId = window.requestAnimationFrame(updateContactStaticBubble);
     };
 
     updateContactStaticBubble();
-    window.addEventListener("scroll", updateContactStaticBubble, {
+    window.addEventListener("scroll", scheduleContactStaticBubbleUpdate, {
       passive: true,
     });
-    window.addEventListener("resize", updateContactStaticBubble);
+    window.addEventListener("resize", scheduleContactStaticBubbleUpdate);
 
     return () => {
-      window.removeEventListener("scroll", updateContactStaticBubble);
-      window.removeEventListener("resize", updateContactStaticBubble);
+      window.removeEventListener("scroll", scheduleContactStaticBubbleUpdate);
+      window.removeEventListener("resize", scheduleContactStaticBubbleUpdate);
+      window.cancelAnimationFrame(frameId);
     };
   }, [isNegativeEndingActive, shouldPlayContactStatic]);
 
@@ -467,7 +456,7 @@ const Contact = () => {
     <BetweenLands
       isBackground={false}
       isCrt={shouldDisplayContactCrt}
-      separatorOutCrtScreenOpacity={crtScreenOpacity}
+      separatorOutCrtScreenOpacity={shouldPlayContactStatic ? 1 : 0}
       separatorInMiddleLayer={
         <PuzzlePieceTransfer
           direction="up"

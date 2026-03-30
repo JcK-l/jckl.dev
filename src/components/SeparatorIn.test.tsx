@@ -32,6 +32,6 @@ describe("SeparatorIn", () => {
     expect(root?.className).toContain("overflow-visible");
     expect(screen.getByRole("button", { name: "Middle layer" })).toBeTruthy();
     expect(container.querySelector(".pointer-events-none")).toBeTruthy();
-    expect(container.querySelector(".pointer-events-auto")).toBeTruthy();
+    expect(container.querySelectorAll(".pointer-events-none").length).toBeGreaterThan(0);
   });
 });
