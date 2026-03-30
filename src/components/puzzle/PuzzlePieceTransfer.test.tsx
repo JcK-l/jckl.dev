@@ -181,4 +181,32 @@ describe("PuzzlePieceTransfer", () => {
     expect(onComplete).toHaveBeenCalledTimes(1);
     expect(container.querySelectorAll("img")).toHaveLength(0);
   });
+
+  it("uses the overlay geometry for fallback transfer sizing on narrower layouts", async () => {
+    setReducedMotionPreference(false);
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue(
+      createBounds(360, 520)
+    );
+
+    const { container } = render(
+      <PuzzlePieceTransfer
+        pieceIds={[1]}
+        sourcePoint={{ x: 140, y: 180 }}
+        sourceRef={createRef<Element>()}
+        triggerKey={1}
+      />
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(
+      (
+        container.querySelector('img[src="/PuzzlePieces/1.avif"]') as
+          | HTMLImageElement
+          | null
+      )?.style.width
+    ).toBe("82px");
+  });
 });

@@ -91,7 +91,13 @@ describe("Puzzle", () => {
     );
     const { container } = render(<Puzzle />);
 
-    expect(container.querySelector("video")).toBeNull();
+    const preloadedVideo = container.querySelector("video") as
+      | HTMLVideoElement
+      | null;
+
+    expect(preloadedVideo?.getAttribute("src")).toBe("/secret-SG.mp4");
+    expect(preloadedVideo?.getAttribute("aria-hidden")).toBe("true");
+    expect(HTMLMediaElement.prototype.play).not.toHaveBeenCalled();
 
     act(() => {
       vi.advanceTimersByTime(2000);
@@ -108,6 +114,7 @@ describe("Puzzle", () => {
     const video = container.querySelector("video") as HTMLVideoElement | null;
 
     expect(video?.getAttribute("src")).toBe("/secret-SG.mp4");
+    expect(video?.getAttribute("aria-hidden")).toBe("false");
     expect(HTMLMediaElement.prototype.play).toHaveBeenCalledTimes(1);
 
     fireEvent.ended(video as HTMLVideoElement);

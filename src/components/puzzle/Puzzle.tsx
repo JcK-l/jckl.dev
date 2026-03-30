@@ -42,30 +42,69 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
   const prallaxRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoHeight, setVideoHeight] = useState(0);
-  const [isCompleted, setIsCompleted] = useState(false);
-  const [isVideoVisible, setIsVideoVisible] = useState(false);
+  const [hasRevealDelayElapsed, setHasRevealDelayElapsed] = useState(false);
+  const [isVideoReady, setIsVideoReady] = useState(false);
   const { totalPlacedPieces } = usePuzzleContext();
   const selectedSentiment = endingState.selectedSentiment;
   const hasSettledVideo =
     selectedSentiment === null
       ? false
       : endingState.settledVideos[selectedSentiment];
+  const isPuzzleComplete = totalPlacedPieces === COMPLETED_PIECE_COUNT;
   const shouldSkipFallAnimation =
-    totalPlacedPieces === COMPLETED_PIECE_COUNT && hasSettledVideo;
+    isPuzzleComplete && hasSettledVideo;
   const selectedVideoSrc =
     selectedSentiment === null ? null : endingVideoSources[selectedSentiment];
+  const shouldRenderVideo = isPuzzleComplete && selectedVideoSrc !== null;
+  const isCompleted = hasSettledVideo
+    ? isPuzzleComplete
+    : isPuzzleComplete &&
+      hasRevealDelayElapsed &&
+      (selectedVideoSrc === null || isVideoReady);
+  const isVideoVisible = hasSettledVideo
+    ? shouldRenderVideo
+    : shouldRenderVideo && hasRevealDelayElapsed && isVideoReady;
+
+  const updateVideoHeight = () => {
+    const video = videoRef.current;
+
+    if (!video) {
+      return;
+    }
+
+    const nextVideoHeight = video.getBoundingClientRect().height;
+
+    setVideoHeight((currentHeight) => {
+      return currentHeight === nextVideoHeight ? currentHeight : nextVideoHeight;
+    });
+  };
 
   useEffect(() => {
-    const updateSizes = () => {
-      if (videoRef.current) {
-        setVideoHeight(videoRef.current.getBoundingClientRect().height);
+    if (!shouldRenderVideo) {
+      setIsVideoReady(false);
+      setVideoHeight(0);
+      return;
+    }
+
+    const syncVideoMetrics = () => {
+      updateVideoHeight();
+
+      if (
+        videoRef.current &&
+        videoRef.current.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA
+      ) {
+        setIsVideoReady(true);
       }
     };
 
-    updateSizes();
-    window.addEventListener("resize", updateSizes);
-    return () => window.removeEventListener("resize", updateSizes);
-  }, [isVideoVisible, selectedVideoSrc]);
+    setIsVideoReady(false);
+    syncVideoMetrics();
+    window.addEventListener("resize", syncVideoMetrics);
+
+    return () => {
+      window.removeEventListener("resize", syncVideoMetrics);
+    };
+  }, [selectedVideoSrc, shouldRenderVideo]);
 
   const { scrollYProgress } = useScroll({
     target: prallaxRef,
@@ -73,30 +112,26 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
   });
 
   useEffect(() => {
-    if (totalPlacedPieces !== COMPLETED_PIECE_COUNT) {
-      setIsCompleted(false);
-      setIsVideoVisible(false);
+    if (!isPuzzleComplete) {
+      setHasRevealDelayElapsed(false);
       return;
     }
 
     if (hasSettledVideo) {
-      setIsCompleted(true);
-      setIsVideoVisible(true);
+      setHasRevealDelayElapsed(true);
       return;
     }
 
-    setIsCompleted(false);
-    setIsVideoVisible(false);
+    setHasRevealDelayElapsed(false);
 
     const completionTimeout = window.setTimeout(() => {
-      setIsCompleted(true);
-      setIsVideoVisible(true);
+      setHasRevealDelayElapsed(true);
     }, COMPLETION_DELAY_MS);
 
     return () => {
       window.clearTimeout(completionTimeout);
     };
-  }, [hasSettledVideo, totalPlacedPieces]);
+  }, [hasSettledVideo, isPuzzleComplete]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -198,22 +233,28 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
           ry="0.93354601"
         />
       </svg>
-      {isVideoVisible && selectedVideoSrc !== null ? (
+      {shouldRenderVideo ? (
         <motion.video
           key={selectedVideoSrc}
           className="absolute top-[30%] w-full select-none mix-blend-screen"
           style={{ y: layer }}
           ref={videoRef}
-          initial={{ opacity: hasSettledVideo ? 1 : 0 }}
-          animate={{ opacity: 1 }}
+          initial={false}
+          animate={{ opacity: isVideoVisible ? 1 : 0 }}
           transition={{
-            duration: hasSettledVideo ? 0 : VIDEO_FADE_DURATION_S,
+            duration: hasSettledVideo || !isVideoVisible ? 0 : VIDEO_FADE_DURATION_S,
             ease: "easeInOut",
           }}
+          aria-hidden={!isVideoVisible}
           muted
           playsInline
           preload="auto"
           src={selectedVideoSrc}
+          onLoadedData={() => {
+            setIsVideoReady(true);
+            updateVideoHeight();
+          }}
+          onLoadedMetadata={updateVideoHeight}
           onEnded={handleVideoEnded}
         />
       ) : null}

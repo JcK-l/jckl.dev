@@ -309,4 +309,14 @@ describe("PuzzlePiece", () => {
       container.querySelector('img[src="/PuzzlePieces/test-piece.avif"]')
     ).toBeTruthy();
   });
+
+  it("scales the shadow down for smaller puzzle pieces", () => {
+    const { container } = renderPuzzlePiece();
+    const shadowPolygons = container.querySelectorAll("polygon");
+
+    expect(shadowPolygons[0]?.getAttribute("transform")).toBe("translate(0 7.2)");
+    expect(shadowPolygons[1]?.getAttribute("transform")).toBe("translate(0 2.88)");
+    expect(shadowPolygons[0]?.getAttribute("style")).toContain("blur(5.04px)");
+    expect(shadowPolygons[1]?.getAttribute("style")).toContain("blur(1.73px)");
+  });
 });

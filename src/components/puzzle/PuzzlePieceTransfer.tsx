@@ -37,14 +37,25 @@ const pieceOffsets = [
 const clamp = (value: number, min: number, max: number) => {
   return Math.min(Math.max(value, min), max);
 };
+const formatTransferValue = (value: number) => {
+  return Number(value.toFixed(2));
+};
 
-const getTransferPieceSize = (
+export const getTransferPieceSize = (
   viewportWidth: number,
   viewportHeight: number
 ) => {
   const viewportBasis = Math.min(viewportWidth, viewportHeight);
 
   return clamp(viewportBasis * 0.11, 82, 124);
+};
+
+const getTransferEdgeInset = (
+  pieceSize: number,
+  axisLength: number,
+  multiplier: number
+) => {
+  return clamp(pieceSize * multiplier, pieceSize / 2, axisLength / 2);
 };
 
 export const PuzzlePieceTransfer = ({
@@ -139,15 +150,32 @@ export const PuzzlePieceTransfer = ({
         return;
       }
 
-      const targetPoint = {
-        x: clamp(resolvedSourcePoint.x, 108, overlayBounds.width - 108),
-        y: direction === "up" ? 56 : overlayBounds.height - 56,
-      };
       const currentPuzzlePieceSize = $puzzlePieceSize.get();
       const pieceSize =
         currentPuzzlePieceSize > 0
           ? currentPuzzlePieceSize
-          : getTransferPieceSize(window.innerWidth, window.innerHeight);
+          : getTransferPieceSize(overlayBounds.width, overlayBounds.height);
+      const horizontalInset = getTransferEdgeInset(
+        pieceSize,
+        overlayBounds.width,
+        1.05
+      );
+      const verticalInset = getTransferEdgeInset(
+        pieceSize,
+        overlayBounds.height,
+        0.56
+      );
+      const targetPoint = {
+        x: clamp(
+          resolvedSourcePoint.x,
+          horizontalInset,
+          Math.max(horizontalInset, overlayBounds.width - horizontalInset)
+        ),
+        y:
+          direction === "up"
+            ? verticalInset
+            : overlayBounds.height - verticalInset,
+      };
       const totalDuration =
         LAUNCH_DURATION_MS +
         Math.max(pieceIds.length - 1, 0) * PIECE_STAGGER_MS +
@@ -204,6 +232,13 @@ export const PuzzlePieceTransfer = ({
             const piece = puzzlePieces[pieceId - 1];
             const offset = pieceOffsets[index % pieceOffsets.length];
             const offsetScale = burst.pieceSize / TRANSFER_PIECE_BASE_SIZE_PX;
+            const transferShadowOffset = formatTransferValue(14 * offsetScale);
+            const transferShadowBlur = formatTransferValue(18 * offsetScale);
+            const transferStartBlur = formatTransferValue(2 * offsetScale);
+            const transferFinalBlur = formatTransferValue(6 * offsetScale);
+            const directionBias = formatTransferValue(
+              (direction === "up" ? -18 : 18) * offsetScale
+            );
             const sourceLeft = burst.sourcePoint.x - burst.pieceSize / 2;
             const sourceTop = burst.sourcePoint.y - burst.pieceSize / 2;
             const targetLeft =
@@ -213,7 +248,7 @@ export const PuzzlePieceTransfer = ({
             const targetTop =
               burst.targetPoint.y -
               burst.pieceSize / 2 +
-              (direction === "up" ? -18 : 18) +
+              directionBias +
               offset.spreadY * 0.08 * offsetScale;
 
             return (
@@ -224,7 +259,7 @@ export const PuzzlePieceTransfer = ({
                 aria-hidden="true"
                 className="absolute left-0 top-0 select-none"
                 style={{
-                  filter: "drop-shadow(0 14px 18px rgba(16, 12, 32, 0.3))",
+                  filter: `drop-shadow(0 ${transferShadowOffset}px ${transferShadowBlur}px rgba(16, 12, 32, 0.3))`,
                   height: burst.pieceSize,
                   width: burst.pieceSize,
                   willChange: "transform, opacity, filter",
@@ -238,10 +273,10 @@ export const PuzzlePieceTransfer = ({
                 }}
                 animate={{
                   filter: [
-                    "blur(2px) brightness(1.02) saturate(1.02)",
+                    `blur(${transferStartBlur}px) brightness(1.02) saturate(1.02)`,
                     "blur(0px) brightness(1) saturate(1)",
                     "blur(0px) brightness(1.04) saturate(1.06)",
-                    "blur(6px) brightness(1.16) saturate(1.1)",
+                    `blur(${transferFinalBlur}px) brightness(1.16) saturate(1.1)`,
                   ],
                   opacity: [0, 1, 1, 0],
                   rotate: [

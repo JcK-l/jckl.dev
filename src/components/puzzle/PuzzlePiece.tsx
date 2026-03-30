@@ -20,6 +20,8 @@ interface PuzzlePieceProps {
 
 const snapThreshold = 50;
 const snapHintThreshold = 58;
+const PUZZLE_SHADOW_REFERENCE_WIDTH_PX = 120;
+const PUZZLE_SHADOW_MIN_SCALE = 0.72;
 const soundFiles = [
   "/PuzzlePieces/sounds/1.mp3",
   "/PuzzlePieces/sounds/2.mp3",
@@ -28,6 +30,19 @@ const soundFiles = [
   "/PuzzlePieces/sounds/5.mp3",
 ];
 let nextPieceZIndex = 30;
+const clamp = (value: number, min: number, max: number) => {
+  return Math.min(Math.max(value, min), max);
+};
+const formatSvgValue = (value: number) => {
+  return Number(value.toFixed(2)).toString();
+};
+const getPuzzleShadowScale = (pieceWidth: number) => {
+  return clamp(
+    pieceWidth / PUZZLE_SHADOW_REFERENCE_WIDTH_PX,
+    PUZZLE_SHADOW_MIN_SCALE,
+    1,
+  );
+};
 
 const toPolygonClipPath = (coords: string) =>
   `polygon(${coords
@@ -89,6 +104,11 @@ export const PuzzlePiece = ({
 
   const clipPath = toPolygonClipPath(pieceCoords);
   const polygonPoints = toSvgPolygonPoints(pieceCoords);
+  const shadowScale = getPuzzleShadowScale(pieceSize.width);
+  const softShadowOffset = formatSvgValue(10 * shadowScale);
+  const softShadowBlur = formatSvgValue(7 * shadowScale);
+  const coreShadowOffset = formatSvgValue(4 * shadowScale);
+  const coreShadowBlur = formatSvgValue(2.4 * shadowScale);
 
   const getRelativePieceMetrics = () => {
     if (!pieceRef.current || !puzzlebounds.current) {
@@ -340,14 +360,14 @@ export const PuzzlePiece = ({
         <polygon
           points={polygonPoints}
           fill="rgba(16, 10, 30, 0.14)"
-          transform="translate(0 10)"
-          style={{ filter: "blur(7px)" }}
+          transform={`translate(0 ${softShadowOffset})`}
+          style={{ filter: `blur(${softShadowBlur}px)` }}
         />
         <polygon
           points={polygonPoints}
           fill="rgba(22, 15, 39, 0.16)"
-          transform="translate(0 4)"
-          style={{ filter: "blur(2.4px)" }}
+          transform={`translate(0 ${coreShadowOffset})`}
+          style={{ filter: `blur(${coreShadowBlur}px)` }}
         />
       </svg>
       <motion.div
