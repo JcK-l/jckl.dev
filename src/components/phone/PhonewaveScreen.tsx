@@ -25,6 +25,8 @@ const PHONEWAVE_LINE_SETTLE_MS = 180;
 
 const phonewaveLineClassName =
   "text-[0.72rem] uppercase tracking-[0.18em] sm:text-[0.82rem]";
+const phonewaveScreenLayerClassName =
+  "col-start-1 row-start-1 flex flex-col space-y-2.5";
 
 const renderStaticLine = (line: PhonewaveLine, index: number) => (
   <p
@@ -54,46 +56,60 @@ export const PhonewaveScreen = ({
 
   return (
     <ApplianceTerminal
-      bodyClassName="flex flex-col space-y-2.5"
+      bodyClassName="grid"
       className={`min-h-[16rem] ${className}`}
       headerLabel="event log"
     >
-      {shouldAnimate
-        ? lines.map((line, index) => {
-            if (index < currentStep) {
-              return renderStaticLine(line, index);
-            }
+      {shouldAnimate ? (
+        <div
+          aria-hidden="true"
+          className={`invisible ${phonewaveScreenLayerClassName}`}
+          data-testid="phonewave-screen-reserve"
+        >
+          {lines.map(renderStaticLine)}
+        </div>
+      ) : null}
+      <div
+        className={phonewaveScreenLayerClassName}
+        data-testid="phonewave-screen-live"
+      >
+        {shouldAnimate
+          ? lines.map((line, index) => {
+              if (index < currentStep) {
+                return renderStaticLine(line, index);
+              }
 
-            if (index > currentStep) {
-              return null;
-            }
+              if (index > currentStep) {
+                return null;
+              }
 
-            return (
-              <TypingText
-                key={`${line.label}-${index}`}
-                className={`${phonewaveLineClassName} ${
-                  toneClassNames[line.tone ?? "neutral"]
-                }`}
-                text={formatPhonewaveLine(line)}
-                typingDelay={PHONEWAVE_TYPING_DELAY_MS}
-                typingDelayJitter={PHONEWAVE_TYPING_DELAY_JITTER_MS}
-                onComplete={() => {
-                  if (index === lines.length - 1) {
-                    onStepComplete(lines.length);
-                    return;
+              return (
+                <TypingText
+                  key={`${line.label}-${index}`}
+                  className={`${phonewaveLineClassName} ${
+                    toneClassNames[line.tone ?? "neutral"]
+                  }`}
+                  text={formatPhonewaveLine(line)}
+                  typingDelay={PHONEWAVE_TYPING_DELAY_MS}
+                  typingDelayJitter={PHONEWAVE_TYPING_DELAY_JITTER_MS}
+                  onComplete={() => {
+                    if (index === lines.length - 1) {
+                      onStepComplete(lines.length);
+                      return;
+                    }
+
+                    onStepComplete(index + 1);
+                  }}
+                  onCompleteDelay={
+                    line.label === "boot"
+                      ? PHONEWAVE_BOOT_SETTLE_MS
+                      : PHONEWAVE_LINE_SETTLE_MS
                   }
-
-                  onStepComplete(index + 1);
-                }}
-                onCompleteDelay={
-                  line.label === "boot"
-                    ? PHONEWAVE_BOOT_SETTLE_MS
-                    : PHONEWAVE_LINE_SETTLE_MS
-                }
-              />
-            );
-          })
-        : lines.map(renderStaticLine)}
+                />
+              );
+            })
+          : lines.map(renderStaticLine)}
+      </div>
     </ApplianceTerminal>
   );
 };
