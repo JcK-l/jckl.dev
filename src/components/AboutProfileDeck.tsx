@@ -53,13 +53,15 @@ const TOTAL_REVEAL_PIECES =
   ABOUT_MODULES[ABOUT_MODULES.length - 1]?.range.max ?? 16;
 const DECK_SETTLE_SPRING = {
   type: "spring" as const,
-  stiffness: 42,
-  damping: 18,
-  mass: 2.1,
-  restSpeed: 0.35,
-  restDelta: 0.35,
+  stiffness: 86,
+  damping: 20,
+  mass: 1.15,
+  restSpeed: 0.4,
+  restDelta: 0.4,
 };
-const DRAG_VELOCITY_THRESHOLD = 520;
+const DRAG_VELOCITY_THRESHOLD = 380;
+const DRAG_DISTANCE_THRESHOLD_RATIO = 0.12;
+const MAX_DRAG_DISTANCE_THRESHOLD_PX = 84;
 
 const formatCounter = (value: number) => value.toString().padStart(2, "0");
 
@@ -93,6 +95,41 @@ const getStatusCopy = (unlockedCount: number, nextModule?: AboutModule) => {
     )}.`,
     meta: nextUnlockMeta,
   };
+};
+
+export const getAboutDeckSwipeStep = ({
+  deckWidth,
+  offsetX,
+  velocityX,
+}: {
+  deckWidth: number;
+  offsetX: number;
+  velocityX: number;
+}) => {
+  if (deckWidth <= 0) {
+    return 0;
+  }
+
+  const dragDistanceThreshold = Math.min(
+    deckWidth * DRAG_DISTANCE_THRESHOLD_RATIO,
+    MAX_DRAG_DISTANCE_THRESHOLD_PX,
+  );
+
+  if (
+    offsetX <= -dragDistanceThreshold ||
+    velocityX <= -DRAG_VELOCITY_THRESHOLD
+  ) {
+    return 1;
+  }
+
+  if (
+    offsetX >= dragDistanceThreshold ||
+    velocityX >= DRAG_VELOCITY_THRESHOLD
+  ) {
+    return -1;
+  }
+
+  return 0;
 };
 
 const AboutModuleCard = ({
@@ -366,9 +403,9 @@ export const AboutProfileDeck = () => {
           className={
             canDragDeck
               ? isDraggingDeck
-                ? "flex cursor-grabbing"
-                : "flex cursor-grab"
-              : "flex"
+                ? "flex touch-pan-y cursor-grabbing"
+                : "flex touch-pan-y cursor-grab"
+              : "flex touch-pan-y"
           }
           style={{ x }}
           onDragStart={() => {
@@ -383,12 +420,15 @@ export const AboutProfileDeck = () => {
             }
 
             const nearestIndex = clampIndex(Math.round(-x.get() / deckWidth));
+            const swipeStep = getAboutDeckSwipeStep({
+              deckWidth,
+              offsetX: info.offset.x,
+              velocityX: info.velocity.x,
+            });
             const nextIndex =
-              info.velocity.x <= -DRAG_VELOCITY_THRESHOLD
-                ? clampIndex(activeIndex + 1)
-                : info.velocity.x >= DRAG_VELOCITY_THRESHOLD
-                ? clampIndex(activeIndex - 1)
-                : nearestIndex;
+              swipeStep === 0
+                ? nearestIndex
+                : clampIndex(activeIndex + swipeStep);
 
             settleToIndex(nextIndex);
           }}

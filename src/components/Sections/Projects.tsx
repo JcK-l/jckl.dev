@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type TouchEvent } from "react";
 import { useStore } from "@nanostores/react";
 import { projects, type Project } from "../../data/ProjectData";
 import { ProjectText } from "../ProjectText";
@@ -9,11 +9,16 @@ import { ApplianceTerminal } from "../appliance/ApplianceTerminal";
 const DESKTOP_BREAKPOINT_PX = 1280;
 const DESKTOP_PROJECT_CARD_HEIGHT_PX = 76;
 const DESKTOP_PROJECT_CARD_GAP_PX = 8;
-const MOBILE_SWIPE_THRESHOLD_PX = 48;
+const MOBILE_SWIPE_THRESHOLD_PX = 32;
 
 type SelectorBank = {
   size: number;
   startIndex: number;
+};
+
+type TouchPoint = {
+  x: number;
+  y: number;
 };
 
 const formatProjectId = (projectId: number) => {
@@ -54,6 +59,30 @@ const buildSelectorBanks = ({
   }
 
   return banks;
+};
+
+export const getMobileProjectSwipeDirection = ({
+  touchEnd,
+  touchStart,
+}: {
+  touchEnd: TouchPoint | null;
+  touchStart: TouchPoint | null;
+}) => {
+  if (touchStart == null || touchEnd == null) {
+    return 0;
+  }
+
+  const deltaX = touchStart.x - touchEnd.x;
+  const deltaY = Math.abs(touchStart.y - touchEnd.y);
+
+  if (
+    Math.abs(deltaX) < MOBILE_SWIPE_THRESHOLD_PX ||
+    Math.abs(deltaX) <= deltaY
+  ) {
+    return 0;
+  }
+
+  return deltaX > 0 ? 1 : -1;
 };
 
 const findSelectorBankIndex = ({
@@ -137,7 +166,7 @@ const Projects = () => {
   const selectorViewportRef = useRef<HTMLDivElement>(null);
   const selectorListRef = useRef<HTMLDivElement>(null);
   const archiveModuleRef = useRef<HTMLDivElement>(null);
-  const mobileTouchStartXRef = useRef<number | null>(null);
+  const mobileTouchStartRef = useRef<TouchPoint | null>(null);
   const isNegativeEndingActive = isEndingActive("negative", endingState);
 
   const activeProject =
@@ -173,6 +202,29 @@ const Projects = () => {
     if (nextProject) {
       setActiveProjectId(nextProject.id);
     }
+  };
+  const handleMobileProjectSwipeStart = (event: TouchEvent<HTMLDivElement>) => {
+    mobileTouchStartRef.current = {
+      x: event.touches[0]?.clientX ?? 0,
+      y: event.touches[0]?.clientY ?? 0,
+    };
+  };
+  const handleMobileProjectSwipeEnd = (event: TouchEvent<HTMLDivElement>) => {
+    const swipeDirection = getMobileProjectSwipeDirection({
+      touchEnd: {
+        x: event.changedTouches[0]?.clientX ?? 0,
+        y: event.changedTouches[0]?.clientY ?? 0,
+      },
+      touchStart: mobileTouchStartRef.current,
+    });
+
+    mobileTouchStartRef.current = null;
+
+    if (swipeDirection === 0) {
+      return;
+    }
+
+    stepProjectSelection(swipeDirection);
   };
 
   useEffect(() => {
@@ -382,34 +434,10 @@ const Projects = () => {
                 )
               }
               onMobileOverviewTouchStart={
-                isDesktopLayout
-                  ? undefined
-                  : (event) => {
-                      mobileTouchStartXRef.current =
-                        event.touches[0]?.clientX ?? null;
-                    }
+                isDesktopLayout ? undefined : handleMobileProjectSwipeStart
               }
               onMobileOverviewTouchEnd={
-                isDesktopLayout
-                  ? undefined
-                  : (event) => {
-                      const touchStartX = mobileTouchStartXRef.current;
-                      const touchEndX = event.changedTouches[0]?.clientX ?? null;
-
-                      mobileTouchStartXRef.current = null;
-
-                      if (touchStartX == null || touchEndX == null) {
-                        return;
-                      }
-
-                      const deltaX = touchStartX - touchEndX;
-
-                      if (Math.abs(deltaX) < MOBILE_SWIPE_THRESHOLD_PX) {
-                        return;
-                      }
-
-                      stepProjectSelection(deltaX > 0 ? 1 : -1);
-                    }
+                isDesktopLayout ? undefined : handleMobileProjectSwipeEnd
               }
               projectId={activeProject.id}
               totalProjects={projects.length}

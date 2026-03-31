@@ -1,12 +1,19 @@
-import { useRef, useState, useEffect } from "react";
+import { useEffect, useRef, useState, type TouchEvent } from "react";
 import { motion, useAnimation } from "framer-motion";
-import type { DragHandlers } from "framer-motion";
 
-const THRESHOLD = 100;
+const AUTOPLAY_INTERVAL_MS = 5000;
+const SWIPE_THRESHOLD_RATIO = 0.18;
+const MAX_SWIPE_THRESHOLD_PX = 108;
+const TAP_DISTANCE_THRESHOLD_PX = 12;
 const SPRING_OPTIONS = {
   type: "spring",
   bounce: 0.3,
   duration: 0.6,
+};
+
+type TouchPoint = {
+  x: number;
+  y: number;
 };
 
 interface CarouselProps {
@@ -15,23 +22,100 @@ interface CarouselProps {
   className?: string;
 }
 
+const getCarouselViewportWidth = (viewport: HTMLDivElement | null) => {
+  if (viewport == null) {
+    return 0;
+  }
+
+  if (viewport.clientWidth > 0) {
+    return viewport.clientWidth;
+  }
+
+  return viewport.getBoundingClientRect().width;
+};
+
+const getTouchTravel = ({
+  touchEnd,
+  touchStart,
+}: {
+  touchEnd: TouchPoint | null;
+  touchStart: TouchPoint | null;
+}) => {
+  if (touchStart == null || touchEnd == null) {
+    return 0;
+  }
+
+  return Math.max(
+    Math.abs(touchStart.x - touchEnd.x),
+    Math.abs(touchStart.y - touchEnd.y),
+  );
+};
+
+export const getCarouselSwipeDirection = ({
+  touchEnd,
+  touchStart,
+  viewportWidth,
+}: {
+  touchEnd: TouchPoint | null;
+  touchStart: TouchPoint | null;
+  viewportWidth: number;
+}) => {
+  if (touchStart == null || touchEnd == null || viewportWidth <= 0) {
+    return 0;
+  }
+
+  const deltaX = touchStart.x - touchEnd.x;
+  const deltaY = Math.abs(touchStart.y - touchEnd.y);
+  const swipeThreshold = Math.min(
+    viewportWidth * SWIPE_THRESHOLD_RATIO,
+    MAX_SWIPE_THRESHOLD_PX,
+  );
+
+  if (Math.abs(deltaX) < swipeThreshold || Math.abs(deltaX) <= deltaY) {
+    return 0;
+  }
+
+  return deltaX > 0 ? 1 : -1;
+};
+
 export const Carousel = ({
   imageFolder,
   numberImages,
   className = "",
 }: CarouselProps) => {
   const [position, setPosition] = useState(0);
-  const carouselRef = useRef<HTMLDivElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
   const positionRef = useRef(0);
   const controls = useAnimation();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isTouchInteracting, setIsTouchInteracting] = useState(false);
+  const touchStartRef = useRef<TouchPoint | null>(null);
+  const latestTouchRef = useRef<TouchPoint | null>(null);
+  const shouldSuppressClickRef = useRef(false);
   const images = Array.from(
     { length: numberImages },
-    (_, index) => `${imageFolder}/${index + 1}.avif`
+    (_, index) => `${imageFolder}/${index + 1}.avif`,
   );
 
+  const showImageAt = (nextPosition: number) => {
+    const clampedPosition = Math.max(0, Math.min(nextPosition, images.length - 1));
+    const viewportWidth = getCarouselViewportWidth(viewportRef.current);
+
+    positionRef.current = clampedPosition;
+    setPosition(clampedPosition);
+    controls.start({
+      translateX: `${-clampedPosition * viewportWidth}px`,
+      transition: SPRING_OPTIONS,
+    });
+  };
+
   const handleImageClick = (src: string) => {
+    if (shouldSuppressClickRef.current) {
+      shouldSuppressClickRef.current = false;
+      return;
+    }
+
     setSelectedImage(src);
     setIsModalOpen(true);
   };
@@ -41,36 +125,69 @@ export const Carousel = ({
     setIsModalOpen(false);
   };
 
-  const onDragEndHandler: DragHandlers["onDragEnd"] = (event, info) => {
-    const offset = info.offset.x;
-    const direction = -Math.sign(offset);
+  const handleTouchStart = (event: TouchEvent<HTMLDivElement>) => {
+    const touchPoint = {
+      x: event.touches[0]?.clientX ?? 0,
+      y: event.touches[0]?.clientY ?? 0,
+    };
 
-    if (offset >= THRESHOLD || offset <= -THRESHOLD) {
-      if (carouselRef.current) {
-        const newPosition = Math.max(
-          0,
-          Math.min(position + direction, images.length - 1)
-        );
-        setPosition(newPosition);
-        controls.start({
-          translateX: `-${newPosition * carouselRef.current.offsetWidth}px`,
-          transition: SPRING_OPTIONS,
-        });
-        positionRef.current = newPosition;
-      }
+    touchStartRef.current = touchPoint;
+    latestTouchRef.current = touchPoint;
+    shouldSuppressClickRef.current = false;
+    setIsTouchInteracting(true);
+  };
+
+  const handleTouchMove = (event: TouchEvent<HTMLDivElement>) => {
+    latestTouchRef.current = {
+      x: event.touches[0]?.clientX ?? 0,
+      y: event.touches[0]?.clientY ?? 0,
+    };
+  };
+
+  const completeTouchGesture = (touchEnd: TouchPoint | null) => {
+    const touchStart = touchStartRef.current;
+    const resolvedTouchEnd = touchEnd ?? latestTouchRef.current;
+    const swipeDirection = getCarouselSwipeDirection({
+      touchEnd: resolvedTouchEnd,
+      touchStart,
+      viewportWidth: getCarouselViewportWidth(viewportRef.current),
+    });
+
+    shouldSuppressClickRef.current =
+      getTouchTravel({
+        touchEnd: resolvedTouchEnd,
+        touchStart,
+      }) > TAP_DISTANCE_THRESHOLD_PX;
+
+    if (swipeDirection !== 0) {
+      showImageAt(positionRef.current + swipeDirection);
     }
+  };
+
+  const resetTouchGesture = () => {
+    setIsTouchInteracting(false);
+    touchStartRef.current = null;
+    latestTouchRef.current = null;
+  };
+
+  const handleTouchEnd = (event: TouchEvent<HTMLDivElement>) => {
+    completeTouchGesture({
+      x: event.changedTouches[0]?.clientX ?? latestTouchRef.current?.x ?? 0,
+      y: event.changedTouches[0]?.clientY ?? latestTouchRef.current?.y ?? 0,
+    });
+    resetTouchGesture();
+  };
+
+  const handleTouchCancel = () => {
+    shouldSuppressClickRef.current = false;
+    resetTouchGesture();
   };
 
   useEffect(() => {
     const handleResize = () => {
-      if (carouselRef.current) {
-        controls.start({
-          translateX: `-${
-            positionRef.current * carouselRef.current.offsetWidth
-          }px`,
-          transition: SPRING_OPTIONS,
-        });
-      }
+      controls.set({
+        translateX: `${-positionRef.current * getCarouselViewportWidth(viewportRef.current)}px`,
+      });
     };
 
     window.addEventListener("resize", handleResize);
@@ -78,7 +195,7 @@ export const Carousel = ({
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, [carouselRef.current]);
+  }, [controls]);
 
   useEffect(() => {
     positionRef.current = 0;
@@ -87,36 +204,35 @@ export const Carousel = ({
   }, [controls, imageFolder, numberImages]);
 
   useEffect(() => {
-    if (isModalOpen) return;
+    if (isModalOpen || isTouchInteracting || images.length <= 1) {
+      return;
+    }
 
     const interval = setInterval(() => {
-      if (carouselRef.current) {
-        const newPosition = (positionRef.current + 1) % images.length;
-        controls.start({
-          translateX: `-${newPosition * carouselRef.current.offsetWidth}px`,
-          transition: SPRING_OPTIONS,
-        });
-        setPosition(newPosition);
-        positionRef.current = newPosition;
-      }
-    }, 5000);
+      showImageAt((positionRef.current + 1) % images.length);
+    }, AUTOPLAY_INTERVAL_MS);
 
     return () => clearInterval(interval);
-  }, [carouselRef.current, imageFolder, images.length, isModalOpen]);
+  }, [imageFolder, images.length, isModalOpen, isTouchInteracting]);
 
   return (
-    <div className={`relative w-full select-none overflow-hidden ${className}`}>
+    <div
+      ref={viewportRef}
+      data-testid="carousel-viewport"
+      className={`relative w-full touch-pan-y select-none overflow-hidden ${className}`}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchCancel}
+    >
       <motion.div
-        ref={carouselRef}
         className="relative z-10 flex items-start justify-start"
-        // drag={"x"} // Not now I guess. Works everywhere except for safari on IOS
-        // onDragEnd={onDragEndHandler}
         animate={controls}
-        // dragConstraints={carouselRef}
       >
         {images.map((src, index) => (
           <ProjectCards
             key={index}
+            isPriorityImage={index === 0}
             src={src}
             onClick={() => handleImageClick(src)}
           />
@@ -140,9 +256,11 @@ export const Carousel = ({
 };
 
 const ProjectCards = ({
+  isPriorityImage,
   src,
   onClick,
 }: {
+  isPriorityImage: boolean;
   src: string;
   onClick: () => void;
 }) => {
@@ -154,7 +272,7 @@ const ProjectCards = ({
       <img
         className="pointer-events-none block h-full w-full object-cover object-top"
         src={src}
-        loading="lazy"
+        loading={isPriorityImage ? "eager" : "lazy"}
         alt="Get a better browser!"
       />
     </div>

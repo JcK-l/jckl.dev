@@ -37,6 +37,13 @@ const getLastFrameTime = (duration: number) => {
   return Math.max(duration - VIDEO_END_FRAME_OFFSET_S, 0);
 };
 
+const isVideoReadyForReveal = (video: HTMLVideoElement | null) => {
+  return (
+    video !== null &&
+    video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA
+  );
+};
+
 export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
   const endingState = useStore($endingState);
   const prallaxRef = useRef<HTMLDivElement>(null);
@@ -58,9 +65,7 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
   const shouldRenderVideo = isPuzzleComplete && selectedVideoSrc !== null;
   const isCompleted = hasSettledVideo
     ? isPuzzleComplete
-    : isPuzzleComplete &&
-      hasRevealDelayElapsed &&
-      (selectedVideoSrc === null || isVideoReady);
+    : isPuzzleComplete && hasRevealDelayElapsed;
   const isVideoVisible = hasSettledVideo
     ? shouldRenderVideo
     : shouldRenderVideo && hasRevealDelayElapsed && isVideoReady;
@@ -89,10 +94,7 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
     const syncVideoMetrics = () => {
       updateVideoHeight();
 
-      if (
-        videoRef.current &&
-        videoRef.current.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA
-      ) {
+      if (isVideoReadyForReveal(videoRef.current)) {
         setIsVideoReady(true);
       }
     };
@@ -164,28 +166,38 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
   useEffect(() => {
     const video = videoRef.current;
 
-    if (!video || !isVideoVisible || hasSettledVideo) {
+    if (!video || !shouldRenderVideo || !hasRevealDelayElapsed || hasSettledVideo) {
       return;
     }
 
+    let hasTriggeredPlay = false;
     const playVideo = () => {
+      if (hasTriggeredPlay) {
+        return;
+      }
+
+      hasTriggeredPlay = true;
       video.currentTime = 0;
       void video.play().catch(() => {
+        hasTriggeredPlay = false;
         return;
       });
     };
 
-    if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+    if (isVideoReadyForReveal(video)) {
       playVideo();
       return;
     }
 
+    playVideo();
     video.addEventListener("loadeddata", playVideo, { once: true });
+    video.addEventListener("canplay", playVideo, { once: true });
 
     return () => {
       video.removeEventListener("loadeddata", playVideo);
+      video.removeEventListener("canplay", playVideo);
     };
-  }, [hasSettledVideo, isVideoVisible, selectedVideoSrc]);
+  }, [hasRevealDelayElapsed, hasSettledVideo, selectedVideoSrc, shouldRenderVideo]);
 
   const handleVideoEnded = () => {
     const video = videoRef.current;
@@ -255,6 +267,14 @@ export const Puzzle = forwardRef<SVGSVGElement, PuzzleProps>((props, ref) => {
             updateVideoHeight();
           }}
           onLoadedMetadata={updateVideoHeight}
+          onCanPlay={() => {
+            setIsVideoReady(true);
+            updateVideoHeight();
+          }}
+          onPlaying={() => {
+            setIsVideoReady(true);
+            updateVideoHeight();
+          }}
           onEnded={handleVideoEnded}
         />
       ) : null}

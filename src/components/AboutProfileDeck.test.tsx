@@ -24,7 +24,7 @@ vi.mock("../hooks/useDataContext", () => ({
   }),
 }));
 
-import { AboutProfileDeck } from "./AboutProfileDeck";
+import { AboutProfileDeck, getAboutDeckSwipeStep } from "./AboutProfileDeck";
 
 describe("AboutProfileDeck", () => {
   beforeAll(() => {
@@ -98,5 +98,29 @@ describe("AboutProfileDeck", () => {
     expect(screen.getAllByRole("button", { name: /open about card/i }).length).toBe(
       3
     );
+  });
+
+  it("treats a modest horizontal drag as an intentional deck swipe on mobile widths", () => {
+    expect(
+      getAboutDeckSwipeStep({
+        deckWidth: 320,
+        offsetX: -52,
+        velocityX: -120,
+      })
+    ).toBe(1);
+    expect(
+      getAboutDeckSwipeStep({
+        deckWidth: 320,
+        offsetX: 54,
+        velocityX: 110,
+      })
+    ).toBe(-1);
+    expect(
+      getAboutDeckSwipeStep({
+        deckWidth: 320,
+        offsetX: -22,
+        velocityX: -80,
+      })
+    ).toBe(0);
   });
 });

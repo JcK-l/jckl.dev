@@ -14,9 +14,10 @@ describe("Footer", () => {
   it("shows the heart in the default footer copy", () => {
     const { container } = render(<Footer />);
 
-    expect(
-      screen.getByRole("link", { name: "" }).getAttribute("href")
-    ).toBe("https://github.com/JcK-l");
+    const githubLink = screen.getByRole("link", { name: "" });
+
+    expect(githubLink.getAttribute("href")).toBe("https://github.com/JcK-l");
+    expect(githubLink.parentElement?.className).toContain("hidden");
     expect(container.textContent).toContain("Coded");
     expect(container.textContent).toContain("with");
     expect(container.textContent).toContain("Joshua Lowe");

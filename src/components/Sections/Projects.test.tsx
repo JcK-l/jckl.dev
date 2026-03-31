@@ -9,11 +9,19 @@ import { createDefaultEndingState } from "../../test/factories";
 
 vi.mock("../ProjectText", () => ({
   ProjectText: ({
+    onMobileOverviewTouchEnd,
+    onMobileOverviewTouchStart,
     mobileNavigator,
     projectId,
     title,
     totalProjects,
   }: {
+    onMobileOverviewTouchEnd?: (event: {
+      changedTouches: Array<{ clientX: number; clientY: number }>;
+    }) => void;
+    onMobileOverviewTouchStart?: (event: {
+      touches: Array<{ clientX: number; clientY: number }>;
+    }) => void;
     mobileNavigator?: ReactNode;
     projectId: number;
     title: string;
@@ -27,12 +35,17 @@ vi.mock("../ProjectText", () => ({
       >
         {title}
       </div>
+      <div
+        data-testid="project-overview-swipe-surface"
+        onTouchStart={onMobileOverviewTouchStart}
+        onTouchEnd={onMobileOverviewTouchEnd}
+      />
       {mobileNavigator}
     </div>
   ),
 }));
 
-import Projects from "./Projects";
+import Projects, { getMobileProjectSwipeDirection } from "./Projects";
 
 const mockProjectSelectorGeometry = ({
   viewportHeight,
@@ -174,6 +187,22 @@ describe("Projects", () => {
     expect(screen.getByTestId("project-text").textContent).toBe("tornado-vis");
   });
 
+  it("advances the mobile project card on a horizontal swipe", async () => {
+    render(<Projects />);
+
+    const swipeSurface = await screen.findByTestId("project-overview-swipe-surface");
+
+    fireEvent.touchStart(swipeSurface, {
+      touches: [{ clientX: 228, clientY: 240 }],
+    });
+    fireEvent.touchEnd(swipeSurface, {
+      changedTouches: [{ clientX: 168, clientY: 244 }],
+    });
+
+    expect(screen.getByTestId("project-text").dataset.projectId).toBe("2");
+    expect(screen.getByTestId("project-text").textContent).toBe("tornado-vis");
+  });
+
   it("pages the selector rail and loads projects beyond the first desktop route bank", async () => {
     Object.defineProperty(window, "innerWidth", {
       configurable: true,
@@ -306,5 +335,20 @@ describe("Projects", () => {
     expect(root?.getAttribute("aria-hidden")).toBe("true");
     expect(root?.className).toContain("pointer-events-none");
     expect(root?.className).toContain("invisible");
+  });
+
+  it("ignores mostly vertical mobile drags when deciding whether to change projects", () => {
+    expect(
+      getMobileProjectSwipeDirection({
+        touchStart: { x: 210, y: 200 },
+        touchEnd: { x: 160, y: 198 },
+      })
+    ).toBe(1);
+    expect(
+      getMobileProjectSwipeDirection({
+        touchStart: { x: 210, y: 200 },
+        touchEnd: { x: 188, y: 140 },
+      })
+    ).toBe(0);
   });
 });

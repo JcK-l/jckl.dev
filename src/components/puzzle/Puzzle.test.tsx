@@ -188,4 +188,34 @@ describe("Puzzle", () => {
       "var(--color-transition2)"
     );
   });
+
+  it("still completes the puzzle shell after the reveal delay even before the video is ready", async () => {
+    Object.defineProperty(HTMLMediaElement.prototype, "readyState", {
+      configurable: true,
+      get: () => 0,
+    });
+    puzzleContextMocks.totalPlacedPieces = 16;
+    $endingState.set(
+      createDefaultEndingState({
+        isActive: true,
+        selectedSentiment: "positive",
+      })
+    );
+    const { container } = render(<Puzzle />);
+
+    act(() => {
+      vi.advanceTimersByTime(2000);
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(container.querySelector("rect")?.style.fill).toBe(
+      "var(--color-primary)"
+    );
+    expect(container.querySelector("video")?.getAttribute("aria-hidden")).toBe(
+      "true"
+    );
+  });
 });
