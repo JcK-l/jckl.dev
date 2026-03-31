@@ -1,5 +1,10 @@
 import { expect, test } from "@playwright/test";
-import { enterDigits, getConnectionOffset, getSection } from "../test-helpers";
+import {
+  enterDigits,
+  getConnectionOffset,
+  getPhonewaveLiveScreen,
+  getSection,
+} from "../test-helpers";
 
 test("PhoneWave still reaches the target window on the production-safe subset", async ({
   page,
@@ -26,11 +31,12 @@ test("PhoneWave still reaches the target window on the production-safe subset", 
   });
 
   await connectionSection.getByRole("button", { name: "START" }).click();
+  const phonewaveLiveScreen = getPhonewaveLiveScreen(connectionSection);
 
   await expect(
-    connectionSection.getByText(/inside target window/i)
+    phonewaveLiveScreen.getByText(/inside target window/i)
   ).toBeVisible({ timeout: 15_000 });
   await expect(
-    connectionSection.getByText(/linked phone input enabled/i)
+    phonewaveLiveScreen.getByText(/linked phone input enabled/i)
   ).toBeVisible({ timeout: 15_000 });
 });

@@ -57,6 +57,8 @@ export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
       hasBit(gameState, GameStateFlags.FLAG_STARS_ALIGN) &&
       hasHandoff &&
       hasBit(gameState, GameStateFlags.FLAG_CONNECTION);
+    const crtVisualState = isCrtReady ? "ready" : "pending";
+    const isCrtInteractive = !isSoundPlaying && !endingState.isActive;
     const crtButtonLabel = isCrtReady
       ? "Power on CRT cache relay"
       : "Check CRT cache relay";
@@ -152,11 +154,11 @@ export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
                 {!isCrtPowered ? (
                   <button
                     type="button"
-                    aria-disabled={isSoundPlaying || endingState.isActive}
+                    aria-disabled={!isCrtInteractive}
                     aria-label={crtButtonLabel}
-                    data-state={isCrtReady ? "ready" : "pending"}
+                    data-state={crtVisualState}
                     className="crt-trigger-button pointer-events-auto absolute"
-                    disabled={isSoundPlaying || endingState.isActive}
+                    disabled={!isCrtInteractive}
                     onClick={() => {
                       void activateCrt();
                     }}
@@ -166,48 +168,53 @@ export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
                 ) : null}
                 <div
                   aria-hidden="true"
-                  className="crt-trigger-halo"
-                  data-state={isCrtReady ? "ready" : "pending"}
-                  style={crtGlowStyle}
-                />
-                <svg
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-0 block h-full w-full overflow-visible"
-                  viewBox="0 0 960 279.177"
-                  version="1.1"
-                  xmlns="http://www.w3.org/2000/svg"
-                  style={{ overflow: "visible" }}
+                  className="crt-trigger-visual-shell pointer-events-none absolute inset-0"
+                  data-interactive={isCrtInteractive ? "true" : "false"}
+                  data-state={crtVisualState}
                 >
-                  <g
-                    className="crt-visual"
-                    id="layer1"
-                    transform="matrix(0.72152775,-0.06209045,0.06209045,0.72152775,479.11345,-77.145299)"
+                  <div
+                    className="crt-trigger-halo"
+                    data-state={crtVisualState}
+                    style={crtGlowStyle}
+                  />
+                  <svg
+                    className="pointer-events-none absolute inset-0 block h-full w-full overflow-visible"
+                    viewBox="0 0 960 279.177"
+                    version="1.1"
+                    xmlns="http://www.w3.org/2000/svg"
+                    style={{ overflow: "visible" }}
                   >
-                    <image
-                      className="crt-trigger-image"
-                      draggable="false"
-                      width="176.3889"
-                      height="132.29167"
-                      preserveAspectRatio="none"
-                      xlinkHref={crtImage}
-                      id="tv"
-                      x="14.018737"
-                      y="123.32362"
-                    />
-                    <image
-                      className="crt-trigger-screen"
-                      draggable="false"
-                      width="123.47222"
-                      height="97.013885"
-                      preserveAspectRatio="none"
-                      opacity={crtScreenOpacity}
-                      xlinkHref={crtScreen}
-                      id="screen"
-                      x="26.629618"
-                      y="136.32681"
-                    />
-                  </g>
-                </svg>
+                    <g
+                      className="crt-visual"
+                      id="layer1"
+                      transform="matrix(0.72152775,-0.06209045,0.06209045,0.72152775,479.11345,-77.145299)"
+                    >
+                      <image
+                        className="crt-trigger-image"
+                        draggable="false"
+                        width="176.3889"
+                        height="132.29167"
+                        preserveAspectRatio="none"
+                        xlinkHref={crtImage}
+                        id="tv"
+                        x="14.018737"
+                        y="123.32362"
+                      />
+                      <image
+                        className="crt-trigger-screen"
+                        draggable="false"
+                        width="123.47222"
+                        height="97.013885"
+                        preserveAspectRatio="none"
+                        opacity={crtScreenOpacity}
+                        xlinkHref={crtScreen}
+                        id="screen"
+                        x="26.629618"
+                        y="136.32681"
+                      />
+                    </g>
+                  </svg>
+                </div>
               </>
             )}
             {props.middleLayer ? (

@@ -1,15 +1,12 @@
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useStore } from "@nanostores/react";
 import { projects, type Project } from "../../data/ProjectData";
 import { ProjectText } from "../ProjectText";
 import { $endingState, isEndingActive } from "../../stores/endingStore";
 import { ApplianceShell } from "../appliance/ApplianceShell";
 import { ApplianceTerminal } from "../appliance/ApplianceTerminal";
+import { preloadImages } from "../../utility/preloadImages";
+import { getProjectPreviewPrefetchSources } from "../../utility/projectPreviewSources";
 
 const DESKTOP_BREAKPOINT_PX = 1280;
 const DESKTOP_PROJECT_CARD_HEIGHT_PX = 76;
@@ -50,7 +47,11 @@ const buildSelectorBanks = ({
   const clampedPageSize = Math.max(1, Math.min(totalProjects, pageSize));
   const banks: SelectorBank[] = [];
 
-  for (let startIndex = 0; startIndex < totalProjects; startIndex += clampedPageSize) {
+  for (
+    let startIndex = 0;
+    startIndex < totalProjects;
+    startIndex += clampedPageSize
+  ) {
     banks.push({
       size: Math.min(clampedPageSize, totalProjects - startIndex),
       startIndex,
@@ -131,7 +132,10 @@ const Projects = () => {
   const endingState = useStore($endingState);
   const [activeProjectId, setActiveProjectId] = useState(projects[0]?.id ?? 0);
   const [selectorBanks, setSelectorBanks] = useState<SelectorBank[]>(() =>
-    buildSelectorBanks({ pageSize: projects.length, totalProjects: projects.length })
+    buildSelectorBanks({
+      pageSize: projects.length,
+      totalProjects: projects.length,
+    })
   );
   const [selectorPage, setSelectorPage] = useState(0);
   const [selectorShellHeight, setSelectorShellHeight] = useState<number | null>(
@@ -149,8 +153,7 @@ const Projects = () => {
     return project.id === activeProject?.id;
   });
   const totalPages = selectorBanks.length;
-  const currentSelectorBank =
-    selectorBanks[selectorPage] ??
+  const currentSelectorBank = selectorBanks[selectorPage] ??
     selectorBanks.at(-1) ?? {
       size: projects.length,
       startIndex: 0,
@@ -162,12 +165,12 @@ const Projects = () => {
   const activeProjectLabel = activeProject
     ? formatProjectId(activeProject.id)
     : "00";
-  const pageLabel = `${(selectorPage + 1).toString().padStart(2, "0")} / ${totalPages
+  const pageLabel = `${(selectorPage + 1)
     .toString()
-    .padStart(2, "0")}`;
-  const visibleRangeLabel = `${formatProjectId(visibleProjects[0]?.id ?? 0)} - ${formatProjectId(
-    visibleProjects.at(-1)?.id ?? 0
-  )}`;
+    .padStart(2, "0")} / ${totalPages.toString().padStart(2, "0")}`;
+  const visibleRangeLabel = `${formatProjectId(
+    visibleProjects[0]?.id ?? 0
+  )} - ${formatProjectId(visibleProjects.at(-1)?.id ?? 0)}`;
   const hasPagination = totalPages > 1;
 
   const stepProjectSelection = (direction: -1 | 1) => {
@@ -209,7 +212,9 @@ const Projects = () => {
 
       if (archiveHeight > 0) {
         setSelectorShellHeight((currentHeight) => {
-          return currentHeight === archiveHeight ? currentHeight : archiveHeight;
+          return currentHeight === archiveHeight
+            ? currentHeight
+            : archiveHeight;
         });
       }
 
@@ -303,7 +308,13 @@ const Projects = () => {
         setSelectorPage(nextSelectorPage);
       }
     }
-  }, [activeProjectIndex, currentSelectorBank, selectorBanks, selectorPage, totalPages]);
+  }, [
+    activeProjectIndex,
+    currentSelectorBank,
+    selectorBanks,
+    selectorPage,
+    totalPages,
+  ]);
 
   const showSelectorPage = (nextPage: number) => {
     const clampedPage = Math.max(0, Math.min(nextPage, totalPages - 1));
@@ -333,6 +344,17 @@ const Projects = () => {
 
     return `module ${activeProjectLabel} latched`;
   }, [activeProject, activeProjectLabel]);
+
+  useEffect(() => {
+    void preloadImages(
+      getProjectPreviewPrefetchSources({
+        activeProjectIndex,
+        isDesktopLayout,
+        projects,
+        visibleProjects,
+      })
+    );
+  }, [activeProjectIndex, isDesktopLayout, visibleProjects]);
 
   return (
     <div
@@ -501,7 +523,8 @@ const DesktopProjectSelector = ({
                       onClick={() => onSelectProject(project.id)}
                     >
                       <span className="block text-[0.58rem] uppercase tracking-[0.24em]">
-                        {isActive ? "> load" : "  load"} {formatProjectId(project.id)}
+                        {isActive ? "> load" : "  load"}{" "}
+                        {formatProjectId(project.id)}
                       </span>
                       <span className="mt-2 block text-[0.8rem] tracking-[0.08em]">
                         {project.title}
@@ -604,44 +627,46 @@ const MobileProjectControls = ({
   onShowPreviousProject: () => void;
   onShowNextProject: () => void;
 }) => {
-  const activeProjectLabel = (activeProjectIndex + 1).toString().padStart(2, "0");
+  const activeProjectLabel = (activeProjectIndex + 1)
+    .toString()
+    .padStart(2, "0");
   const totalProjectsLabel = totalProjects.toString().padStart(2, "0");
   const hasPreviousProject = activeProjectIndex > 0;
   const hasNextProject = activeProjectIndex < totalProjects - 1;
 
   return (
     <div className="flex items-center justify-between gap-2">
-        <button
-          type="button"
-          className="rounded-full border px-3 py-1.5 text-[0.56rem] uppercase tracking-[0.22em] transition-colors disabled:cursor-not-allowed disabled:opacity-45"
-          style={{
-            backgroundColor: "rgba(255,255,255,0.14)",
-            borderColor: "var(--color-appliance-panel-border)",
-            color: "var(--color-appliance-label-soft)",
-          }}
-          onClick={onShowPreviousProject}
-          disabled={!hasPreviousProject}
-          aria-label="Show previous project"
-        >
-          Prev
-        </button>
-        <span className="appliance-panel-chip">
-          {activeProjectLabel} / {totalProjectsLabel}
-        </span>
-        <button
-          type="button"
-          className="rounded-full border px-3 py-1.5 text-[0.56rem] uppercase tracking-[0.22em] transition-colors disabled:cursor-not-allowed disabled:opacity-45"
-          style={{
-            backgroundColor: "rgba(255,255,255,0.14)",
-            borderColor: "var(--color-appliance-panel-border)",
-            color: "var(--color-appliance-label-soft)",
-          }}
-          onClick={onShowNextProject}
-          disabled={!hasNextProject}
-          aria-label="Show next project"
-        >
-          Next
-        </button>
+      <button
+        type="button"
+        className="rounded-full border px-3 py-1.5 text-[0.56rem] uppercase tracking-[0.22em] transition-colors disabled:cursor-not-allowed disabled:opacity-45"
+        style={{
+          backgroundColor: "rgba(255,255,255,0.14)",
+          borderColor: "var(--color-appliance-panel-border)",
+          color: "var(--color-appliance-label-soft)",
+        }}
+        onClick={onShowPreviousProject}
+        disabled={!hasPreviousProject}
+        aria-label="Show previous project"
+      >
+        Prev
+      </button>
+      <span className="appliance-panel-chip">
+        {activeProjectLabel} / {totalProjectsLabel}
+      </span>
+      <button
+        type="button"
+        className="rounded-full border px-3 py-1.5 text-[0.56rem] uppercase tracking-[0.22em] transition-colors disabled:cursor-not-allowed disabled:opacity-45"
+        style={{
+          backgroundColor: "rgba(255,255,255,0.14)",
+          borderColor: "var(--color-appliance-panel-border)",
+          color: "var(--color-appliance-label-soft)",
+        }}
+        onClick={onShowNextProject}
+        disabled={!hasNextProject}
+        aria-label="Show next project"
+      >
+        Next
+      </button>
     </div>
   );
 };

@@ -1,6 +1,12 @@
 // @vitest-environment jsdom
 
-import { fireEvent, render, screen, waitFor, act } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  act,
+} from "@testing-library/react";
 import { useState, type ReactNode } from "react";
 import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 import { PuzzleContext } from "../../context/PuzzleContext";
@@ -13,8 +19,8 @@ import {
   requestPuzzleRestore,
 } from "../../stores/puzzleResetStore";
 
-vi.mock("../../utility/pieceImages", () => ({
-  preloadPieceImages: vi.fn(() => Promise.resolve()),
+vi.mock("../../utility/preloadImages", () => ({
+  preloadImages: vi.fn(() => Promise.resolve()),
 }));
 
 vi.mock("./PuzzlePiece", () => ({
@@ -69,7 +75,12 @@ const PuzzleHarness = () => {
 
   return (
     <PuzzleContext.Provider
-      value={{ lastPiece, setLastPiece, totalPlacedPieces, setTotalPlacedPieces }}
+      value={{
+        lastPiece,
+        setLastPiece,
+        totalPlacedPieces,
+        setTotalPlacedPieces,
+      }}
     >
       <button
         type="button"

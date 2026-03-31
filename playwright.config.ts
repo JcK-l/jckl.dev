@@ -5,6 +5,15 @@ const devCommand =
   process.platform === "win32"
     ? "npm.cmd run dev -- --host 127.0.0.1 --port 4321"
     : "npm run dev -- --host 127.0.0.1 --port 4321";
+const mobileOnlySpecs = /.*\/mobile-.*\.spec\.ts/;
+const responsiveCoreSpecs = [
+  /.*\/production\/homepage-smoke\.spec\.ts/,
+  /.*\/production\/connection-smoke\.spec\.ts/,
+  /.*\/production\/projects-navigation\.spec\.ts/,
+  /.*\/crt-power-on\.spec\.ts/,
+  /.*\/contact-ending\.spec\.ts/,
+  /.*\/phone-unlocked\.spec\.ts/,
+];
 
 export default defineConfig({
   testDir: "./e2e",
@@ -24,9 +33,17 @@ export default defineConfig({
       },
   projects: [
     {
-      name: "chromium",
+      name: "desktop-chromium",
+      testIgnore: [mobileOnlySpecs],
       use: {
         ...devices["Desktop Chrome"],
+      },
+    },
+    {
+      name: "mobile-chromium",
+      testMatch: [mobileOnlySpecs, ...responsiveCoreSpecs],
+      use: {
+        ...devices["Pixel 5"],
       },
     },
   ],

@@ -10,7 +10,7 @@ import { $gameState, hasBit } from "../../stores/gameStateStore";
 import { $dispensedGroups } from "../../stores/puzzleDispenseStore";
 import { setPuzzlePieceSize } from "../../stores/puzzleLayoutStore";
 import { $puzzleResetRequest } from "../../stores/puzzleResetStore";
-import { preloadPieceImages } from "../../utility/pieceImages";
+import { preloadImages } from "../../utility/preloadImages";
 
 const originalPieceSize = { width: 300, height: 300 };
 const scale = 0.27;
@@ -128,7 +128,7 @@ export const PuzzleGame = () => {
       return;
     }
 
-    void preloadPieceImages(dispensedPiecePaths);
+    void preloadImages(dispensedPiecePaths);
   }, [binaryState, dispensedGroups]);
 
   useEffect(() => {

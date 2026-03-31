@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { $puzzlePieceSize } from "../../stores/puzzleLayoutStore";
 
 const pieceImageMocks = vi.hoisted(() => ({
-  preloadPieceImages: vi.fn(() => Promise.resolve()),
+  preloadImages: vi.fn(() => Promise.resolve()),
 }));
 
 vi.mock("framer-motion", async () => {
@@ -17,8 +17,8 @@ vi.mock("framer-motion", async () => {
   };
 });
 
-vi.mock("../../utility/pieceImages", () => ({
-  preloadPieceImages: pieceImageMocks.preloadPieceImages,
+vi.mock("../../utility/preloadImages", () => ({
+  preloadImages: pieceImageMocks.preloadImages,
 }));
 
 import { PuzzlePieceTransfer } from "./PuzzlePieceTransfer";
@@ -34,7 +34,7 @@ const createBounds = (width = 800, height = 600) =>
     width,
     height,
     toJSON: () => ({}),
-  }) as DOMRect;
+  } as DOMRect);
 
 const setReducedMotionPreference = (matches: boolean) => {
   vi.stubGlobal(
@@ -56,8 +56,8 @@ describe("PuzzlePieceTransfer", () => {
   beforeEach(() => {
     vi.useFakeTimers();
     $puzzlePieceSize.set(0);
-    pieceImageMocks.preloadPieceImages.mockReset();
-    pieceImageMocks.preloadPieceImages.mockResolvedValue(undefined);
+    pieceImageMocks.preloadImages.mockReset();
+    pieceImageMocks.preloadImages.mockResolvedValue(undefined);
 
     vi.stubGlobal(
       "requestAnimationFrame",
@@ -99,7 +99,7 @@ describe("PuzzlePieceTransfer", () => {
       await Promise.resolve();
     });
 
-    expect(pieceImageMocks.preloadPieceImages).not.toHaveBeenCalled();
+    expect(pieceImageMocks.preloadImages).not.toHaveBeenCalled();
     expect(onStart).toHaveBeenCalledTimes(1);
     expect(onComplete).toHaveBeenCalledTimes(1);
     expect(container.querySelectorAll("img")).toHaveLength(0);
@@ -125,8 +125,8 @@ describe("PuzzlePieceTransfer", () => {
       await Promise.resolve();
     });
 
-    expect(pieceImageMocks.preloadPieceImages).toHaveBeenCalledTimes(1);
-    expect(pieceImageMocks.preloadPieceImages).toHaveBeenCalledWith([
+    expect(pieceImageMocks.preloadImages).toHaveBeenCalledTimes(1);
+    expect(pieceImageMocks.preloadImages).toHaveBeenCalledWith([
       "/PuzzlePieces/1.avif",
       "/PuzzlePieces/2.avif",
     ]);
@@ -174,7 +174,7 @@ describe("PuzzlePieceTransfer", () => {
       await Promise.resolve();
     });
 
-    expect(pieceImageMocks.preloadPieceImages).toHaveBeenCalledWith([
+    expect(pieceImageMocks.preloadImages).toHaveBeenCalledWith([
       "/PuzzlePieces/1.avif",
     ]);
     expect(onStart).toHaveBeenCalledTimes(1);
@@ -203,9 +203,9 @@ describe("PuzzlePieceTransfer", () => {
 
     expect(
       (
-        container.querySelector('img[src="/PuzzlePieces/1.avif"]') as
-          | HTMLImageElement
-          | null
+        container.querySelector(
+          'img[src="/PuzzlePieces/1.avif"]'
+        ) as HTMLImageElement | null
       )?.style.width
     ).toBe("82px");
   });

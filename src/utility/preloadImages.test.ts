@@ -6,7 +6,9 @@ type MockImageInstance = {
   naturalWidth: number;
   onerror: null | (() => void);
   onload: null | (() => void);
+  sizes: string;
   src: string;
+  srcset: string;
   triggerError: () => void;
   triggerLoad: () => void;
 };
@@ -25,13 +27,17 @@ const setMockImage = ({
     complete = false;
     decode = hasDecode
       ? vi.fn(() =>
-          decodeRejects ? Promise.reject(new Error("decode failed")) : Promise.resolve()
+          decodeRejects
+            ? Promise.reject(new Error("decode failed"))
+            : Promise.resolve()
         )
       : undefined;
     naturalWidth = 0;
     onerror: null | (() => void) = null;
     onload: null | (() => void) = null;
+    sizes = "";
     private _src = "";
+    srcset = "";
 
     constructor() {
       instances.push(this as unknown as MockImageInstance);
@@ -68,7 +74,7 @@ const setMockImage = ({
   return instances;
 };
 
-describe("pieceImages", () => {
+describe("preloadImages", () => {
   beforeEach(() => {
     vi.resetModules();
   });
@@ -83,9 +89,9 @@ describe("pieceImages", () => {
 
   it("caches duplicate sources and resolves after the image decodes", async () => {
     const instances = setMockImage();
-    const { preloadPieceImages } = await import("./pieceImages");
+    const { preloadImages } = await import("./preloadImages");
 
-    const preloadPromise = preloadPieceImages(["/piece-a.avif", "/piece-a.avif"]);
+    const preloadPromise = preloadImages(["/piece-a.avif", "/piece-a.avif"]);
 
     expect(instances.length).toBe(1);
 
@@ -97,9 +103,9 @@ describe("pieceImages", () => {
 
   it("resolves when an image errors", async () => {
     const instances = setMockImage({ hasDecode: false });
-    const { preloadPieceImages } = await import("./pieceImages");
+    const { preloadImages } = await import("./preloadImages");
 
-    const preloadPromise = preloadPieceImages(["/piece-b.avif"]);
+    const preloadPromise = preloadImages(["/piece-b.avif"]);
 
     instances[0]?.triggerError();
 
@@ -107,12 +113,43 @@ describe("pieceImages", () => {
   });
 
   it("resolves already-complete images immediately even if decode rejects", async () => {
-    const instances = setMockImage({ completeOnSrc: true, decodeRejects: true });
-    const { preloadPieceImages } = await import("./pieceImages");
+    const instances = setMockImage({
+      completeOnSrc: true,
+      decodeRejects: true,
+    });
+    const { preloadImages } = await import("./preloadImages");
 
-    await expect(preloadPieceImages(["/piece-c.avif"])).resolves.toEqual([
+    await expect(preloadImages(["/piece-c.avif"])).resolves.toEqual([
       undefined,
     ]);
     expect(instances[0]?.decode).toHaveBeenCalledTimes(1);
+  });
+
+  it("preloads responsive descriptors with srcset and sizes", async () => {
+    const instances = setMockImage();
+    const { preloadImages } = await import("./preloadImages");
+
+    const preloadPromise = preloadImages([
+      {
+        src: "/generated/project-previews/tornado-vis/1-960.avif",
+        srcSet:
+          "/generated/project-previews/tornado-vis/1-640.avif 640w, /generated/project-previews/tornado-vis/1-960.avif 960w, /tornado-vis/1.avif 1500w",
+        sizes:
+          "(min-width: 1280px) 56vw, (min-width: 768px) calc(100vw - 8rem), calc(100vw - 4.5rem)",
+      },
+    ]);
+
+    expect(instances[0]?.src).toBe(
+      "/generated/project-previews/tornado-vis/1-960.avif"
+    );
+    expect(instances[0]?.srcset).toContain(
+      "/generated/project-previews/tornado-vis/1-640.avif 640w"
+    );
+    expect(instances[0]?.sizes).toBe(
+      "(min-width: 1280px) 56vw, (min-width: 768px) calc(100vw - 8rem), calc(100vw - 4.5rem)"
+    );
+
+    instances[0]?.triggerLoad();
+    await expect(preloadPromise).resolves.toEqual([undefined]);
   });
 });

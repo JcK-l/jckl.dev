@@ -4,6 +4,8 @@ export type Project = {
   description: string;
   imageFolder?: string;
   numberImages?: number;
+  previewImageWidth?: number;
+  previewImageHeight?: number;
   githubLink?: string;
   youtubeLink?: string;
   demoLink?: string;
@@ -17,6 +19,8 @@ export const projects: Project[] = [
       "A proof-of-concept moving Met.3D's graphics pipeline from OpenGL to Vulkan during my bachelor's thesis. It focuses on modern rendering infrastructure and cleaner renderer architecture.",
     imageFolder: "/vulkan-renderer",
     numberImages: 5,
+    previewImageWidth: 1500,
+    previewImageHeight: 816,
     githubLink: "https://github.com/JcK-l/vulkan-renderer",
   },
   {
@@ -26,6 +30,8 @@ export const projects: Project[] = [
       "A Qt desktop app that turns tornado data into isolines, streamlines, and atmospheric field views. It blends scientific visualization work with graphics-focused tooling.",
     imageFolder: "/tornado-vis",
     numberImages: 4,
+    previewImageWidth: 1500,
+    previewImageHeight: 816,
     githubLink: "https://github.com/JcK-l/tornado-vis",
   },
   {
@@ -35,6 +41,8 @@ export const projects: Project[] = [
       "An Android app inspired by Cluedo, built with a team in two weeks. It turns deduction, movement, and note-taking into a compact social mystery game.",
     imageFolder: "/proud-detectives",
     numberImages: 12,
+    previewImageWidth: 1500,
+    previewImageHeight: 816,
     githubLink: "https://github.com/JcK-l/proud-detectives",
     youtubeLink: "https://www.youtube.com/watch?v=c1fAM1WMQbg",
   },
@@ -45,6 +53,8 @@ export const projects: Project[] = [
       "A straightforward WebGL lighting sandbox focused on forward rendering and clean scene setup. It also became the playground for exploring where clustered shading could go next.",
     imageFolder: "/simple-lights",
     numberImages: 3,
+    previewImageWidth: 1500,
+    previewImageHeight: 816,
     githubLink: "https://github.com/JcK-l/simple-lights",
     demoLink: "https://jck-l.github.io/simple-lights/",
   },
@@ -55,6 +65,8 @@ export const projects: Project[] = [
       "A public LaTeX template I built to make university homework faster to write and easier to format. It is structured for math-heavy assignments without the usual setup friction.",
     imageFolder: "/homework-latex",
     numberImages: 2,
+    previewImageWidth: 1200,
+    previewImageHeight: 650,
     githubLink: "https://github.com/JcK-l/homework-latex",
   },
   {
@@ -64,6 +76,8 @@ export const projects: Project[] = [
       "The website you're on right now: a portfolio experiment built as an interactive puzzle box. It mixes projects, narrative, and hidden routes you can uncover while exploring.",
     imageFolder: "/jckl-website",
     numberImages: 1,
+    previewImageWidth: 1000,
+    previewImageHeight: 512,
     githubLink: "https://github.com/JcK-l/jckl.dev",
   },
   {

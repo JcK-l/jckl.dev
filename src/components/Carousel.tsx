@@ -1,16 +1,13 @@
-import {
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useAnimation, type PanInfo } from "framer-motion";
+import { getHorizontalSwipeDirection } from "../utility/horizontalSwipe";
+import { getProjectPreviewFrames } from "../utility/projectPreviewImages";
 
 const AUTOPLAY_INTERVAL_MS = 5000;
 const SWIPE_THRESHOLD_RATIO = 0.1;
-const MAX_SWIPE_THRESHOLD_PX = 60;
-const HORIZONTAL_DOMINANCE_RATIO = 0.85;
+const MAX_SWIPE_THRESHOLD_PX = 72;
 const TAP_DISTANCE_THRESHOLD_PX = 12;
-const SWIPE_VELOCITY_THRESHOLD = 360;
+const SWIPE_VELOCITY_THRESHOLD = 380;
 const CAROUSEL_DRAG_ELASTIC = 0.08;
 const SPRING_OPTIONS = {
   type: "spring",
@@ -58,28 +55,15 @@ export const getCarouselSwipeDirection = ({
   viewportWidth: number;
   velocityX: number;
 }) => {
-  if (
-    viewportWidth <= 0 ||
-    (Math.abs(offsetX) <= Math.abs(offsetY) &&
-      Math.abs(velocityX) < SWIPE_VELOCITY_THRESHOLD)
-  ) {
-    return 0;
-  }
-
-  const swipeThreshold = Math.min(
-    viewportWidth * SWIPE_THRESHOLD_RATIO,
-    MAX_SWIPE_THRESHOLD_PX,
-  );
-
-  if (
-    (Math.abs(offsetX) < swipeThreshold ||
-      Math.abs(offsetX) < Math.abs(offsetY) * HORIZONTAL_DOMINANCE_RATIO) &&
-    Math.abs(velocityX) < SWIPE_VELOCITY_THRESHOLD
-  ) {
-    return 0;
-  }
-
-  return offsetX < 0 || velocityX < 0 ? 1 : -1;
+  return getHorizontalSwipeDirection({
+    offsetX,
+    offsetY,
+    surfaceWidth: viewportWidth,
+    velocityX,
+    distanceRatio: SWIPE_THRESHOLD_RATIO,
+    maxDistanceThreshold: MAX_SWIPE_THRESHOLD_PX,
+    velocityThreshold: SWIPE_VELOCITY_THRESHOLD,
+  });
 };
 
 export const Carousel = ({
@@ -95,14 +79,17 @@ export const Carousel = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isTouchInteracting, setIsTouchInteracting] = useState(false);
   const shouldSuppressClickRef = useRef(false);
-  const images = Array.from(
-    { length: numberImages },
-    (_, index) => `${imageFolder}/${index + 1}.avif`,
-  );
+  const images = getProjectPreviewFrames({
+    imageFolder,
+    numberImages,
+  });
   const isCarouselDraggable = images.length > 1;
 
   const showImageAt = (nextPosition: number) => {
-    const clampedPosition = Math.max(0, Math.min(nextPosition, images.length - 1));
+    const clampedPosition = Math.max(
+      0,
+      Math.min(nextPosition, images.length - 1)
+    );
     const viewportWidth = getCarouselViewportWidth(viewportRef.current);
 
     positionRef.current = clampedPosition;
@@ -143,6 +130,17 @@ export const Carousel = ({
     controls.stop();
     shouldSuppressClickRef.current = false;
     setIsTouchInteracting(true);
+  };
+
+  const handleDrag = (
+    _: MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo
+  ) => {
+    shouldSuppressClickRef.current =
+      getDragTravel({
+        offsetX: info.offset.x,
+        offsetY: info.offset.y,
+      }) > TAP_DISTANCE_THRESHOLD_PX;
   };
 
   const handleDragEnd = (
@@ -217,15 +215,18 @@ export const Carousel = ({
         dragConstraints={{ left: 0, right: 0 }}
         dragElastic={CAROUSEL_DRAG_ELASTIC}
         dragMomentum={false}
+        onDrag={handleDrag}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        {images.map((src, index) => (
+        {images.map((image, index) => (
           <ProjectCards
             key={index}
             isPriorityImage={index === 0}
-            src={src}
-            onClick={() => handleImageClick(src)}
+            sizes={image.sizes}
+            src={image.src}
+            srcSet={image.srcSet}
+            onClick={() => handleImageClick(image.fullSizeSrc)}
           />
         ))}
       </motion.div>
@@ -248,11 +249,15 @@ export const Carousel = ({
 
 const ProjectCards = ({
   isPriorityImage,
+  sizes,
   src,
+  srcSet,
   onClick,
 }: {
   isPriorityImage: boolean;
+  sizes?: string;
   src: string;
+  srcSet?: string;
   onClick: () => void;
 }) => {
   return (
@@ -262,9 +267,12 @@ const ProjectCards = ({
     >
       <img
         className="pointer-events-none block h-full w-full object-cover object-top"
-        src={src}
-        loading={isPriorityImage ? "eager" : "lazy"}
         alt="Get a better browser!"
+        decoding="async"
+        loading={isPriorityImage ? "eager" : "lazy"}
+        sizes={sizes}
+        src={src}
+        srcSet={srcSet}
       />
     </div>
   );

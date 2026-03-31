@@ -4,6 +4,7 @@ import {
   enterDigits,
   getConnectionOffset,
   getElementAtLocatorCenter,
+  getPhonewaveLiveScreen,
 } from "./test-helpers";
 
 test("PhoneWave still accepts retries after a viewport resize", async ({
@@ -30,11 +31,14 @@ test("PhoneWave still accepts retries after a viewport resize", async ({
   await enterDigits(connectionSection, months);
 
   await connectionSection.getByRole("button", { name: "START" }).click();
+  const phonewaveLiveScreen = getPhonewaveLiveScreen(connectionSection);
 
   await expect(
-    connectionSection.getByText(/outside target window/i)
+    phonewaveLiveScreen.getByText(/outside target window/i)
   ).toBeVisible({ timeout: 15_000 });
-  await expect(connectionSection.getByText(/offset not far enough/i)).toBeVisible({
+  await expect(
+    phonewaveLiveScreen.getByText(/offset not far enough/i)
+  ).toBeVisible({
     timeout: 15_000,
   });
 
@@ -53,9 +57,9 @@ test("PhoneWave still accepts retries after a viewport resize", async ({
   await connectionSection.getByRole("button", { name: "START" }).click();
 
   await expect(
-    connectionSection.getByText(/inside target window/i)
+    phonewaveLiveScreen.getByText(/inside target window/i)
   ).toBeVisible({ timeout: 15_000 });
   await expect(
-    connectionSection.getByText(/linked phone input enabled/i)
+    phonewaveLiveScreen.getByText(/linked phone input enabled/i)
   ).toBeVisible({ timeout: 15_000 });
 });

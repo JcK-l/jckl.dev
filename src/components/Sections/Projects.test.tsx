@@ -7,6 +7,13 @@ import { projects } from "../../data/ProjectData";
 import { $endingState } from "../../stores/endingStore";
 import { createDefaultEndingState } from "../../test/factories";
 
+const projectPreviewMocks = vi.hoisted(() => ({
+  getProjectPreviewPrefetchSources: vi.fn(() => [
+    { src: "/mock-preview/1.avif" },
+  ]),
+  preloadImages: vi.fn(() => Promise.resolve()),
+}));
+
 vi.mock("../ProjectText", () => ({
   ProjectText: ({
     mobileNavigator,
@@ -29,9 +36,7 @@ vi.mock("../ProjectText", () => ({
       >
         {title}
       </div>
-      <div
-        data-testid="project-overview-swipe-surface"
-      >
+      <div data-testid="project-overview-swipe-surface">
         <button
           type="button"
           data-testid="project-overview-swipe-prev"
@@ -50,6 +55,15 @@ vi.mock("../ProjectText", () => ({
       {mobileNavigator}
     </div>
   ),
+}));
+
+vi.mock("../../utility/preloadImages", () => ({
+  preloadImages: projectPreviewMocks.preloadImages,
+}));
+
+vi.mock("../../utility/projectPreviewSources", () => ({
+  getProjectPreviewPrefetchSources:
+    projectPreviewMocks.getProjectPreviewPrefetchSources,
 }));
 
 import Projects from "./Projects";
@@ -81,10 +95,7 @@ const mockProjectSelectorGeometry = ({
         } as DOMRect;
       }
 
-      if (
-        this instanceof HTMLElement &&
-        this.getAttribute("role") === "tab"
-      ) {
+      if (this instanceof HTMLElement && this.getAttribute("role") === "tab") {
         return {
           x: 0,
           y: 0,
@@ -115,6 +126,11 @@ const mockProjectSelectorGeometry = ({
 describe("Projects", () => {
   beforeEach(() => {
     $endingState.set(createDefaultEndingState());
+    projectPreviewMocks.getProjectPreviewPrefetchSources.mockClear();
+    projectPreviewMocks.getProjectPreviewPrefetchSources.mockReturnValue([
+      { src: "/mock-preview/1.avif" },
+    ]);
+    projectPreviewMocks.preloadImages.mockClear();
     Object.defineProperty(window, "innerWidth", {
       configurable: true,
       writable: true,
@@ -150,13 +166,15 @@ describe("Projects", () => {
     );
     expect(screen.getByText("01 active")).toBeTruthy();
     expect(
-      screen.getByRole("tab", { name: /vulkan-renderer/i }).getAttribute(
-        "aria-selected"
-      )
+      screen
+        .getByRole("tab", { name: /vulkan-renderer/i })
+        .getAttribute("aria-selected")
     ).toBe("true");
 
     fireEvent.click(
-      screen.getByRole("tab", { name: new RegExp(secondProject?.title ?? "", "i") })
+      screen.getByRole("tab", {
+        name: new RegExp(secondProject?.title ?? "", "i"),
+      })
     );
 
     expect(screen.getByTestId("project-text").dataset.projectId).toBe(
@@ -216,7 +234,40 @@ describe("Projects", () => {
 
     fireEvent.click(screen.getByTestId("project-overview-swipe-prev"));
     expect(screen.getByTestId("project-text").dataset.projectId).toBe("1");
-    expect(screen.getByTestId("project-text").textContent).toBe("vulkan-renderer");
+    expect(screen.getByTestId("project-text").textContent).toBe(
+      "vulkan-renderer"
+    );
+  });
+
+  it("preloads likely preview frames when the active project changes", async () => {
+    render(<Projects />);
+
+    await waitFor(() => {
+      expect(
+        projectPreviewMocks.getProjectPreviewPrefetchSources
+      ).toHaveBeenCalledWith(
+        expect.objectContaining({
+          activeProjectIndex: 0,
+          isDesktopLayout: false,
+        })
+      );
+      expect(projectPreviewMocks.preloadImages).toHaveBeenCalledWith([
+        { src: "/mock-preview/1.avif" },
+      ]);
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /show next project/i }));
+
+    await waitFor(() => {
+      expect(
+        projectPreviewMocks.getProjectPreviewPrefetchSources
+      ).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          activeProjectIndex: 1,
+          isDesktopLayout: false,
+        })
+      );
+    });
   });
 
   it("pages the selector rail and loads projects beyond the first desktop route bank", async () => {
@@ -240,7 +291,9 @@ describe("Projects", () => {
     );
 
     expect(
-      screen.getByRole("tab", { name: /jckl\.dev/i }).getAttribute("aria-selected")
+      screen
+        .getByRole("tab", { name: /jckl\.dev/i })
+        .getAttribute("aria-selected")
     ).toBe("true");
     expect(screen.getByTestId("project-text").dataset.projectId).toBe("6");
     expect(screen.getByTestId("project-text").textContent).toBe("jckl.dev");
@@ -352,5 +405,4 @@ describe("Projects", () => {
     expect(root?.className).toContain("pointer-events-none");
     expect(root?.className).toContain("invisible");
   });
-
 });

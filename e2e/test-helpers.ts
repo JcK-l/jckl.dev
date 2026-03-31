@@ -66,7 +66,10 @@ export const getElementAtLocatorPoint = async (
   };
 };
 
-export const getElementAtLocatorCenter = async (page: Page, locator: Locator) => {
+export const getElementAtLocatorCenter = async (
+  page: Page,
+  locator: Locator
+) => {
   return getElementAtLocatorPoint(page, locator);
 };
 
@@ -124,15 +127,51 @@ export const submitContactForm = async (
 ) => {
   const contactSection = await fillContactForm(page, values);
 
-  await contactSection
-    .getByRole("button", { name: /send d-mail/i })
-    .click();
+  await contactSection.getByRole("button", { name: /send d-mail/i }).click();
 
   return contactSection;
 };
 
 export const getSection = (page: Page, id: string): Locator => {
   return page.locator(`section#${id}`);
+};
+
+export const getPhonewaveLiveScreen = (scope: Locator) => {
+  return scope.getByTestId("phonewave-screen-live");
+};
+
+export const dragLocator = async (
+  page: Page,
+  locator: Locator,
+  {
+    end,
+    start,
+    steps = 12,
+  }: {
+    end: { x: number; y: number };
+    start: { x: number; y: number };
+    steps?: number;
+  }
+) => {
+  const box = await locator.boundingBox();
+
+  if (box === null) {
+    throw new Error("Could not resolve locator bounding box.");
+  }
+
+  const startPoint = {
+    x: box.x + box.width * start.x,
+    y: box.y + box.height * start.y,
+  };
+  const endPoint = {
+    x: box.x + box.width * end.x,
+    y: box.y + box.height * end.y,
+  };
+
+  await page.mouse.move(startPoint.x, startPoint.y);
+  await page.mouse.down();
+  await page.mouse.move(endPoint.x, endPoint.y, { steps });
+  await page.mouse.up();
 };
 
 export const clickPhonePadButton = async (scope: Locator, id: string) => {

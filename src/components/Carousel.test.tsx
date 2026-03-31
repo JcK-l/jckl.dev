@@ -12,18 +12,28 @@ const carouselDragMock = vi.hoisted(() => ({
 }));
 
 vi.mock("framer-motion", async () => {
-  const { createAnimationControls } = await import("../test/mocks/framerMotion");
+  const { createAnimationControls } = await import(
+    "../test/mocks/framerMotion"
+  );
   const controls = createAnimationControls();
 
   return {
     motion: {
       div: ({
         children,
+        onDrag,
         onDragEnd,
         onDragStart,
         ...props
       }: {
         children?: ReactNode;
+        onDrag?: (
+          event: MouseEvent | TouchEvent | PointerEvent,
+          info: {
+            offset: { x: number; y: number };
+            velocity: { x: number; y: number };
+          }
+        ) => void;
         onDragEnd?: (
           event: MouseEvent | TouchEvent | PointerEvent,
           info: {
@@ -52,13 +62,20 @@ vi.mock("framer-motion", async () => {
               drag-start
             </button>
           ) : null}
+          {onDrag ? (
+            <button
+              type="button"
+              data-testid="carousel-drag"
+              onClick={() => onDrag({} as MouseEvent, carouselDragMock.info)}
+            >
+              drag
+            </button>
+          ) : null}
           {onDragEnd ? (
             <button
               type="button"
               data-testid="carousel-drag-end"
-              onClick={() =>
-                onDragEnd({} as MouseEvent, carouselDragMock.info)
-              }
+              onClick={() => onDragEnd({} as MouseEvent, carouselDragMock.info)}
             >
               drag-end
             </button>
@@ -84,7 +101,7 @@ const createBounds = ({ height, width }: { height: number; width: number }) =>
     width,
     height,
     toJSON: () => ({}),
-  }) as DOMRect;
+  } as DOMRect);
 
 describe("Carousel", () => {
   beforeEach(() => {
@@ -103,7 +120,7 @@ describe("Carousel", () => {
         }
 
         return createBounds({ width: 0, height: 0 });
-      },
+      }
     );
   });
 
@@ -120,6 +137,25 @@ describe("Carousel", () => {
     expect(images[1]?.getAttribute("loading")).toBe("lazy");
   });
 
+  it("serves responsive preview variants for known project folders", () => {
+    render(<Carousel imageFolder="/tornado-vis" numberImages={4} />);
+
+    const firstImage = screen.getAllByAltText("Get a better browser!")[0];
+
+    expect(firstImage?.getAttribute("src")).toBe(
+      "/generated/project-previews/tornado-vis/1-960.avif"
+    );
+    expect(firstImage?.getAttribute("srcset")).toContain(
+      "/generated/project-previews/tornado-vis/1-640.avif 640w"
+    );
+    expect(firstImage?.getAttribute("srcset")).toContain(
+      "/tornado-vis/1.avif 1500w"
+    );
+    expect(firstImage?.getAttribute("sizes")).toBe(
+      "(min-width: 1280px) 56vw, (min-width: 768px) calc(100vw - 8rem), calc(100vw - 4.5rem)"
+    );
+  });
+
   it("swipes to the next frame without opening the modal", () => {
     carouselDragMock.info = {
       offset: { x: -96, y: 4 },
@@ -134,6 +170,24 @@ describe("Carousel", () => {
     fireEvent.click(screen.getByTestId("carousel-drag-end"));
 
     expect(screen.getByText("02 / 04")).toBeTruthy();
+    expect(screen.queryByAltText("Preview")).toBeNull();
+  });
+
+  it("suppresses the preview modal once a drag becomes intentional", () => {
+    carouselDragMock.info = {
+      offset: { x: -20, y: 2 },
+      velocity: { x: -40, y: 0 },
+    };
+
+    render(<Carousel imageFolder="/projects/tornado-vis" numberImages={4} />);
+
+    const firstImage = screen.getAllByAltText("Get a better browser!")[0]
+      ?.parentElement as HTMLElement;
+
+    fireEvent.click(screen.getByTestId("carousel-drag-start"));
+    fireEvent.click(screen.getByTestId("carousel-drag"));
+    fireEvent.click(firstImage);
+
     expect(screen.queryByAltText("Preview")).toBeNull();
   });
 
@@ -155,7 +209,7 @@ describe("Carousel", () => {
         offsetY: 4,
         viewportWidth: 320,
         velocityX: -120,
-      }),
+      })
     ).toBe(1);
     expect(
       getCarouselSwipeDirection({
@@ -163,7 +217,7 @@ describe("Carousel", () => {
         offsetY: -88,
         viewportWidth: 320,
         velocityX: -90,
-      }),
+      })
     ).toBe(0);
   });
 });

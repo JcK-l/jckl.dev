@@ -90,13 +90,13 @@
     @apply font-sans text-s-sm font-normal sm:text-m-sm lg:text-l-sm;
   }
   .button-on {
-    @apply bg-secondary rounded-lg text-white cursor-pointer hover:bg-tertiary
+    @apply cursor-pointer rounded-lg bg-secondary text-white hover:bg-tertiary;
   }
   .button-pressed {
-    @apply bg-secondary rounded-lg text-white cursor-default
+    @apply cursor-default rounded-lg bg-secondary text-white;
   }
   .button-initial {
-    @apply bg-primary rounded-lg text-white cursor-default
+    @apply cursor-default rounded-lg bg-primary text-white;
   }
   .appliance-header-subtitle {
     @apply font-appliance text-[0.74rem] font-semibold tracking-[0.12em] sm:text-[0.82rem];
@@ -132,8 +132,6 @@
 :root {
   --hero-face-shadow-filter: none;
 }
-
-
 
 @keyframes fadeIn {
   from {
@@ -246,7 +244,8 @@
   user-select: none;
   -webkit-user-select: none;
   pointer-events: none;
-  transition: filter 180ms ease;
+  transition: filter 180ms ease, opacity 180ms ease;
+  will-change: filter;
 }
 
 .crt-trigger-halo {
@@ -270,33 +269,54 @@
   opacity: 0.68;
 }
 
-.crt-trigger-button:not(:disabled) + svg .crt-trigger-image {
+.crt-trigger-visual-shell[data-interactive="true"] .crt-trigger-image,
+.crt-trigger-visual-shell[data-interactive="true"] .crt-trigger-screen {
   filter: drop-shadow(0 0 7px rgba(241, 250, 238, 0.16))
     drop-shadow(0 0 12px rgba(240, 157, 81, 0.1));
 }
 
-.crt-trigger-button:not(:disabled):hover + svg .crt-trigger-image,
-.crt-trigger-button:not(:disabled):hover + svg .crt-trigger-screen,
-.crt-trigger-button:focus-visible + svg .crt-trigger-image,
-.crt-trigger-button:focus-visible + svg .crt-trigger-screen {
+.crt-trigger-button:not(:disabled):hover
+  + .crt-trigger-visual-shell
+  .crt-trigger-image,
+.crt-trigger-button:not(:disabled):hover
+  + .crt-trigger-visual-shell
+  .crt-trigger-screen,
+.crt-trigger-button:focus-visible
+  + .crt-trigger-visual-shell
+  .crt-trigger-image,
+.crt-trigger-button:focus-visible
+  + .crt-trigger-visual-shell
+  .crt-trigger-screen {
   filter: drop-shadow(0 0 10px rgba(241, 250, 238, 0.85))
     drop-shadow(0 0 20px rgba(240, 157, 81, 0.42));
 }
 
-.crt-trigger-button[data-state="ready"]:not(:disabled) + svg .crt-trigger-image,
-.crt-trigger-button[data-state="ready"]:not(:disabled) + svg .crt-trigger-screen {
+.crt-trigger-visual-shell[data-state="ready"] .crt-trigger-image,
+.crt-trigger-visual-shell[data-state="ready"] .crt-trigger-screen {
   filter: drop-shadow(0 0 10px rgba(241, 250, 238, 0.26))
     drop-shadow(0 0 18px rgba(240, 157, 81, 0.16));
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .crt-trigger-button[data-state="ready"]:not(:disabled) + svg .crt-trigger-image,
-  .crt-trigger-button[data-state="ready"]:not(:disabled) + svg .crt-trigger-screen {
+  .crt-trigger-visual-shell[data-state="ready"] .crt-trigger-image,
+  .crt-trigger-visual-shell[data-state="ready"] .crt-trigger-screen {
     animation: crt-trigger-ready-pulse 2.5s ease-in-out infinite;
   }
 
   .crt-trigger-halo[data-state="ready"] {
     animation: crt-trigger-halo-pulse 2.5s ease-in-out infinite;
+  }
+}
+
+@media (hover: none) {
+  .crt-trigger-visual-shell[data-state="ready"] .crt-trigger-image,
+  .crt-trigger-visual-shell[data-state="ready"] .crt-trigger-screen {
+    filter: drop-shadow(0 0 12px rgba(241, 250, 238, 0.36))
+      drop-shadow(0 0 24px rgba(240, 157, 81, 0.22));
+  }
+
+  .crt-trigger-halo[data-state="ready"] {
+    opacity: 0.78;
   }
 }
 
@@ -333,5 +353,3 @@ html {
     font-size: 20px;
   }
 }
-
-

@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { pieces as puzzlePieces } from "../../data/PuzzleData";
 import { $puzzlePieceSize } from "../../stores/puzzleLayoutStore";
-import { preloadPieceImages } from "../../utility/pieceImages";
+import { preloadImages } from "../../utility/preloadImages";
 
 type TransferDirection = "up" | "down";
 
@@ -103,7 +103,7 @@ export const PuzzlePieceTransfer = ({
         return;
       }
 
-      await preloadPieceImages(
+      await preloadImages(
         pieceIds.map((pieceId) => puzzlePieces[pieceId - 1].path)
       );
 

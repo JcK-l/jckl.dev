@@ -18,6 +18,7 @@
     "astro": "astro",
     "fonts:convert": "node scripts/convert-fonts.mjs",
     "images:hero": "node scripts/generate-hero-images.mjs",
+    "images:projects": "node scripts/generate-project-preview-images.mjs",
     "trace:puzzle": "node scripts/trace-puzzle-pieces.mjs"
   },
   "dependencies": {
