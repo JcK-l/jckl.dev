@@ -62,6 +62,15 @@ describe("Carousel", () => {
     render(<Carousel imageFolder="/projects/tornado-vis" numberImages={4} />);
 
     const viewport = screen.getByTestId("carousel-viewport");
+    const setPointerCapture = vi.fn();
+    const releasePointerCapture = vi.fn();
+    const hasPointerCapture = vi.fn().mockReturnValue(true);
+
+    Object.assign(viewport, {
+      hasPointerCapture,
+      releasePointerCapture,
+      setPointerCapture,
+    });
 
     expect(screen.getByText("01 / 04")).toBeTruthy();
 
@@ -84,8 +93,42 @@ describe("Carousel", () => {
       pointerType: "touch",
     });
 
+    expect(setPointerCapture).toHaveBeenCalledWith(1);
+    expect(releasePointerCapture).toHaveBeenCalledWith(1);
     expect(screen.getByText("02 / 04")).toBeTruthy();
 
+    expect(screen.queryByAltText("Preview")).toBeNull();
+  });
+
+  it("still changes frames when a touch pointer is canceled after a horizontal move", () => {
+    render(<Carousel imageFolder="/projects/tornado-vis" numberImages={4} />);
+
+    const viewport = screen.getByTestId("carousel-viewport");
+
+    Object.assign(viewport, {
+      hasPointerCapture: vi.fn().mockReturnValue(false),
+      releasePointerCapture: vi.fn(),
+      setPointerCapture: vi.fn(),
+    });
+
+    fireEvent.pointerDown(viewport, {
+      clientX: 278,
+      clientY: 120,
+      pointerId: 1,
+      pointerType: "touch",
+    });
+    fireEvent.pointerMove(viewport, {
+      clientX: 182,
+      clientY: 124,
+      pointerId: 1,
+      pointerType: "touch",
+    });
+    fireEvent.pointerCancel(viewport, {
+      pointerId: 1,
+      pointerType: "touch",
+    });
+
+    expect(screen.getByText("02 / 04")).toBeTruthy();
     expect(screen.queryByAltText("Preview")).toBeNull();
   });
 

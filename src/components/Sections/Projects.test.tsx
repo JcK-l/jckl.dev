@@ -1,6 +1,10 @@
 // @vitest-environment jsdom
 
-import type { ReactNode } from "react";
+import type {
+  PointerEventHandler,
+  ReactNode,
+  TouchEventHandler,
+} from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { projects } from "../../data/ProjectData";
@@ -9,19 +13,27 @@ import { createDefaultEndingState } from "../../test/factories";
 
 vi.mock("../ProjectText", () => ({
   ProjectText: ({
+    onMobileOverviewPointerCancel,
+    onMobileOverviewPointerDown,
+    onMobileOverviewPointerMove,
+    onMobileOverviewPointerUp,
+    onMobileOverviewTouchCancel,
     onMobileOverviewTouchEnd,
+    onMobileOverviewTouchMove,
     onMobileOverviewTouchStart,
     mobileNavigator,
     projectId,
     title,
     totalProjects,
   }: {
-    onMobileOverviewTouchEnd?: (event: {
-      changedTouches: Array<{ clientX: number; clientY: number }>;
-    }) => void;
-    onMobileOverviewTouchStart?: (event: {
-      touches: Array<{ clientX: number; clientY: number }>;
-    }) => void;
+    onMobileOverviewPointerCancel?: PointerEventHandler<HTMLDivElement>;
+    onMobileOverviewPointerDown?: PointerEventHandler<HTMLDivElement>;
+    onMobileOverviewPointerMove?: PointerEventHandler<HTMLDivElement>;
+    onMobileOverviewPointerUp?: PointerEventHandler<HTMLDivElement>;
+    onMobileOverviewTouchCancel?: TouchEventHandler<HTMLDivElement>;
+    onMobileOverviewTouchEnd?: TouchEventHandler<HTMLDivElement>;
+    onMobileOverviewTouchMove?: TouchEventHandler<HTMLDivElement>;
+    onMobileOverviewTouchStart?: TouchEventHandler<HTMLDivElement>;
     mobileNavigator?: ReactNode;
     projectId: number;
     title: string;
@@ -37,6 +49,12 @@ vi.mock("../ProjectText", () => ({
       </div>
       <div
         data-testid="project-overview-swipe-surface"
+        onPointerCancel={onMobileOverviewPointerCancel}
+        onPointerDown={onMobileOverviewPointerDown}
+        onPointerMove={onMobileOverviewPointerMove}
+        onPointerUp={onMobileOverviewPointerUp}
+        onTouchCancel={onMobileOverviewTouchCancel}
+        onTouchMove={onMobileOverviewTouchMove}
         onTouchStart={onMobileOverviewTouchStart}
         onTouchEnd={onMobileOverviewTouchEnd}
       />
@@ -191,14 +209,71 @@ describe("Projects", () => {
     render(<Projects />);
 
     const swipeSurface = await screen.findByTestId("project-overview-swipe-surface");
+    const setPointerCapture = vi.fn();
+    const releasePointerCapture = vi.fn();
+    const hasPointerCapture = vi.fn().mockReturnValue(true);
 
-    fireEvent.touchStart(swipeSurface, {
-      touches: [{ clientX: 228, clientY: 240 }],
-    });
-    fireEvent.touchEnd(swipeSurface, {
-      changedTouches: [{ clientX: 168, clientY: 244 }],
+    Object.assign(swipeSurface, {
+      hasPointerCapture,
+      releasePointerCapture,
+      setPointerCapture,
     });
 
+    fireEvent.pointerDown(swipeSurface, {
+      clientX: 228,
+      clientY: 240,
+      pointerId: 1,
+      pointerType: "touch",
+    });
+    fireEvent.pointerMove(swipeSurface, {
+      clientX: 168,
+      clientY: 244,
+      pointerId: 1,
+      pointerType: "touch",
+    });
+    fireEvent.pointerUp(swipeSurface, {
+      clientX: 168,
+      clientY: 244,
+      pointerId: 1,
+      pointerType: "touch",
+    });
+
+    expect(setPointerCapture).toHaveBeenCalledWith(1);
+    expect(releasePointerCapture).toHaveBeenCalledWith(1);
+    expect(screen.getByTestId("project-text").dataset.projectId).toBe("2");
+    expect(screen.getByTestId("project-text").textContent).toBe("tornado-vis");
+  });
+
+  it("still advances the mobile project card when the swipe is canceled after moving", async () => {
+    render(<Projects />);
+
+    const swipeSurface = await screen.findByTestId("project-overview-swipe-surface");
+    const releasePointerCapture = vi.fn();
+
+    Object.assign(swipeSurface, {
+      hasPointerCapture: vi.fn().mockReturnValue(false),
+      releasePointerCapture,
+      setPointerCapture: vi.fn(),
+    });
+
+    fireEvent.pointerDown(swipeSurface, {
+      clientX: 228,
+      clientY: 240,
+      pointerId: 1,
+      pointerType: "touch",
+    });
+    fireEvent.pointerMove(swipeSurface, {
+      clientX: 168,
+      clientY: 244,
+      pointerId: 1,
+      pointerType: "touch",
+    });
+    fireEvent.pointerCancel(swipeSurface, {
+      pointerId: 1,
+      pointerType: "touch",
+    });
+
+    expect(releasePointerCapture).not.toHaveBeenCalled();
     expect(screen.getByTestId("project-text").dataset.projectId).toBe("2");
     expect(screen.getByTestId("project-text").textContent).toBe("tornado-vis");
   });

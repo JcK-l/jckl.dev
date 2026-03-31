@@ -1,4 +1,11 @@
-import { useEffect, useMemo, useRef, useState, type TouchEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+  type TouchEvent,
+} from "react";
 import { useStore } from "@nanostores/react";
 import { projects, type Project } from "../../data/ProjectData";
 import { ProjectText } from "../ProjectText";
@@ -19,6 +26,10 @@ type SelectorBank = {
 type TouchPoint = {
   x: number;
   y: number;
+};
+
+const browserSupportsPointerEvents = () => {
+  return typeof window !== "undefined" && window.PointerEvent != null;
 };
 
 const formatProjectId = (projectId: number) => {
@@ -166,6 +177,8 @@ const Projects = () => {
   const selectorViewportRef = useRef<HTMLDivElement>(null);
   const selectorListRef = useRef<HTMLDivElement>(null);
   const archiveModuleRef = useRef<HTMLDivElement>(null);
+  const mobileActivePointerIdRef = useRef<number | null>(null);
+  const mobileLatestTouchRef = useRef<TouchPoint | null>(null);
   const mobileTouchStartRef = useRef<TouchPoint | null>(null);
   const isNegativeEndingActive = isEndingActive("negative", endingState);
 
@@ -203,28 +216,150 @@ const Projects = () => {
       setActiveProjectId(nextProject.id);
     }
   };
-  const handleMobileProjectSwipeStart = (event: TouchEvent<HTMLDivElement>) => {
+
+  const beginMobileProjectSwipe = (point: TouchPoint) => {
     mobileTouchStartRef.current = {
-      x: event.touches[0]?.clientX ?? 0,
-      y: event.touches[0]?.clientY ?? 0,
+      x: point.x,
+      y: point.y,
     };
+    mobileLatestTouchRef.current = point;
   };
-  const handleMobileProjectSwipeEnd = (event: TouchEvent<HTMLDivElement>) => {
+
+  const updateMobileProjectSwipe = (point: TouchPoint) => {
+    mobileLatestTouchRef.current = point;
+  };
+
+  const resetMobileProjectSwipe = () => {
+    mobileActivePointerIdRef.current = null;
+    mobileLatestTouchRef.current = null;
+    mobileTouchStartRef.current = null;
+  };
+
+  const completeMobileProjectSwipe = (touchEnd: TouchPoint | null) => {
     const swipeDirection = getMobileProjectSwipeDirection({
-      touchEnd: {
-        x: event.changedTouches[0]?.clientX ?? 0,
-        y: event.changedTouches[0]?.clientY ?? 0,
-      },
+      touchEnd: touchEnd ?? mobileLatestTouchRef.current,
       touchStart: mobileTouchStartRef.current,
     });
 
-    mobileTouchStartRef.current = null;
+    resetMobileProjectSwipe();
 
     if (swipeDirection === 0) {
       return;
     }
 
     stepProjectSelection(swipeDirection);
+  };
+
+  const handleMobileProjectPointerDown = (
+    event: ReactPointerEvent<HTMLDivElement>
+  ) => {
+    if (event.pointerType === "mouse") {
+      return;
+    }
+
+    mobileActivePointerIdRef.current = event.pointerId;
+
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {
+      // Some mobile browsers can refuse capture during scroll negotiation.
+    }
+
+    beginMobileProjectSwipe({
+      x: event.clientX,
+      y: event.clientY,
+    });
+  };
+
+  const handleMobileProjectPointerMove = (
+    event: ReactPointerEvent<HTMLDivElement>
+  ) => {
+    if (mobileActivePointerIdRef.current !== event.pointerId) {
+      return;
+    }
+
+    updateMobileProjectSwipe({
+      x: event.clientX,
+      y: event.clientY,
+    });
+  };
+
+  const releaseMobileProjectPointer = (
+    event: ReactPointerEvent<HTMLDivElement>
+  ) => {
+    try {
+      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      }
+    } catch {
+      // Ignore capture release issues on browsers without full support.
+    }
+  };
+
+  const handleMobileProjectPointerUp = (
+    event: ReactPointerEvent<HTMLDivElement>
+  ) => {
+    if (mobileActivePointerIdRef.current !== event.pointerId) {
+      return;
+    }
+
+    completeMobileProjectSwipe({
+      x: event.clientX,
+      y: event.clientY,
+    });
+    releaseMobileProjectPointer(event);
+  };
+
+  const handleMobileProjectPointerCancel = (
+    event: ReactPointerEvent<HTMLDivElement>
+  ) => {
+    if (mobileActivePointerIdRef.current !== event.pointerId) {
+      return;
+    }
+
+    completeMobileProjectSwipe(null);
+    releaseMobileProjectPointer(event);
+  };
+
+  const handleMobileProjectSwipeStart = (event: TouchEvent<HTMLDivElement>) => {
+    if (browserSupportsPointerEvents()) {
+      return;
+    }
+
+    beginMobileProjectSwipe({
+      x: event.touches[0]?.clientX ?? 0,
+      y: event.touches[0]?.clientY ?? 0,
+    });
+  };
+
+  const handleMobileProjectSwipeMove = (event: TouchEvent<HTMLDivElement>) => {
+    if (browserSupportsPointerEvents()) {
+      return;
+    }
+
+    updateMobileProjectSwipe({
+      x: event.touches[0]?.clientX ?? 0,
+      y: event.touches[0]?.clientY ?? 0,
+    });
+  };
+
+  const handleMobileProjectSwipeEnd = (event: TouchEvent<HTMLDivElement>) => {
+    if (browserSupportsPointerEvents()) {
+      return;
+    }
+
+    completeMobileProjectSwipe({
+      x: event.changedTouches[0]?.clientX ?? 0,
+      y: event.changedTouches[0]?.clientY ?? 0,
+    });
+  };
+
+  const handleMobileProjectSwipeCancel = () => {
+    if (browserSupportsPointerEvents()) {
+      return;
+    }
+
+    completeMobileProjectSwipe(null);
   };
 
   useEffect(() => {
@@ -436,8 +571,26 @@ const Projects = () => {
               onMobileOverviewTouchStart={
                 isDesktopLayout ? undefined : handleMobileProjectSwipeStart
               }
+              onMobileOverviewTouchMove={
+                isDesktopLayout ? undefined : handleMobileProjectSwipeMove
+              }
               onMobileOverviewTouchEnd={
                 isDesktopLayout ? undefined : handleMobileProjectSwipeEnd
+              }
+              onMobileOverviewTouchCancel={
+                isDesktopLayout ? undefined : handleMobileProjectSwipeCancel
+              }
+              onMobileOverviewPointerDown={
+                isDesktopLayout ? undefined : handleMobileProjectPointerDown
+              }
+              onMobileOverviewPointerMove={
+                isDesktopLayout ? undefined : handleMobileProjectPointerMove
+              }
+              onMobileOverviewPointerUp={
+                isDesktopLayout ? undefined : handleMobileProjectPointerUp
+              }
+              onMobileOverviewPointerCancel={
+                isDesktopLayout ? undefined : handleMobileProjectPointerCancel
               }
               projectId={activeProject.id}
               totalProjects={projects.length}

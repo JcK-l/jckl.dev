@@ -1,4 +1,4 @@
-import { createElement, forwardRef, useEffect } from "react";
+import { createElement, forwardRef, useEffect, type ReactNode } from "react";
 import { vi } from "vitest";
 
 const VOID_TAGS = new Set([
@@ -29,6 +29,29 @@ type MotionHookOptions = {
   transformValue?: (outputRange: unknown[]) => unknown;
 };
 
+type MockMotionProps = Record<string, unknown> & {
+  animate?: unknown;
+  children?: ReactNode;
+  custom?: unknown;
+  drag?: unknown;
+  dragConstraints?: unknown;
+  dragElastic?: unknown;
+  dragMomentum?: unknown;
+  exit?: unknown;
+  initial?: unknown;
+  onAnimationComplete?: (() => void) | undefined;
+  onDrag?: (() => void) | undefined;
+  onDragEnd?: (() => void) | undefined;
+  onDragStart?: (() => void) | undefined;
+  onHoverEnd?: (() => void) | undefined;
+  onHoverStart?: (() => void) | undefined;
+  transition?: unknown;
+  variants?: unknown;
+  viewport?: unknown;
+  whileHover?: unknown;
+  whileTap?: unknown;
+};
+
 export const createMockMotionValue = <T,>(initialValue: T) => {
   let currentValue = initialValue;
 
@@ -49,12 +72,13 @@ export const createMotionProxy = ({
     {},
     {
       get: (_, tag: string) =>
-        forwardRef<HTMLElement, Record<string, unknown>>(function MockMotion(
+        forwardRef<HTMLElement, MockMotionProps>(function MockMotion(
           props,
           ref
         ) {
           const {
             animate,
+            children,
             custom,
             drag,
             dragConstraints,
@@ -90,54 +114,61 @@ export const createMotionProxy = ({
           void whileHover;
           void whileTap;
 
+          const animationCompleteHandler = onAnimationComplete as
+            | (() => void)
+            | undefined;
+          const dragStartHandler = onDragStart as (() => void) | undefined;
+          const dragHandler = onDrag as (() => void) | undefined;
+          const dragEndHandler = onDragEnd as (() => void) | undefined;
+
           useEffect(() => {
             if (autoAnimationComplete) {
-              onAnimationComplete?.();
+              animationCompleteHandler?.();
             }
-          }, [onAnimationComplete]);
+          }, [animationCompleteHandler]);
 
-          const dragControls = !exposeDragControls
+          const dragControls: ReactNode = !exposeDragControls
             ? null
             : [
-                onDragStart
+                dragStartHandler
                   ? createElement(
                       "button",
                       {
                         key: "drag-start",
                         type: "button",
                         "data-testid": `${dragControlTestIdPrefix}-drag-start`,
-                        onClick: () => onDragStart(),
+                        onClick: () => dragStartHandler(),
                       },
                       "drag-start"
                     )
                   : null,
-                onDrag
+                dragHandler
                   ? createElement(
                       "button",
                       {
                         key: "drag",
                         type: "button",
                         "data-testid": `${dragControlTestIdPrefix}-drag`,
-                        onClick: () => onDrag(),
+                        onClick: () => dragHandler(),
                       },
                       "drag"
                     )
                   : null,
-                onDragEnd
+                dragEndHandler
                   ? createElement(
                       "button",
                       {
                         key: "drag-end",
                         type: "button",
                         "data-testid": `${dragControlTestIdPrefix}-drag-end`,
-                        onClick: () => onDragEnd(),
+                        onClick: () => dragEndHandler(),
                       },
                       "drag-end"
                     )
                   : null,
               ];
 
-          void onAnimationComplete;
+          void animationCompleteHandler;
           void onHoverEnd;
           void onHoverStart;
 
@@ -145,7 +176,12 @@ export const createMotionProxy = ({
             return createElement(tag, { ref, ...domProps });
           }
 
-          return createElement(tag, { ref, ...domProps }, props.children, dragControls);
+          return createElement(
+            tag,
+            { ref, ...domProps },
+            children as ReactNode,
+            dragControls
+          );
         }),
     }
   );

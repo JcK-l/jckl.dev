@@ -1,4 +1,8 @@
-import { type ComponentType, type ReactNode, type TouchEventHandler } from "react";
+import {
+  type PointerEventHandler,
+  type ReactNode,
+  type TouchEventHandler,
+} from "react";
 import { Carousel } from "./Carousel";
 import { GitHub, Youtube, Code } from "../utility/icons";
 import { ApplianceShell } from "./appliance/ApplianceShell";
@@ -7,6 +11,12 @@ import { ApplianceInsetPanel } from "./appliance/ApplianceInsetPanel";
 interface ProjectTextProps {
   className?: string;
   mobileNavigator?: ReactNode;
+  onMobileOverviewPointerCancel?: PointerEventHandler<HTMLDivElement>;
+  onMobileOverviewPointerDown?: PointerEventHandler<HTMLDivElement>;
+  onMobileOverviewPointerMove?: PointerEventHandler<HTMLDivElement>;
+  onMobileOverviewPointerUp?: PointerEventHandler<HTMLDivElement>;
+  onMobileOverviewTouchCancel?: TouchEventHandler<HTMLDivElement>;
+  onMobileOverviewTouchMove?: TouchEventHandler<HTMLDivElement>;
   onMobileOverviewTouchStart?: TouchEventHandler<HTMLDivElement>;
   onMobileOverviewTouchEnd?: TouchEventHandler<HTMLDivElement>;
   projectId: number;
@@ -20,9 +30,21 @@ interface ProjectTextProps {
   demoLink?: string;
 }
 
+type ProjectLink = {
+  href: string;
+  icon: typeof GitHub;
+  label: string;
+};
+
 export const ProjectText = ({
   className = "",
   mobileNavigator = null,
+  onMobileOverviewPointerCancel,
+  onMobileOverviewPointerDown,
+  onMobileOverviewPointerMove,
+  onMobileOverviewPointerUp,
+  onMobileOverviewTouchCancel,
+  onMobileOverviewTouchMove,
   onMobileOverviewTouchStart,
   onMobileOverviewTouchEnd,
   projectId,
@@ -35,17 +57,11 @@ export const ProjectText = ({
   youtubeLink,
   demoLink,
 }: ProjectTextProps) => {
-  const links = [
+  const links: ProjectLink[] = [
     githubLink ? { href: githubLink, icon: GitHub, label: "repo" } : null,
     youtubeLink ? { href: youtubeLink, icon: Youtube, label: "video" } : null,
     demoLink ? { href: demoLink, icon: Code, label: "demo" } : null,
-  ].filter((link): link is {
-    href: string;
-    icon: ComponentType<{ className?: string }>;
-    label: string;
-  } =>
-    Boolean(link)
-  );
+  ].filter((link): link is ProjectLink => link !== null);
   const projectLabel = projectId.toString().padStart(2, "0");
   const totalLabel = totalProjects.toString().padStart(2, "0");
 
@@ -121,8 +137,15 @@ export const ProjectText = ({
 
           <div
             className="touch-pan-y"
+            onPointerCancel={onMobileOverviewPointerCancel}
+            onPointerDown={onMobileOverviewPointerDown}
+            onPointerMove={onMobileOverviewPointerMove}
+            onPointerUp={onMobileOverviewPointerUp}
+            onTouchCancel={onMobileOverviewTouchCancel}
+            onTouchMove={onMobileOverviewTouchMove}
             onTouchStart={onMobileOverviewTouchStart}
             onTouchEnd={onMobileOverviewTouchEnd}
+            style={{ touchAction: "pan-y" }}
           >
             <ApplianceInsetPanel className="flex flex-col px-3 py-4 sm:px-4 sm:py-4 md:min-h-[12.75rem]">
               <p

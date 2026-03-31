@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+  type TouchEvent as ReactTouchEvent,
+} from "react";
 import { motion, useAnimation } from "framer-motion";
 
 const AUTOPLAY_INTERVAL_MS = 5000;
@@ -15,6 +21,10 @@ const SPRING_OPTIONS = {
 type TouchPoint = {
   x: number;
   y: number;
+};
+
+const browserSupportsPointerEvents = () => {
+  return typeof window !== "undefined" && window.PointerEvent != null;
 };
 
 interface CarouselProps {
@@ -174,6 +184,13 @@ export const Carousel = ({
     }
 
     activePointerIdRef.current = event.pointerId;
+
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {
+      // Some mobile browsers reject capture while deciding scroll behavior.
+    }
+
     beginGesture({
       x: event.clientX,
       y: event.clientY,
@@ -200,11 +217,74 @@ export const Carousel = ({
       x: event.clientX,
       y: event.clientY,
     });
+    try {
+      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      }
+    } catch {
+      // Ignore capture release issues on browsers without full support.
+    }
     resetTouchGesture();
   };
 
-  const handlePointerCancel = () => {
-    shouldSuppressClickRef.current = false;
+  const handlePointerCancel = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (activePointerIdRef.current !== event.pointerId) {
+      return;
+    }
+
+    completeTouchGesture(null);
+    try {
+      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      }
+    } catch {
+      // Ignore capture release issues on browsers without full support.
+    }
+    shouldSuppressClickRef.current = true;
+    resetTouchGesture();
+  };
+
+  const handleTouchStart = (event: ReactTouchEvent<HTMLDivElement>) => {
+    if (browserSupportsPointerEvents()) {
+      return;
+    }
+
+    beginGesture({
+      x: event.touches[0]?.clientX ?? 0,
+      y: event.touches[0]?.clientY ?? 0,
+    });
+  };
+
+  const handleTouchMove = (event: ReactTouchEvent<HTMLDivElement>) => {
+    if (browserSupportsPointerEvents()) {
+      return;
+    }
+
+    updateGesture({
+      x: event.touches[0]?.clientX ?? 0,
+      y: event.touches[0]?.clientY ?? 0,
+    });
+  };
+
+  const handleTouchEnd = (event: ReactTouchEvent<HTMLDivElement>) => {
+    if (browserSupportsPointerEvents()) {
+      return;
+    }
+
+    completeTouchGesture({
+      x: event.changedTouches[0]?.clientX ?? 0,
+      y: event.changedTouches[0]?.clientY ?? 0,
+    });
+    resetTouchGesture();
+  };
+
+  const handleTouchCancel = () => {
+    if (browserSupportsPointerEvents()) {
+      return;
+    }
+
+    completeTouchGesture(null);
+    shouldSuppressClickRef.current = true;
     resetTouchGesture();
   };
 
@@ -250,6 +330,10 @@ export const Carousel = ({
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerEnd}
       onPointerCancel={handlePointerCancel}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchCancel}
     >
       <motion.div
         className="relative z-10 flex items-start justify-start"
