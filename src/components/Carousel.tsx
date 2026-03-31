@@ -72,6 +72,7 @@ export const Carousel = ({
   className = "",
 }: CarouselProps) => {
   const [position, setPosition] = useState(0);
+  const [viewportWidth, setViewportWidth] = useState(0);
   const viewportRef = useRef<HTMLDivElement>(null);
   const positionRef = useRef(0);
   const controls = useAnimation();
@@ -84,25 +85,40 @@ export const Carousel = ({
     numberImages,
   });
   const isCarouselDraggable = images.length > 1;
+  const dragBoundsLeft = -Math.max(images.length - 1, 0) * viewportWidth;
+
+  const measureViewportWidth = () => {
+    const nextViewportWidth = getCarouselViewportWidth(viewportRef.current);
+
+    setViewportWidth((currentWidth) => {
+      return currentWidth === nextViewportWidth
+        ? currentWidth
+        : nextViewportWidth;
+    });
+
+    return nextViewportWidth;
+  };
 
   const showImageAt = (nextPosition: number) => {
     const clampedPosition = Math.max(
       0,
       Math.min(nextPosition, images.length - 1)
     );
-    const viewportWidth = getCarouselViewportWidth(viewportRef.current);
+    const nextViewportWidth = measureViewportWidth();
 
     positionRef.current = clampedPosition;
     setPosition(clampedPosition);
     controls.start({
-      x: -clampedPosition * viewportWidth,
+      x: -clampedPosition * nextViewportWidth,
       transition: SPRING_OPTIONS,
     });
   };
 
   const snapTrackToActiveImage = () => {
+    const nextViewportWidth = measureViewportWidth();
+
     controls.start({
-      x: -positionRef.current * getCarouselViewportWidth(viewportRef.current),
+      x: -positionRef.current * nextViewportWidth,
       transition: SPRING_OPTIONS,
     });
   };
@@ -171,11 +187,14 @@ export const Carousel = ({
 
   useEffect(() => {
     const handleResize = () => {
+      const nextViewportWidth = measureViewportWidth();
+
       controls.set({
-        x: -positionRef.current * getCarouselViewportWidth(viewportRef.current),
+        x: -positionRef.current * nextViewportWidth,
       });
     };
 
+    handleResize();
     window.addEventListener("resize", handleResize);
 
     return () => {
@@ -209,10 +228,11 @@ export const Carousel = ({
       style={{ touchAction: "pan-y pinch-zoom" }}
     >
       <motion.div
+        data-testid="carousel-track"
         className="relative z-10 flex items-start justify-start"
         animate={controls}
         drag={isCarouselDraggable ? "x" : false}
-        dragConstraints={{ left: 0, right: 0 }}
+        dragConstraints={{ left: dragBoundsLeft, right: 0 }}
         dragElastic={CAROUSEL_DRAG_ELASTIC}
         dragMomentum={false}
         onDrag={handleDrag}
