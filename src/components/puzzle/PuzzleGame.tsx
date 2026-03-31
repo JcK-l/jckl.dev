@@ -15,6 +15,12 @@ import { preloadImages } from "../../utility/preloadImages";
 const originalPieceSize = { width: 300, height: 300 };
 const scale = 0.27;
 const createPlacedPieces = () => Array(originalPieces.length).fill(false);
+const initialDragConstraints = {
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+};
 
 const isPieceAvailable = (
   pieceIndex: number,
@@ -43,6 +49,20 @@ const scalePoint = (point: { x: number; y: number }, factor: number) => ({
   y: Math.round(point.y * factor),
 });
 
+const isSamePieceSize = (
+  current: { width: number; height: number },
+  next: { width: number; height: number }
+) => current.width === next.width && current.height === next.height;
+
+const isSameDragConstraints = (
+  current: { top: number; left: number; right: number; bottom: number },
+  next: { top: number; left: number; right: number; bottom: number }
+) =>
+  current.top === next.top &&
+  current.left === next.left &&
+  current.right === next.right &&
+  current.bottom === next.bottom;
+
 const createScaledPieces = (factor: number) =>
   originalPieces.map((piece) => ({
     ...piece,
@@ -58,12 +78,10 @@ export const PuzzleGame = () => {
   const [placedPieces, setPlacedPieces] = useState<boolean[]>(() =>
     createPlacedPieces()
   );
-  const [dragConstraints, setDragConstraints] = useState({
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  });
+  const [dragConstraints, setDragConstraints] = useState(initialDragConstraints);
+  const pieceSizeRef = useRef(pieceSize);
+  const dragConstraintsRef = useRef(dragConstraints);
+  const scaleFactorRef = useRef<number | null>(null);
   const { lastPiece, setLastPiece, totalPlacedPieces, setTotalPlacedPieces } =
     usePuzzleContext();
   const dispensedGroups = useStore($dispensedGroups);
@@ -78,18 +96,34 @@ export const PuzzleGame = () => {
 
       const scaledPieceSize = newBoundsWidth * scale;
       const scaleFactor = scaledPieceSize / originalPieceSize.width;
-
-      setPieceSize({ width: scaledPieceSize, height: scaledPieceSize });
-      setPuzzlePieceSize(scaledPieceSize);
-
-      setDragConstraints({
+      const nextPieceSize = {
+        width: scaledPieceSize,
+        height: scaledPieceSize,
+      };
+      const nextDragConstraints = {
         top: 0,
         left: 0,
         right: bounds.width - scaledPieceSize,
         bottom: bounds.height - scaledPieceSize,
-      });
+      };
 
-      setPieces(createScaledPieces(scaleFactor));
+      if (!isSamePieceSize(pieceSizeRef.current, nextPieceSize)) {
+        pieceSizeRef.current = nextPieceSize;
+        setPieceSize(nextPieceSize);
+        setPuzzlePieceSize(scaledPieceSize);
+      }
+
+      if (
+        !isSameDragConstraints(dragConstraintsRef.current, nextDragConstraints)
+      ) {
+        dragConstraintsRef.current = nextDragConstraints;
+        setDragConstraints(nextDragConstraints);
+      }
+
+      if (scaleFactorRef.current !== scaleFactor) {
+        scaleFactorRef.current = scaleFactor;
+        setPieces(createScaledPieces(scaleFactor));
+      }
     }
   };
 

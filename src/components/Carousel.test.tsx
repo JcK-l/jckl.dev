@@ -2,20 +2,7 @@
 
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-
-vi.mock("framer-motion", async () => {
-  const { createAnimationControls, createMotionProxy } = await import(
-    "../test/mocks/framerMotion"
-  );
-  const controls = createAnimationControls();
-
-  return {
-    motion: createMotionProxy(),
-    useAnimation: () => controls,
-  };
-});
-
-import { Carousel, getCarouselSwipeDirection } from "./Carousel";
+import { Carousel } from "./Carousel";
 
 const createBounds = ({ height, width }: { height: number; width: number }) =>
   ({
@@ -44,36 +31,34 @@ describe("Carousel", () => {
         return createBounds({ width: 0, height: 0 });
       }
     );
+
+    Object.defineProperty(HTMLElement.prototype, "scrollTo", {
+      configurable: true,
+      value: function ({ left = 0 }: { left?: number }) {
+        this.scrollLeft = left;
+      },
+      writable: true,
+    });
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  const swipeViewport = ({
-    endX,
-    startX,
-  }: {
-    endX: number;
-    startX: number;
-  }) => {
-    const viewport = screen.getByTestId("carousel-viewport");
+  const scrollViewportTo = (scrollLeft: number) => {
+    const viewport = screen.getByTestId("carousel-viewport") as HTMLDivElement;
 
     fireEvent.pointerDown(viewport, {
       button: 0,
-      clientX: startX,
+      clientX: 260,
       clientY: 100,
       pointerId: 1,
       pointerType: "touch",
     });
-    fireEvent.pointerMove(viewport, {
-      clientX: endX,
-      clientY: 104,
-      pointerId: 1,
-      pointerType: "touch",
-    });
+    viewport.scrollLeft = scrollLeft;
+    fireEvent.scroll(viewport);
     fireEvent.pointerUp(viewport, {
-      clientX: endX,
+      clientX: 164,
       clientY: 104,
       pointerId: 1,
       pointerType: "touch",
@@ -108,48 +93,36 @@ describe("Carousel", () => {
     );
   });
 
-  it("swipes to the next frame without opening the modal", () => {
+  it("tracks the active frame from the native scroll position", () => {
     render(<Carousel imageFolder="/projects/tornado-vis" numberImages={4} />);
 
     expect(screen.getByText("01 / 04")).toBeTruthy();
 
-    swipeViewport({
-      startX: 260,
-      endX: 164,
-    });
+    scrollViewportTo(320);
 
     expect(screen.getByText("02 / 04")).toBeTruthy();
     expect(screen.queryByAltText("Preview")).toBeNull();
   });
 
-  it("suppresses the preview modal once a drag becomes intentional", () => {
+  it("suppresses the preview modal once scrolling becomes intentional", () => {
     render(<Carousel imageFolder="/projects/tornado-vis" numberImages={4} />);
 
     const firstImage = screen.getAllByAltText("Get a better browser!")[0]
       ?.parentElement as HTMLElement;
 
-    swipeViewport({
-      startX: 220,
-      endX: 200,
-    });
+    scrollViewportTo(20);
     fireEvent.click(firstImage);
 
     expect(screen.queryByAltText("Preview")).toBeNull();
   });
 
-  it("allows repeated swipes without remounting the reel", () => {
+  it("allows repeated scroll gestures without remounting the reel", () => {
     render(<Carousel imageFolder="/projects/tornado-vis" numberImages={4} />);
 
-    swipeViewport({
-      startX: 260,
-      endX: 164,
-    });
+    scrollViewportTo(320);
     expect(screen.getByText("02 / 04")).toBeTruthy();
 
-    swipeViewport({
-      startX: 260,
-      endX: 164,
-    });
+    scrollViewportTo(640);
     expect(screen.getByText("03 / 04")).toBeTruthy();
   });
 
@@ -162,24 +135,5 @@ describe("Carousel", () => {
     fireEvent.click(firstImage);
 
     expect(screen.getByAltText("Preview")).toBeTruthy();
-  });
-
-  it("ignores mostly vertical drags when deciding whether to change frames", () => {
-    expect(
-      getCarouselSwipeDirection({
-        offsetX: -72,
-        offsetY: 4,
-        viewportWidth: 320,
-        velocityX: -120,
-      })
-    ).toBe(1);
-    expect(
-      getCarouselSwipeDirection({
-        offsetX: -24,
-        offsetY: -88,
-        viewportWidth: 320,
-        velocityX: -90,
-      })
-    ).toBe(0);
   });
 });

@@ -172,6 +172,15 @@
   display: none;
 }
 
+.carousel-scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.carousel-scroll::-webkit-scrollbar {
+  display: none;
+}
+
 .phone-pad-button circle,
 .phone-pad-button path {
   transition: fill 120ms ease, stroke 120ms ease, opacity 120ms ease;

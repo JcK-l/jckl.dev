@@ -4,10 +4,9 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("framer-motion", async () => {
-  const {
-    createAnimationControls,
-    createFramerMotionMock,
-  } = await import("../test/mocks/framerMotion");
+  const { createAnimationControls, createFramerMotionMock } = await import(
+    "../test/mocks/framerMotion"
+  );
 
   return createFramerMotionMock({
     controls: createAnimationControls(),
@@ -30,7 +29,8 @@ vi.mock("./Carousel", () => ({
   ),
 }));
 
-import { ProjectText, getProjectOverviewSwipeDirection } from "./ProjectText";
+import { getProjectOverviewSwipeDirection } from "../utility/projectOverviewSwipe";
+import { ProjectText } from "./ProjectText";
 
 describe("ProjectText", () => {
   it("renders project metadata, preview carousel, and only the provided links", () => {
@@ -59,12 +59,12 @@ describe("ProjectText", () => {
     expect(carousel.dataset.imageFolder).toBe("/projects/signal-decoder");
     expect(carousel.dataset.numberImages).toBe("4");
 
-    expect(screen.getByRole("link", { name: /repo/i }).getAttribute("href")).toBe(
-      "https://github.com/example/signal-decoder"
-    );
-    expect(screen.getByRole("link", { name: /demo/i }).getAttribute("href")).toBe(
-      "https://example.com/signal-decoder"
-    );
+    expect(
+      screen.getByRole("link", { name: /repo/i }).getAttribute("href")
+    ).toBe("https://github.com/example/signal-decoder");
+    expect(
+      screen.getByRole("link", { name: /demo/i }).getAttribute("href")
+    ).toBe("https://example.com/signal-decoder");
     expect(screen.queryByRole("link", { name: /video/i })).toBeNull();
   });
 

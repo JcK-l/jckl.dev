@@ -4,11 +4,7 @@ import { Carousel } from "./Carousel";
 import { GitHub, Youtube, Code } from "../utility/icons";
 import { ApplianceShell } from "./appliance/ApplianceShell";
 import { ApplianceInsetPanel } from "./appliance/ApplianceInsetPanel";
-import { getHorizontalSwipeDirection } from "../utility/horizontalSwipe";
-
-const MOBILE_OVERVIEW_SWIPE_DISTANCE_RATIO = 0.1;
-const MAX_MOBILE_OVERVIEW_SWIPE_THRESHOLD_PX = 72;
-const MOBILE_OVERVIEW_SWIPE_VELOCITY_THRESHOLD = 380;
+import { getProjectOverviewSwipeDirection } from "../utility/projectOverviewSwipe";
 const MOBILE_OVERVIEW_DRAG_ELASTIC = 0.1;
 const MOBILE_OVERVIEW_SNAP_BACK = {
   type: "spring",
@@ -36,28 +32,6 @@ type ProjectLink = {
   href: string;
   icon: typeof GitHub;
   label: string;
-};
-
-export const getProjectOverviewSwipeDirection = ({
-  offsetX,
-  offsetY,
-  surfaceWidth,
-  velocityX,
-}: {
-  offsetX: number;
-  offsetY: number;
-  surfaceWidth: number;
-  velocityX: number;
-}) => {
-  return getHorizontalSwipeDirection({
-    offsetX,
-    offsetY,
-    surfaceWidth,
-    velocityX,
-    distanceRatio: MOBILE_OVERVIEW_SWIPE_DISTANCE_RATIO,
-    maxDistanceThreshold: MAX_MOBILE_OVERVIEW_SWIPE_THRESHOLD_PX,
-    velocityThreshold: MOBILE_OVERVIEW_SWIPE_VELOCITY_THRESHOLD,
-  });
 };
 
 export const ProjectText = ({

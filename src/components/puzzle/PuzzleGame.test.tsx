@@ -12,6 +12,7 @@ import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 import { PuzzleContext } from "../../context/PuzzleContext";
 import { createDispensedGroups } from "../../data/puzzleGroups";
 import { $gameState, GameStateFlags } from "../../stores/gameStateStore";
+import { $puzzlePieceSize } from "../../stores/puzzleLayoutStore";
 import { $dispensedGroups } from "../../stores/puzzleDispenseStore";
 import {
   $puzzleResetRequest,
@@ -19,13 +20,18 @@ import {
   requestPuzzleRestore,
 } from "../../stores/puzzleResetStore";
 
+const puzzlePieceRenderSpy = vi.fn();
+
 vi.mock("../../utility/preloadImages", () => ({
   preloadImages: vi.fn(() => Promise.resolve()),
 }));
 
 vi.mock("./PuzzlePiece", () => ({
   PuzzlePiece: ({ id }: { id: number }) => (
-    <div data-testid={`piece-${id}`}>{`piece-${id}`}</div>
+    <>
+      {puzzlePieceRenderSpy(id)}
+      <div data-testid={`piece-${id}`}>{`piece-${id}`}</div>
+    </>
   ),
 }));
 
@@ -106,11 +112,13 @@ describe("PuzzleGame reset and restore behavior", () => {
 
   beforeEach(() => {
     $gameState.set(0);
+    $puzzlePieceSize.set(0);
     $dispensedGroups.set({
       ...createDispensedGroups(),
       stars: true,
     });
     $puzzleResetRequest.set(null);
+    puzzlePieceRenderSpy.mockClear();
 
     getBoundingClientRectSpy = vi
       .spyOn(Element.prototype, "getBoundingClientRect")
@@ -118,6 +126,7 @@ describe("PuzzleGame reset and restore behavior", () => {
   });
 
   afterEach(() => {
+    $puzzlePieceSize.set(0);
     getBoundingClientRectSpy.mockRestore();
   });
 
@@ -180,5 +189,23 @@ describe("PuzzleGame reset and restore behavior", () => {
     expect(screen.getByTestId("piece-2")).toBeTruthy();
     expect(screen.getByTestId("piece-4")).toBeTruthy();
     expect(screen.queryByTestId("piece-1")).toBeNull();
+  });
+
+  it("skips rerendering tray pieces when resize measurements stay the same", async () => {
+    render(<PuzzleHarness />);
+
+    await waitFor(() => {
+      expect($puzzlePieceSize.get()).toBeCloseTo(rect.width * 0.27);
+    });
+
+    const renderCountAfterMount = puzzlePieceRenderSpy.mock.calls.length;
+
+    expect(renderCountAfterMount).toBeGreaterThan(0);
+
+    act(() => {
+      window.dispatchEvent(new Event("resize"));
+    });
+
+    expect(puzzlePieceRenderSpy.mock.calls.length).toBe(renderCountAfterMount);
   });
 });

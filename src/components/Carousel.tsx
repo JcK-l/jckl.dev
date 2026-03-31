@@ -1,33 +1,9 @@
-import {
-  useEffect,
-  useRef,
-  useState,
-  type PointerEvent as ReactPointerEvent,
-} from "react";
-import { motion, useAnimation } from "framer-motion";
-import { getHorizontalSwipeDirection } from "../utility/horizontalSwipe";
+import { useEffect, useRef, useState } from "react";
 import { getProjectPreviewFrames } from "../utility/projectPreviewImages";
 
 const AUTOPLAY_INTERVAL_MS = 5000;
-const SWIPE_THRESHOLD_RATIO = 0.1;
-const MAX_SWIPE_THRESHOLD_PX = 72;
+const INTERACTION_IDLE_MS = 180;
 const TAP_DISTANCE_THRESHOLD_PX = 12;
-const SWIPE_VELOCITY_THRESHOLD = 380;
-const EDGE_RESISTANCE_RATIO = 0.18;
-const SPRING_OPTIONS = {
-  type: "spring",
-  stiffness: 320,
-  damping: 30,
-  mass: 0.6,
-};
-
-type PointerGestureState = {
-  lastTime: number;
-  lastX: number;
-  lastY: number;
-  startX: number;
-  startY: number;
-};
 
 interface CarouselProps {
   imageFolder: string;
@@ -47,38 +23,6 @@ const getCarouselViewportWidth = (viewport: HTMLDivElement | null) => {
   return viewport.getBoundingClientRect().width;
 };
 
-const getDragTravel = ({
-  offsetX,
-  offsetY,
-}: {
-  offsetX: number;
-  offsetY: number;
-}) => {
-  return Math.max(Math.abs(offsetX), Math.abs(offsetY));
-};
-
-export const getCarouselSwipeDirection = ({
-  offsetX,
-  offsetY,
-  viewportWidth,
-  velocityX,
-}: {
-  offsetX: number;
-  offsetY: number;
-  viewportWidth: number;
-  velocityX: number;
-}) => {
-  return getHorizontalSwipeDirection({
-    offsetX,
-    offsetY,
-    surfaceWidth: viewportWidth,
-    velocityX,
-    distanceRatio: SWIPE_THRESHOLD_RATIO,
-    maxDistanceThreshold: MAX_SWIPE_THRESHOLD_PX,
-    velocityThreshold: SWIPE_VELOCITY_THRESHOLD,
-  });
-};
-
 export const Carousel = ({
   imageFolder,
   numberImages,
@@ -86,11 +30,14 @@ export const Carousel = ({
 }: CarouselProps) => {
   const [position, setPosition] = useState(0);
   const viewportRef = useRef<HTMLDivElement>(null);
-  const viewportWidthRef = useRef(0);
   const positionRef = useRef(0);
-  const activePointerIdRef = useRef<number | null>(null);
-  const pointerGestureRef = useRef<PointerGestureState | null>(null);
-  const controls = useAnimation();
+  const interactionIdleTimeoutRef = useRef<number | null>(null);
+  const isPointerGestureActiveRef = useRef(false);
+  const gestureStartRef = useRef({
+    scrollLeft: 0,
+    x: 0,
+    y: 0,
+  });
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isTouchInteracting, setIsTouchInteracting] = useState(false);
@@ -99,63 +46,70 @@ export const Carousel = ({
     imageFolder,
     numberImages,
   });
-  const isCarouselDraggable = images.length > 1;
 
-  const measureViewportWidth = () => {
-    const nextViewportWidth = getCarouselViewportWidth(viewportRef.current);
-
-    viewportWidthRef.current = nextViewportWidth;
-    return nextViewportWidth;
+  const clearInteractionIdleTimeout = () => {
+    if (interactionIdleTimeoutRef.current !== null) {
+      window.clearTimeout(interactionIdleTimeoutRef.current);
+      interactionIdleTimeoutRef.current = null;
+    }
   };
 
-  const getTrackBoundsLeft = (nextViewportWidth: number) => {
-    return -Math.max(images.length - 1, 0) * nextViewportWidth;
-  };
+  const syncPositionToScroll = () => {
+    const viewport = viewportRef.current;
 
-  const getTrackPositionWithEdgeResistance = ({
-    baseX,
-    offsetX,
-    viewportWidth,
-  }: {
-    baseX: number;
-    offsetX: number;
-    viewportWidth: number;
-  }) => {
-    const rawTrackX = baseX + offsetX;
-    const minTrackX = getTrackBoundsLeft(viewportWidth);
-
-    if (rawTrackX < minTrackX) {
-      return minTrackX + (rawTrackX - minTrackX) * EDGE_RESISTANCE_RATIO;
+    if (viewport == null) {
+      return;
     }
 
-    if (rawTrackX > 0) {
-      return rawTrackX * EDGE_RESISTANCE_RATIO;
+    const viewportWidth = getCarouselViewportWidth(viewport);
+
+    if (viewportWidth <= 0) {
+      return;
     }
 
-    return rawTrackX;
+    const nextPosition = Math.max(
+      0,
+      Math.min(
+        images.length - 1,
+        Math.round(viewport.scrollLeft / viewportWidth)
+      )
+    );
+
+    positionRef.current = nextPosition;
+    setPosition((currentPosition) => {
+      return currentPosition === nextPosition ? currentPosition : nextPosition;
+    });
   };
 
-  const showImageAt = (nextPosition: number) => {
+  const scheduleInteractionIdleReset = () => {
+    clearInteractionIdleTimeout();
+    interactionIdleTimeoutRef.current = window.setTimeout(() => {
+      isPointerGestureActiveRef.current = false;
+      syncPositionToScroll();
+      setIsTouchInteracting(false);
+    }, INTERACTION_IDLE_MS);
+  };
+
+  const scrollToImage = (
+    nextPosition: number,
+    behavior: ScrollBehavior = "smooth"
+  ) => {
+    const viewport = viewportRef.current;
     const clampedPosition = Math.max(
       0,
       Math.min(nextPosition, images.length - 1)
     );
-    const nextViewportWidth = measureViewportWidth();
 
     positionRef.current = clampedPosition;
     setPosition(clampedPosition);
-    controls.start({
-      x: -clampedPosition * nextViewportWidth,
-      transition: SPRING_OPTIONS,
-    });
-  };
 
-  const snapTrackToActiveImage = () => {
-    const nextViewportWidth = measureViewportWidth();
+    if (viewport == null) {
+      return;
+    }
 
-    controls.start({
-      x: -positionRef.current * nextViewportWidth,
-      transition: SPRING_OPTIONS,
+    viewport.scrollTo({
+      behavior,
+      left: clampedPosition * getCarouselViewportWidth(viewport),
     });
   };
 
@@ -174,120 +128,34 @@ export const Carousel = ({
     setIsModalOpen(false);
   };
 
-  const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (!isCarouselDraggable) {
+  useEffect(() => {
+    const viewport = viewportRef.current;
+
+    if (viewport == null) {
       return;
     }
 
-    if (event.pointerType === "mouse" && event.button !== 0) {
-      return;
-    }
-
-    const eventTime = performance.now();
-
-    controls.stop();
-    activePointerIdRef.current = event.pointerId;
-    pointerGestureRef.current = {
-      lastTime: eventTime,
-      lastX: event.clientX,
-      lastY: event.clientY,
-      startX: event.clientX,
-      startY: event.clientY,
-    };
+    isPointerGestureActiveRef.current = false;
     shouldSuppressClickRef.current = false;
-    setIsTouchInteracting(true);
-  };
-
-  const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
-    const pointerGesture = pointerGestureRef.current;
-
-    if (
-      activePointerIdRef.current !== event.pointerId ||
-      pointerGesture == null
-    ) {
-      return;
-    }
-
-    const offsetX = event.clientX - pointerGesture.startX;
-    const offsetY = event.clientY - pointerGesture.startY;
-    const nextViewportWidth = measureViewportWidth();
-
-    shouldSuppressClickRef.current =
-      getDragTravel({ offsetX, offsetY }) > TAP_DISTANCE_THRESHOLD_PX;
-
-    controls.set({
-      x: getTrackPositionWithEdgeResistance({
-        baseX: -positionRef.current * nextViewportWidth,
-        offsetX,
-        viewportWidth: nextViewportWidth,
-      }),
-    });
-
-    pointerGestureRef.current = {
-      ...pointerGesture,
-      lastTime: performance.now(),
-      lastX: event.clientX,
-      lastY: event.clientY,
-    };
-  };
-
-  const completePointerGesture = ({
-    clientX,
-    clientY,
-    currentTarget,
-    pointerId,
-    velocityXOverride,
-  }: {
-    clientX: number;
-    clientY: number;
-    currentTarget: HTMLDivElement;
-    pointerId: number;
-    velocityXOverride?: number;
-  }) => {
-    const pointerGesture = pointerGestureRef.current;
-
-    if (activePointerIdRef.current !== pointerId || pointerGesture == null) {
-      return;
-    }
-
-    const nextViewportWidth = measureViewportWidth();
-    const offsetX = clientX - pointerGesture.startX;
-    const offsetY = clientY - pointerGesture.startY;
-    const elapsedSinceLastMove = Math.max(
-      performance.now() - pointerGesture.lastTime,
-      16
-    );
-    const velocityX =
-      velocityXOverride ??
-      ((clientX - pointerGesture.lastX) / elapsedSinceLastMove) * 1000;
-    const swipeDirection = getCarouselSwipeDirection({
-      offsetX,
-      offsetY,
-      viewportWidth: nextViewportWidth,
-      velocityX,
-    });
-
-    shouldSuppressClickRef.current =
-      getDragTravel({ offsetX, offsetY }) > TAP_DISTANCE_THRESHOLD_PX;
-    activePointerIdRef.current = null;
-    pointerGestureRef.current = null;
     setIsTouchInteracting(false);
-
-    if (swipeDirection !== 0) {
-      showImageAt(positionRef.current + swipeDirection);
-      return;
-    }
-
-    snapTrackToActiveImage();
-  };
+    viewport.scrollTo({ behavior: "auto", left: 0 });
+    positionRef.current = 0;
+    setPosition(0);
+  }, [imageFolder, numberImages]);
 
   useEffect(() => {
     const handleResize = () => {
-      const nextViewportWidth = measureViewportWidth();
+      const viewport = viewportRef.current;
 
-      controls.set({
-        x: -positionRef.current * nextViewportWidth,
+      if (viewport == null) {
+        return;
+      }
+
+      viewport.scrollTo({
+        behavior: "auto",
+        left: positionRef.current * getCarouselViewportWidth(viewport),
       });
+      syncPositionToScroll();
     };
 
     handleResize();
@@ -296,62 +164,79 @@ export const Carousel = ({
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, [controls]);
-
-  useEffect(() => {
-    activePointerIdRef.current = null;
-    pointerGestureRef.current = null;
-    shouldSuppressClickRef.current = false;
-    setIsTouchInteracting(false);
-    positionRef.current = 0;
-    setPosition(0);
-    controls.set({ x: 0 });
-  }, [controls, imageFolder, numberImages]);
+  }, [images.length]);
 
   useEffect(() => {
     if (isModalOpen || isTouchInteracting || images.length <= 1) {
       return;
     }
 
-    const interval = setInterval(() => {
-      showImageAt((positionRef.current + 1) % images.length);
+    const interval = window.setInterval(() => {
+      scrollToImage((positionRef.current + 1) % images.length);
     }, AUTOPLAY_INTERVAL_MS);
 
-    return () => clearInterval(interval);
-  }, [imageFolder, images.length, isModalOpen, isTouchInteracting]);
+    return () => {
+      window.clearInterval(interval);
+    };
+  }, [images.length, isModalOpen, isTouchInteracting]);
+
+  useEffect(() => {
+    return () => {
+      clearInteractionIdleTimeout();
+    };
+  }, []);
 
   return (
-    <div
-      ref={viewportRef}
-      data-testid="carousel-viewport"
-      className={`relative w-full touch-pan-y select-none overflow-hidden ${className}`}
-      onPointerCancel={(event) => {
-        const pointerGesture = pointerGestureRef.current;
+    <div className={`relative w-full select-none ${className}`}>
+      <div
+        ref={viewportRef}
+        data-testid="carousel-viewport"
+        className="carousel-scroll relative z-10 flex snap-x snap-mandatory overflow-x-auto overflow-y-hidden scroll-smooth"
+        onPointerCancel={() => {
+          scheduleInteractionIdleReset();
+        }}
+        onPointerDown={(event) => {
+          if (event.pointerType === "mouse" && event.button !== 0) {
+            return;
+          }
 
-        completePointerGesture({
-          clientX: pointerGesture?.lastX ?? event.clientX,
-          clientY: pointerGesture?.lastY ?? event.clientY,
-          currentTarget: event.currentTarget,
-          pointerId: event.pointerId,
-          velocityXOverride: 0,
-        });
-      }}
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={(event) => {
-        completePointerGesture({
-          clientX: event.clientX,
-          clientY: event.clientY,
-          currentTarget: event.currentTarget,
-          pointerId: event.pointerId,
-        });
-      }}
-      style={{ touchAction: "pan-y pinch-zoom" }}
-    >
-      <motion.div
-        data-testid="carousel-track"
-        className="relative z-10 flex items-start justify-start"
-        animate={controls}
+          const viewport = viewportRef.current;
+
+          gestureStartRef.current = {
+            scrollLeft: viewport?.scrollLeft ?? 0,
+            x: event.clientX,
+            y: event.clientY,
+          };
+          isPointerGestureActiveRef.current = true;
+          shouldSuppressClickRef.current = false;
+          setIsTouchInteracting(true);
+          clearInteractionIdleTimeout();
+        }}
+        onPointerUp={() => {
+          scheduleInteractionIdleReset();
+        }}
+        onScroll={() => {
+          const viewport = viewportRef.current;
+
+          if (viewport == null) {
+            return;
+          }
+
+          if (isPointerGestureActiveRef.current) {
+            shouldSuppressClickRef.current =
+              shouldSuppressClickRef.current ||
+              Math.abs(
+                viewport.scrollLeft - gestureStartRef.current.scrollLeft
+              ) > TAP_DISTANCE_THRESHOLD_PX;
+          }
+
+          setIsTouchInteracting(true);
+          syncPositionToScroll();
+          scheduleInteractionIdleReset();
+        }}
+        style={{
+          WebkitOverflowScrolling: "touch",
+        }}
       >
         {images.map((image, index) => (
           <ProjectCards
@@ -363,7 +248,7 @@ export const Carousel = ({
             onClick={() => handleImageClick(image.fullSizeSrc)}
           />
         ))}
-      </motion.div>
+      </div>
       <div
         className="pointer-events-none absolute bottom-3 right-3 z-20 rounded-full border px-2.5 py-1 font-appliance text-[0.55rem] uppercase tracking-[0.18em]"
         style={{
@@ -396,7 +281,7 @@ const ProjectCards = ({
 }) => {
   return (
     <div
-      className="relative aspect-[16/10] w-full shrink-0 cursor-pointer overflow-hidden rounded-[1rem]"
+      className="relative aspect-[16/10] w-full shrink-0 cursor-pointer snap-start overflow-hidden rounded-[1rem]"
       onClick={onClick}
     >
       <img

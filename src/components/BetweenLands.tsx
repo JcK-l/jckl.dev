@@ -82,17 +82,33 @@ export const BetweenLands = ({
         : currentDistance
     );
 
-    setSnapPoint({
+    const nextSnapPoint = {
       x: Math.round(originalSnapPoint.x * scale),
       y: Math.round(originalSnapPoint.y * scale),
+    };
+
+    setSnapPoint((currentSnapPoint) => {
+      return currentSnapPoint.x === nextSnapPoint.x &&
+        currentSnapPoint.y === nextSnapPoint.y
+        ? currentSnapPoint
+        : nextSnapPoint;
     });
 
     setCrtWidth(width);
-    setDragConstraints({
+    const nextDragConstraints = {
       top: 0,
       left: 0,
       right: viewportWidth - width,
       bottom: bounds.height - width,
+    };
+
+    setDragConstraints((currentConstraints) => {
+      return currentConstraints.top === nextDragConstraints.top &&
+        currentConstraints.left === nextDragConstraints.left &&
+        currentConstraints.right === nextDragConstraints.right &&
+        currentConstraints.bottom === nextDragConstraints.bottom
+        ? currentConstraints
+        : nextDragConstraints;
     });
   };
 
