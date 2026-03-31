@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState, type TouchEvent } from "react";
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { motion, useAnimation } from "framer-motion";
 
 const AUTOPLAY_INTERVAL_MS = 5000;
-const SWIPE_THRESHOLD_RATIO = 0.18;
-const MAX_SWIPE_THRESHOLD_PX = 108;
+const SWIPE_THRESHOLD_RATIO = 0.12;
+const MAX_SWIPE_THRESHOLD_PX = 72;
+const HORIZONTAL_DOMINANCE_RATIO = 0.85;
 const TAP_DISTANCE_THRESHOLD_PX = 12;
 const SPRING_OPTIONS = {
   type: "spring",
@@ -71,7 +72,10 @@ export const getCarouselSwipeDirection = ({
     MAX_SWIPE_THRESHOLD_PX,
   );
 
-  if (Math.abs(deltaX) < swipeThreshold || Math.abs(deltaX) <= deltaY) {
+  if (
+    Math.abs(deltaX) < swipeThreshold ||
+    Math.abs(deltaX) < deltaY * HORIZONTAL_DOMINANCE_RATIO
+  ) {
     return 0;
   }
 
@@ -90,6 +94,7 @@ export const Carousel = ({
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isTouchInteracting, setIsTouchInteracting] = useState(false);
+  const activePointerIdRef = useRef<number | null>(null);
   const touchStartRef = useRef<TouchPoint | null>(null);
   const latestTouchRef = useRef<TouchPoint | null>(null);
   const shouldSuppressClickRef = useRef(false);
@@ -125,23 +130,15 @@ export const Carousel = ({
     setIsModalOpen(false);
   };
 
-  const handleTouchStart = (event: TouchEvent<HTMLDivElement>) => {
-    const touchPoint = {
-      x: event.touches[0]?.clientX ?? 0,
-      y: event.touches[0]?.clientY ?? 0,
-    };
-
-    touchStartRef.current = touchPoint;
-    latestTouchRef.current = touchPoint;
+  const beginGesture = (point: TouchPoint) => {
+    touchStartRef.current = point;
+    latestTouchRef.current = point;
     shouldSuppressClickRef.current = false;
     setIsTouchInteracting(true);
   };
 
-  const handleTouchMove = (event: TouchEvent<HTMLDivElement>) => {
-    latestTouchRef.current = {
-      x: event.touches[0]?.clientX ?? 0,
-      y: event.touches[0]?.clientY ?? 0,
-    };
+  const updateGesture = (point: TouchPoint) => {
+    latestTouchRef.current = point;
   };
 
   const completeTouchGesture = (touchEnd: TouchPoint | null) => {
@@ -166,19 +163,47 @@ export const Carousel = ({
 
   const resetTouchGesture = () => {
     setIsTouchInteracting(false);
+    activePointerIdRef.current = null;
     touchStartRef.current = null;
     latestTouchRef.current = null;
   };
 
-  const handleTouchEnd = (event: TouchEvent<HTMLDivElement>) => {
+  const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === "mouse") {
+      return;
+    }
+
+    activePointerIdRef.current = event.pointerId;
+    beginGesture({
+      x: event.clientX,
+      y: event.clientY,
+    });
+  };
+
+  const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (activePointerIdRef.current !== event.pointerId) {
+      return;
+    }
+
+    updateGesture({
+      x: event.clientX,
+      y: event.clientY,
+    });
+  };
+
+  const handlePointerEnd = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (activePointerIdRef.current !== event.pointerId) {
+      return;
+    }
+
     completeTouchGesture({
-      x: event.changedTouches[0]?.clientX ?? latestTouchRef.current?.x ?? 0,
-      y: event.changedTouches[0]?.clientY ?? latestTouchRef.current?.y ?? 0,
+      x: event.clientX,
+      y: event.clientY,
     });
     resetTouchGesture();
   };
 
-  const handleTouchCancel = () => {
+  const handlePointerCancel = () => {
     shouldSuppressClickRef.current = false;
     resetTouchGesture();
   };
@@ -220,10 +245,11 @@ export const Carousel = ({
       ref={viewportRef}
       data-testid="carousel-viewport"
       className={`relative w-full touch-pan-y select-none overflow-hidden ${className}`}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-      onTouchCancel={handleTouchCancel}
+      style={{ touchAction: "pan-y pinch-zoom" }}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerEnd}
+      onPointerCancel={handlePointerCancel}
     >
       <motion.div
         className="relative z-10 flex items-start justify-start"

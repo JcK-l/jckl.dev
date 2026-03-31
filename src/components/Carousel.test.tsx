@@ -65,14 +65,23 @@ describe("Carousel", () => {
 
     expect(screen.getByText("01 / 04")).toBeTruthy();
 
-    fireEvent.touchStart(viewport, {
-      touches: [{ clientX: 278, clientY: 120 }],
+    fireEvent.pointerDown(viewport, {
+      clientX: 278,
+      clientY: 120,
+      pointerId: 1,
+      pointerType: "touch",
     });
-    fireEvent.touchMove(viewport, {
-      touches: [{ clientX: 182, clientY: 124 }],
+    fireEvent.pointerMove(viewport, {
+      clientX: 182,
+      clientY: 124,
+      pointerId: 1,
+      pointerType: "touch",
     });
-    fireEvent.touchEnd(viewport, {
-      changedTouches: [{ clientX: 164, clientY: 126 }],
+    fireEvent.pointerUp(viewport, {
+      clientX: 164,
+      clientY: 126,
+      pointerId: 1,
+      pointerType: "touch",
     });
 
     expect(screen.getByText("02 / 04")).toBeTruthy();
@@ -102,7 +111,7 @@ describe("Carousel", () => {
     expect(
       getCarouselSwipeDirection({
         touchStart: { x: 260, y: 180 },
-        touchEnd: { x: 228, y: 92 },
+        touchEnd: { x: 236, y: 92 },
         viewportWidth: 320,
       }),
     ).toBe(0);

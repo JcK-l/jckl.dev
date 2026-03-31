@@ -10,9 +10,14 @@ describe("SeparatorIn", () => {
     const { container } = render(<SeparatorIn />);
 
     const root = container.firstElementChild as HTMLElement | null;
+    const svg = container.querySelector("svg");
 
     expect(root).toBeTruthy();
     expect(root?.className).toContain("overflow-hidden");
+    expect(svg?.getAttribute("overflow")).toBe("hidden");
+    expect(svg?.className.baseVal ?? svg?.getAttribute("class")).toContain(
+      "w-[calc(100%+2px)]"
+    );
     expect(screen.queryByText("Middle layer")).toBeNull();
     expect(container.querySelectorAll("path").length).toBe(4);
   });
@@ -27,9 +32,14 @@ describe("SeparatorIn", () => {
     );
 
     const root = container.firstElementChild as HTMLElement | null;
+    const svg = container.querySelector("svg");
 
     expect(ref.current).toBe(root);
     expect(root?.className).toContain("overflow-visible");
+    expect(svg?.getAttribute("overflow")).toBe("hidden");
+    expect(svg?.className.baseVal ?? svg?.getAttribute("class")).toContain(
+      "left-[-1px]"
+    );
     expect(screen.getByRole("button", { name: "Middle layer" })).toBeTruthy();
     expect(container.querySelector(".pointer-events-none")).toBeTruthy();
     expect(container.querySelectorAll(".pointer-events-none").length).toBeGreaterThan(0);
