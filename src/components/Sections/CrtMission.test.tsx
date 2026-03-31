@@ -113,7 +113,15 @@ describe("CrtMission", () => {
 
     render(<CrtMission />);
 
-    fireEvent.click(screen.getByLabelText(/switch to the positive timeline/i));
+    const positiveBalloon = screen.getByLabelText(
+      /switch to the positive timeline/i
+    );
+
+    expect(positiveBalloon.getAttribute("filter")).toBe(
+      "url(#missionBalloonGlow)"
+    );
+
+    fireEvent.click(positiveBalloon);
 
     expect(endingModeMocks.activateDiscoveredEnding).toHaveBeenCalledWith(
       "positive"

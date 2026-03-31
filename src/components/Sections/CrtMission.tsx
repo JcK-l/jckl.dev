@@ -167,6 +167,7 @@ const CrtMission = () => {
       className: isDiscovered
         ? "cursor-pointer outline-none transition-[filter] duration-200 ease-out drop-shadow-[0_0_0.9rem_rgba(255,255,255,0.24)] hover:drop-shadow-[0_0_1.25rem_rgba(255,255,255,0.42)] focus-visible:drop-shadow-[0_0_1.25rem_rgba(255,255,255,0.42)] active:drop-shadow-[0_0_0.72rem_rgba(255,255,255,0.3)]"
         : "cursor-default",
+      filter: isDiscovered ? "url(#missionBalloonGlow)" : undefined,
       focusable: isDiscovered ? true : undefined,
       onClick: isDiscovered
         ? () => {
@@ -284,7 +285,32 @@ const CrtMission = () => {
                     id="svg1"
                     xmlns="http://www.w3.org/2000/svg"
                   >
-                    <defs id="defs1" />
+                    <defs id="defs1">
+                      <filter
+                        id="missionBalloonGlow"
+                        x="-32%"
+                        y="-32%"
+                        width="164%"
+                        height="164%"
+                        colorInterpolationFilters="sRGB"
+                      >
+                        <feGaussianBlur
+                          in="SourceAlpha"
+                          stdDeviation="11"
+                          result="glow-alpha"
+                        />
+                        <feColorMatrix
+                          in="glow-alpha"
+                          type="matrix"
+                          values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.28 0"
+                          result="glow-color"
+                        />
+                        <feMerge>
+                          <feMergeNode in="glow-color" />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
+                    </defs>
                     <g
                       id="g13"
                       transform="matrix(0.02182348,0,0,0.02182348,25.113447,1.8637982)"

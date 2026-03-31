@@ -3,6 +3,17 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("framer-motion", async () => {
+  const {
+    createAnimationControls,
+    createFramerMotionMock,
+  } = await import("../test/mocks/framerMotion");
+
+  return createFramerMotionMock({
+    controls: createAnimationControls(),
+  });
+});
+
 vi.mock("./Carousel", () => ({
   Carousel: ({
     imageFolder,
@@ -19,7 +30,7 @@ vi.mock("./Carousel", () => ({
   ),
 }));
 
-import { ProjectText } from "./ProjectText";
+import { ProjectText, getProjectOverviewSwipeDirection } from "./ProjectText";
 
 describe("ProjectText", () => {
   it("renders project metadata, preview carousel, and only the provided links", () => {
@@ -73,5 +84,32 @@ describe("ProjectText", () => {
     expect(screen.getByText("Preview offline")).toBeTruthy();
     expect(screen.queryByTestId("carousel")).toBeNull();
     expect(screen.queryAllByRole("link").length).toBe(0);
+  });
+
+  it("treats a modest horizontal drag as an intentional overview swipe on mobile widths", () => {
+    expect(
+      getProjectOverviewSwipeDirection({
+        offsetX: -52,
+        offsetY: 6,
+        surfaceWidth: 320,
+        velocityX: -120,
+      })
+    ).toBe(1);
+    expect(
+      getProjectOverviewSwipeDirection({
+        offsetX: 54,
+        offsetY: 8,
+        surfaceWidth: 320,
+        velocityX: 110,
+      })
+    ).toBe(-1);
+    expect(
+      getProjectOverviewSwipeDirection({
+        offsetX: -24,
+        offsetY: 86,
+        surfaceWidth: 320,
+        velocityX: -90,
+      })
+    ).toBe(0);
   });
 });

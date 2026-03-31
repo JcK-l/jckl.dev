@@ -8,14 +8,15 @@ import {
 import { motion, useAnimation } from "framer-motion";
 
 const AUTOPLAY_INTERVAL_MS = 5000;
-const SWIPE_THRESHOLD_RATIO = 0.12;
-const MAX_SWIPE_THRESHOLD_PX = 72;
+const SWIPE_THRESHOLD_RATIO = 0.1;
+const MAX_SWIPE_THRESHOLD_PX = 60;
 const HORIZONTAL_DOMINANCE_RATIO = 0.85;
 const TAP_DISTANCE_THRESHOLD_PX = 12;
 const SPRING_OPTIONS = {
   type: "spring",
-  bounce: 0.3,
-  duration: 0.6,
+  stiffness: 320,
+  damping: 30,
+  mass: 0.6,
 };
 
 type TouchPoint = {

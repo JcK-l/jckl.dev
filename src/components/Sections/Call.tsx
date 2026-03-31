@@ -68,6 +68,8 @@ const Call = () => {
       return (
         <div className="bg-white/40 rounded-[2rem] p-5 md:p-8">
           <ProjectText
+            projectId={project.id}
+            totalProjects={projects.length}
             title={project.title}
             description={project.description}
             imageFolder={project.imageFolder}

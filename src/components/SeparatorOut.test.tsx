@@ -41,10 +41,14 @@ describe("SeparatorOut", () => {
         (1 << GameStateFlags.FLAG_CONNECTION)
     );
 
-    const { getByRole } = render(<SeparatorOut isCrt />);
+    const { container, getByRole } = render(<SeparatorOut isCrt />);
     const crtTrigger = getByRole("button", { name: /crt cache relay/i });
+    const crtVisual = container.querySelector(".crt-visual");
 
     expect(crtTrigger.getAttribute("data-state")).toBe("ready");
+    expect(crtVisual?.getAttribute("filter")).toBe(
+      "url(#crt-trigger-glow-ready)"
+    );
 
     fireEvent.click(crtTrigger);
 
@@ -64,10 +68,14 @@ describe("SeparatorOut", () => {
         (1 << GameStateFlags.FLAG_LEND_A_HAND)
     );
 
-    const { getByRole } = render(<SeparatorOut isCrt />);
+    const { container, getByRole } = render(<SeparatorOut isCrt />);
     const crtTrigger = getByRole("button", { name: /crt cache relay/i });
+    const crtVisual = container.querySelector(".crt-visual");
 
     expect(crtTrigger.getAttribute("data-state")).toBe("pending");
+    expect(crtVisual?.getAttribute("filter")).toBe(
+      "url(#crt-trigger-glow-base)"
+    );
 
     fireEvent.click(crtTrigger);
 

@@ -1,24 +1,29 @@
 import {
-  type PointerEventHandler,
+  useEffect,
+  useRef,
   type ReactNode,
-  type TouchEventHandler,
 } from "react";
+import { motion, useAnimation, type PanInfo } from "framer-motion";
 import { Carousel } from "./Carousel";
 import { GitHub, Youtube, Code } from "../utility/icons";
 import { ApplianceShell } from "./appliance/ApplianceShell";
 import { ApplianceInsetPanel } from "./appliance/ApplianceInsetPanel";
 
+const MOBILE_OVERVIEW_SWIPE_DISTANCE_RATIO = 0.1;
+const MAX_MOBILE_OVERVIEW_SWIPE_THRESHOLD_PX = 72;
+const MOBILE_OVERVIEW_SWIPE_VELOCITY_THRESHOLD = 380;
+const MOBILE_OVERVIEW_DRAG_ELASTIC = 0.1;
+const MOBILE_OVERVIEW_SNAP_BACK = {
+  type: "spring",
+  stiffness: 340,
+  damping: 30,
+  mass: 0.55,
+};
+
 interface ProjectTextProps {
   className?: string;
   mobileNavigator?: ReactNode;
-  onMobileOverviewPointerCancel?: PointerEventHandler<HTMLDivElement>;
-  onMobileOverviewPointerDown?: PointerEventHandler<HTMLDivElement>;
-  onMobileOverviewPointerMove?: PointerEventHandler<HTMLDivElement>;
-  onMobileOverviewPointerUp?: PointerEventHandler<HTMLDivElement>;
-  onMobileOverviewTouchCancel?: TouchEventHandler<HTMLDivElement>;
-  onMobileOverviewTouchMove?: TouchEventHandler<HTMLDivElement>;
-  onMobileOverviewTouchStart?: TouchEventHandler<HTMLDivElement>;
-  onMobileOverviewTouchEnd?: TouchEventHandler<HTMLDivElement>;
+  onMobileOverviewSwipe?: (direction: -1 | 1) => void;
   projectId: number;
   totalProjects: number;
   title: string;
@@ -36,17 +41,47 @@ type ProjectLink = {
   label: string;
 };
 
+export const getProjectOverviewSwipeDirection = ({
+  offsetX,
+  offsetY,
+  surfaceWidth,
+  velocityX,
+}: {
+  offsetX: number;
+  offsetY: number;
+  surfaceWidth: number;
+  velocityX: number;
+}) => {
+  if (surfaceWidth <= 0 || Math.abs(offsetX) <= Math.abs(offsetY)) {
+    return 0;
+  }
+
+  const dragDistanceThreshold = Math.min(
+    surfaceWidth * MOBILE_OVERVIEW_SWIPE_DISTANCE_RATIO,
+    MAX_MOBILE_OVERVIEW_SWIPE_THRESHOLD_PX
+  );
+
+  if (
+    offsetX <= -dragDistanceThreshold ||
+    velocityX <= -MOBILE_OVERVIEW_SWIPE_VELOCITY_THRESHOLD
+  ) {
+    return 1;
+  }
+
+  if (
+    offsetX >= dragDistanceThreshold ||
+    velocityX >= MOBILE_OVERVIEW_SWIPE_VELOCITY_THRESHOLD
+  ) {
+    return -1;
+  }
+
+  return 0;
+};
+
 export const ProjectText = ({
   className = "",
   mobileNavigator = null,
-  onMobileOverviewPointerCancel,
-  onMobileOverviewPointerDown,
-  onMobileOverviewPointerMove,
-  onMobileOverviewPointerUp,
-  onMobileOverviewTouchCancel,
-  onMobileOverviewTouchMove,
-  onMobileOverviewTouchStart,
-  onMobileOverviewTouchEnd,
+  onMobileOverviewSwipe,
   projectId,
   totalProjects,
   title,
@@ -64,6 +99,41 @@ export const ProjectText = ({
   ].filter((link): link is ProjectLink => link !== null);
   const projectLabel = projectId.toString().padStart(2, "0");
   const totalLabel = totalProjects.toString().padStart(2, "0");
+  const mobileOverviewSwipeSurfaceRef = useRef<HTMLDivElement>(null);
+  const mobileOverviewSwipeControls = useAnimation();
+
+  useEffect(() => {
+    mobileOverviewSwipeControls.set({ x: 0 });
+  }, [mobileOverviewSwipeControls, projectId]);
+
+  const handleMobileOverviewDragEnd = (
+    _: MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo
+  ) => {
+    if (onMobileOverviewSwipe == null) {
+      return;
+    }
+
+    const surfaceWidth =
+      mobileOverviewSwipeSurfaceRef.current?.clientWidth ??
+      mobileOverviewSwipeSurfaceRef.current?.getBoundingClientRect().width ??
+      0;
+    const swipeDirection = getProjectOverviewSwipeDirection({
+      offsetX: info.offset.x,
+      offsetY: info.offset.y,
+      surfaceWidth,
+      velocityX: info.velocity.x,
+    });
+
+    mobileOverviewSwipeControls.start({
+      x: 0,
+      transition: MOBILE_OVERVIEW_SNAP_BACK,
+    });
+
+    if (swipeDirection !== 0) {
+      onMobileOverviewSwipe(swipeDirection);
+    }
+  };
 
   return (
     <ApplianceShell
@@ -135,16 +205,19 @@ export const ProjectText = ({
               )}
             </ApplianceInsetPanel>
 
-          <div
+          <motion.div
+            ref={mobileOverviewSwipeSurfaceRef}
             className="touch-pan-y"
-            onPointerCancel={onMobileOverviewPointerCancel}
-            onPointerDown={onMobileOverviewPointerDown}
-            onPointerMove={onMobileOverviewPointerMove}
-            onPointerUp={onMobileOverviewPointerUp}
-            onTouchCancel={onMobileOverviewTouchCancel}
-            onTouchMove={onMobileOverviewTouchMove}
-            onTouchStart={onMobileOverviewTouchStart}
-            onTouchEnd={onMobileOverviewTouchEnd}
+            data-testid="project-overview-swipe-surface"
+            drag={onMobileOverviewSwipe ? "x" : false}
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={MOBILE_OVERVIEW_DRAG_ELASTIC}
+            dragMomentum={false}
+            animate={mobileOverviewSwipeControls}
+            onDragStart={() => {
+              mobileOverviewSwipeControls.stop();
+            }}
+            onDragEnd={handleMobileOverviewDragEnd}
             style={{ touchAction: "pan-y" }}
           >
             <ApplianceInsetPanel className="flex flex-col px-3 py-4 sm:px-4 sm:py-4 md:min-h-[12.75rem]">
@@ -169,7 +242,7 @@ export const ProjectText = ({
 
               {mobileNavigator ? <div className="mt-5">{mobileNavigator}</div> : null}
             </ApplianceInsetPanel>
-          </div>
+          </motion.div>
 
             {!links.length ? null : (
               <div className="flex flex-wrap gap-2 pt-1">

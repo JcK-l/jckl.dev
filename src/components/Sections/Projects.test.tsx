@@ -1,10 +1,6 @@
 // @vitest-environment jsdom
 
-import type {
-  PointerEventHandler,
-  ReactNode,
-  TouchEventHandler,
-} from "react";
+import type { ReactNode } from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { projects } from "../../data/ProjectData";
@@ -13,28 +9,14 @@ import { createDefaultEndingState } from "../../test/factories";
 
 vi.mock("../ProjectText", () => ({
   ProjectText: ({
-    onMobileOverviewPointerCancel,
-    onMobileOverviewPointerDown,
-    onMobileOverviewPointerMove,
-    onMobileOverviewPointerUp,
-    onMobileOverviewTouchCancel,
-    onMobileOverviewTouchEnd,
-    onMobileOverviewTouchMove,
-    onMobileOverviewTouchStart,
     mobileNavigator,
+    onMobileOverviewSwipe,
     projectId,
     title,
     totalProjects,
   }: {
-    onMobileOverviewPointerCancel?: PointerEventHandler<HTMLDivElement>;
-    onMobileOverviewPointerDown?: PointerEventHandler<HTMLDivElement>;
-    onMobileOverviewPointerMove?: PointerEventHandler<HTMLDivElement>;
-    onMobileOverviewPointerUp?: PointerEventHandler<HTMLDivElement>;
-    onMobileOverviewTouchCancel?: TouchEventHandler<HTMLDivElement>;
-    onMobileOverviewTouchEnd?: TouchEventHandler<HTMLDivElement>;
-    onMobileOverviewTouchMove?: TouchEventHandler<HTMLDivElement>;
-    onMobileOverviewTouchStart?: TouchEventHandler<HTMLDivElement>;
     mobileNavigator?: ReactNode;
+    onMobileOverviewSwipe?: (direction: -1 | 1) => void;
     projectId: number;
     title: string;
     totalProjects: number;
@@ -49,21 +31,28 @@ vi.mock("../ProjectText", () => ({
       </div>
       <div
         data-testid="project-overview-swipe-surface"
-        onPointerCancel={onMobileOverviewPointerCancel}
-        onPointerDown={onMobileOverviewPointerDown}
-        onPointerMove={onMobileOverviewPointerMove}
-        onPointerUp={onMobileOverviewPointerUp}
-        onTouchCancel={onMobileOverviewTouchCancel}
-        onTouchMove={onMobileOverviewTouchMove}
-        onTouchStart={onMobileOverviewTouchStart}
-        onTouchEnd={onMobileOverviewTouchEnd}
-      />
+      >
+        <button
+          type="button"
+          data-testid="project-overview-swipe-prev"
+          onClick={() => onMobileOverviewSwipe?.(-1)}
+        >
+          prev
+        </button>
+        <button
+          type="button"
+          data-testid="project-overview-swipe-next"
+          onClick={() => onMobileOverviewSwipe?.(1)}
+        >
+          next
+        </button>
+      </div>
       {mobileNavigator}
     </div>
   ),
 }));
 
-import Projects, { getMobileProjectSwipeDirection } from "./Projects";
+import Projects from "./Projects";
 
 const mockProjectSelectorGeometry = ({
   viewportHeight,
@@ -208,74 +197,26 @@ describe("Projects", () => {
   it("advances the mobile project card on a horizontal swipe", async () => {
     render(<Projects />);
 
-    const swipeSurface = await screen.findByTestId("project-overview-swipe-surface");
-    const setPointerCapture = vi.fn();
-    const releasePointerCapture = vi.fn();
-    const hasPointerCapture = vi.fn().mockReturnValue(true);
+    await screen.findByTestId("project-overview-swipe-surface");
 
-    Object.assign(swipeSurface, {
-      hasPointerCapture,
-      releasePointerCapture,
-      setPointerCapture,
-    });
+    fireEvent.click(screen.getByTestId("project-overview-swipe-next"));
 
-    fireEvent.pointerDown(swipeSurface, {
-      clientX: 228,
-      clientY: 240,
-      pointerId: 1,
-      pointerType: "touch",
-    });
-    fireEvent.pointerMove(swipeSurface, {
-      clientX: 168,
-      clientY: 244,
-      pointerId: 1,
-      pointerType: "touch",
-    });
-    fireEvent.pointerUp(swipeSurface, {
-      clientX: 168,
-      clientY: 244,
-      pointerId: 1,
-      pointerType: "touch",
-    });
-
-    expect(setPointerCapture).toHaveBeenCalledWith(1);
-    expect(releasePointerCapture).toHaveBeenCalledWith(1);
     expect(screen.getByTestId("project-text").dataset.projectId).toBe("2");
     expect(screen.getByTestId("project-text").textContent).toBe("tornado-vis");
   });
 
-  it("still advances the mobile project card when the swipe is canceled after moving", async () => {
+  it("can swipe back to the previous mobile project card", async () => {
     render(<Projects />);
 
-    const swipeSurface = await screen.findByTestId("project-overview-swipe-surface");
-    const releasePointerCapture = vi.fn();
+    await screen.findByTestId("project-overview-swipe-surface");
 
-    Object.assign(swipeSurface, {
-      hasPointerCapture: vi.fn().mockReturnValue(false),
-      releasePointerCapture,
-      setPointerCapture: vi.fn(),
-    });
-
-    fireEvent.pointerDown(swipeSurface, {
-      clientX: 228,
-      clientY: 240,
-      pointerId: 1,
-      pointerType: "touch",
-    });
-    fireEvent.pointerMove(swipeSurface, {
-      clientX: 168,
-      clientY: 244,
-      pointerId: 1,
-      pointerType: "touch",
-    });
-    fireEvent.pointerCancel(swipeSurface, {
-      pointerId: 1,
-      pointerType: "touch",
-    });
-
-    expect(releasePointerCapture).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("project-overview-swipe-next"));
     expect(screen.getByTestId("project-text").dataset.projectId).toBe("2");
     expect(screen.getByTestId("project-text").textContent).toBe("tornado-vis");
+
+    fireEvent.click(screen.getByTestId("project-overview-swipe-prev"));
+    expect(screen.getByTestId("project-text").dataset.projectId).toBe("1");
+    expect(screen.getByTestId("project-text").textContent).toBe("vulkan-renderer");
   });
 
   it("pages the selector rail and loads projects beyond the first desktop route bank", async () => {
@@ -412,18 +353,4 @@ describe("Projects", () => {
     expect(root?.className).toContain("invisible");
   });
 
-  it("ignores mostly vertical mobile drags when deciding whether to change projects", () => {
-    expect(
-      getMobileProjectSwipeDirection({
-        touchStart: { x: 210, y: 200 },
-        touchEnd: { x: 160, y: 198 },
-      })
-    ).toBe(1);
-    expect(
-      getMobileProjectSwipeDirection({
-        touchStart: { x: 210, y: 200 },
-        touchEnd: { x: 188, y: 140 },
-      })
-    ).toBe(0);
-  });
 });

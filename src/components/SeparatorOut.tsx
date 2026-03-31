@@ -165,9 +165,61 @@ export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
                   xmlns="http://www.w3.org/2000/svg"
                   style={{ overflow: "visible" }}
                 >
-                  <defs id="defs1" />
+                  <defs id="defs1">
+                    <filter
+                      id="crt-trigger-glow-base"
+                      x="-28%"
+                      y="-28%"
+                      width="156%"
+                      height="156%"
+                      colorInterpolationFilters="sRGB"
+                    >
+                      <feDropShadow
+                        dx="0"
+                        dy="0"
+                        stdDeviation="4"
+                        floodColor="#f1faee"
+                        floodOpacity="0.18"
+                      />
+                      <feDropShadow
+                        dx="0"
+                        dy="0"
+                        stdDeviation="7"
+                        floodColor="#f09d51"
+                        floodOpacity="0.12"
+                      />
+                    </filter>
+                    <filter
+                      id="crt-trigger-glow-ready"
+                      x="-30%"
+                      y="-30%"
+                      width="160%"
+                      height="160%"
+                      colorInterpolationFilters="sRGB"
+                    >
+                      <feDropShadow
+                        dx="0"
+                        dy="0"
+                        stdDeviation="5"
+                        floodColor="#f1faee"
+                        floodOpacity="0.28"
+                      />
+                      <feDropShadow
+                        dx="0"
+                        dy="0"
+                        stdDeviation="8.5"
+                        floodColor="#f09d51"
+                        floodOpacity="0.18"
+                      />
+                    </filter>
+                  </defs>
                   <g
                     className="crt-visual"
+                    filter={
+                      isCrtReady
+                        ? "url(#crt-trigger-glow-ready)"
+                        : "url(#crt-trigger-glow-base)"
+                    }
                     id="layer1"
                     transform="matrix(0.72152775,-0.06209045,0.06209045,0.72152775,479.11345,-77.145299)"
                   >
