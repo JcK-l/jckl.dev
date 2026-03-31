@@ -21,7 +21,7 @@ export default defineConfig({
     sitemap(),
     (await import("@playform/compress")).default({
       CSS: true,
-      HTML: true,
+      HTML: false,
       Image: false,
       JavaScript: true,
       SVG: {
