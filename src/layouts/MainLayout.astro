@@ -17,6 +17,6 @@ const { title } = Astro.props;
     class="bg-fgColor text-textColor antialiased selection:bg-secondary selection:text-white p-text"
   >
     <slot />
-    <Footer client:idle />
+    <Footer client:load />
   </body>
 </html>
