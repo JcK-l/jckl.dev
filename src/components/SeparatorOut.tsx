@@ -35,6 +35,13 @@ const crtHitAreaStyle = {
   width: "14.2%",
   height: "38.2%",
 } as const;
+const crtGlowStyle = {
+  left: "58.9%",
+  top: "19.2%",
+  width: "16.5%",
+  height: "40%",
+  transform: "translate(-50%, -50%) rotate(-5deg)",
+} as const;
 
 export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
   (props, ref) => {
@@ -157,6 +164,12 @@ export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
                     style={crtHitAreaStyle}
                   />
                 ) : null}
+                <div
+                  aria-hidden="true"
+                  className="crt-trigger-halo"
+                  data-state={isCrtReady ? "ready" : "pending"}
+                  style={crtGlowStyle}
+                />
                 <svg
                   aria-hidden="true"
                   className="pointer-events-none absolute inset-0 block h-full w-full overflow-visible"
@@ -165,61 +178,8 @@ export const SeparatorOut = forwardRef<HTMLDivElement, SeparatorOutProps>(
                   xmlns="http://www.w3.org/2000/svg"
                   style={{ overflow: "visible" }}
                 >
-                  <defs id="defs1">
-                    <filter
-                      id="crt-trigger-glow-base"
-                      x="-28%"
-                      y="-28%"
-                      width="156%"
-                      height="156%"
-                      colorInterpolationFilters="sRGB"
-                    >
-                      <feDropShadow
-                        dx="0"
-                        dy="0"
-                        stdDeviation="4"
-                        floodColor="#f1faee"
-                        floodOpacity="0.18"
-                      />
-                      <feDropShadow
-                        dx="0"
-                        dy="0"
-                        stdDeviation="7"
-                        floodColor="#f09d51"
-                        floodOpacity="0.12"
-                      />
-                    </filter>
-                    <filter
-                      id="crt-trigger-glow-ready"
-                      x="-30%"
-                      y="-30%"
-                      width="160%"
-                      height="160%"
-                      colorInterpolationFilters="sRGB"
-                    >
-                      <feDropShadow
-                        dx="0"
-                        dy="0"
-                        stdDeviation="5"
-                        floodColor="#f1faee"
-                        floodOpacity="0.28"
-                      />
-                      <feDropShadow
-                        dx="0"
-                        dy="0"
-                        stdDeviation="8.5"
-                        floodColor="#f09d51"
-                        floodOpacity="0.18"
-                      />
-                    </filter>
-                  </defs>
                   <g
                     className="crt-visual"
-                    filter={
-                      isCrtReady
-                        ? "url(#crt-trigger-glow-ready)"
-                        : "url(#crt-trigger-glow-base)"
-                    }
                     id="layer1"
                     transform="matrix(0.72152775,-0.06209045,0.06209045,0.72152775,479.11345,-77.145299)"
                   >

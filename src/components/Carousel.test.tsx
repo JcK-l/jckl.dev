@@ -1,17 +1,74 @@
 // @vitest-environment jsdom
 
+import type { ReactNode } from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("framer-motion", async () => {
-  const {
-    createAnimationControls,
-    createFramerMotionMock,
-  } = await import("../test/mocks/framerMotion");
+const carouselDragMock = vi.hoisted(() => ({
+  info: {
+    offset: { x: 0, y: 0 },
+    velocity: { x: 0, y: 0 },
+  },
+}));
 
-  return createFramerMotionMock({
-    controls: createAnimationControls(),
-  });
+vi.mock("framer-motion", async () => {
+  const { createAnimationControls } = await import("../test/mocks/framerMotion");
+  const controls = createAnimationControls();
+
+  return {
+    motion: {
+      div: ({
+        children,
+        onDragEnd,
+        onDragStart,
+        ...props
+      }: {
+        children?: ReactNode;
+        onDragEnd?: (
+          event: MouseEvent | TouchEvent | PointerEvent,
+          info: {
+            offset: { x: number; y: number };
+            velocity: { x: number; y: number };
+          }
+        ) => void;
+        onDragStart?: (
+          event: MouseEvent | TouchEvent | PointerEvent,
+          info: {
+            offset: { x: number; y: number };
+            velocity: { x: number; y: number };
+          }
+        ) => void;
+        [key: string]: unknown;
+      }) => (
+        <div {...props}>
+          {onDragStart ? (
+            <button
+              type="button"
+              data-testid="carousel-drag-start"
+              onClick={() =>
+                onDragStart({} as MouseEvent, carouselDragMock.info)
+              }
+            >
+              drag-start
+            </button>
+          ) : null}
+          {onDragEnd ? (
+            <button
+              type="button"
+              data-testid="carousel-drag-end"
+              onClick={() =>
+                onDragEnd({} as MouseEvent, carouselDragMock.info)
+              }
+            >
+              drag-end
+            </button>
+          ) : null}
+          {children}
+        </div>
+      ),
+    },
+    useAnimation: () => controls,
+  };
 });
 
 import { Carousel, getCarouselSwipeDirection } from "./Carousel";
@@ -31,6 +88,11 @@ const createBounds = ({ height, width }: { height: number; width: number }) =>
 
 describe("Carousel", () => {
   beforeEach(() => {
+    carouselDragMock.info = {
+      offset: { x: 0, y: 0 },
+      velocity: { x: 0, y: 0 },
+    };
+
     vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(
       function () {
         if (
@@ -59,74 +121,17 @@ describe("Carousel", () => {
   });
 
   it("swipes to the next frame without opening the modal", () => {
+    carouselDragMock.info = {
+      offset: { x: -96, y: 4 },
+      velocity: { x: -140, y: 0 },
+    };
+
     render(<Carousel imageFolder="/projects/tornado-vis" numberImages={4} />);
-
-    const viewport = screen.getByTestId("carousel-viewport");
-    const setPointerCapture = vi.fn();
-    const releasePointerCapture = vi.fn();
-    const hasPointerCapture = vi.fn().mockReturnValue(true);
-
-    Object.assign(viewport, {
-      hasPointerCapture,
-      releasePointerCapture,
-      setPointerCapture,
-    });
 
     expect(screen.getByText("01 / 04")).toBeTruthy();
 
-    fireEvent.pointerDown(viewport, {
-      clientX: 278,
-      clientY: 120,
-      pointerId: 1,
-      pointerType: "touch",
-    });
-    fireEvent.pointerMove(viewport, {
-      clientX: 182,
-      clientY: 124,
-      pointerId: 1,
-      pointerType: "touch",
-    });
-    fireEvent.pointerUp(viewport, {
-      clientX: 164,
-      clientY: 126,
-      pointerId: 1,
-      pointerType: "touch",
-    });
-
-    expect(setPointerCapture).toHaveBeenCalledWith(1);
-    expect(releasePointerCapture).toHaveBeenCalledWith(1);
-    expect(screen.getByText("02 / 04")).toBeTruthy();
-
-    expect(screen.queryByAltText("Preview")).toBeNull();
-  });
-
-  it("still changes frames when a touch pointer is canceled after a horizontal move", () => {
-    render(<Carousel imageFolder="/projects/tornado-vis" numberImages={4} />);
-
-    const viewport = screen.getByTestId("carousel-viewport");
-
-    Object.assign(viewport, {
-      hasPointerCapture: vi.fn().mockReturnValue(false),
-      releasePointerCapture: vi.fn(),
-      setPointerCapture: vi.fn(),
-    });
-
-    fireEvent.pointerDown(viewport, {
-      clientX: 278,
-      clientY: 120,
-      pointerId: 1,
-      pointerType: "touch",
-    });
-    fireEvent.pointerMove(viewport, {
-      clientX: 182,
-      clientY: 124,
-      pointerId: 1,
-      pointerType: "touch",
-    });
-    fireEvent.pointerCancel(viewport, {
-      pointerId: 1,
-      pointerType: "touch",
-    });
+    fireEvent.click(screen.getByTestId("carousel-drag-start"));
+    fireEvent.click(screen.getByTestId("carousel-drag-end"));
 
     expect(screen.getByText("02 / 04")).toBeTruthy();
     expect(screen.queryByAltText("Preview")).toBeNull();
@@ -146,16 +151,18 @@ describe("Carousel", () => {
   it("ignores mostly vertical drags when deciding whether to change frames", () => {
     expect(
       getCarouselSwipeDirection({
-        touchStart: { x: 260, y: 180 },
-        touchEnd: { x: 188, y: 176 },
+        offsetX: -72,
+        offsetY: 4,
         viewportWidth: 320,
+        velocityX: -120,
       }),
     ).toBe(1);
     expect(
       getCarouselSwipeDirection({
-        touchStart: { x: 260, y: 180 },
-        touchEnd: { x: 236, y: 92 },
+        offsetX: -24,
+        offsetY: -88,
         viewportWidth: 320,
+        velocityX: -90,
       }),
     ).toBe(0);
   });

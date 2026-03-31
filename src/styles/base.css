@@ -220,6 +220,18 @@
   }
 }
 
+@keyframes crt-trigger-halo-pulse {
+  0%,
+  100% {
+    opacity: 0.52;
+    transform: translate(-50%, -50%) rotate(-5deg) scale(1);
+  }
+  50% {
+    opacity: 0.82;
+    transform: translate(-50%, -50%) rotate(-5deg) scale(1.08);
+  }
+}
+
 .crt-trigger-button:disabled {
   cursor: default;
 }
@@ -235,6 +247,27 @@
   -webkit-user-select: none;
   pointer-events: none;
   transition: filter 180ms ease;
+}
+
+.crt-trigger-halo {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 9999px;
+  background: radial-gradient(
+    circle,
+    rgba(241, 250, 238, 0.58) 0%,
+    rgba(240, 157, 81, 0.3) 34%,
+    rgba(240, 157, 81, 0.08) 62%,
+    rgba(240, 157, 81, 0) 100%
+  );
+  filter: blur(16px);
+  opacity: 0.42;
+  transition: opacity 180ms ease, transform 180ms ease;
+  will-change: opacity, transform;
+}
+
+.crt-trigger-halo[data-state="ready"] {
+  opacity: 0.68;
 }
 
 .crt-trigger-button:not(:disabled) + svg .crt-trigger-image {
@@ -260,6 +293,10 @@
   .crt-trigger-button[data-state="ready"]:not(:disabled) + svg .crt-trigger-image,
   .crt-trigger-button[data-state="ready"]:not(:disabled) + svg .crt-trigger-screen {
     animation: crt-trigger-ready-pulse 2.5s ease-in-out infinite;
+  }
+
+  .crt-trigger-halo[data-state="ready"] {
+    animation: crt-trigger-halo-pulse 2.5s ease-in-out infinite;
   }
 }
 

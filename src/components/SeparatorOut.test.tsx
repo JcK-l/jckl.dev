@@ -43,12 +43,10 @@ describe("SeparatorOut", () => {
 
     const { container, getByRole } = render(<SeparatorOut isCrt />);
     const crtTrigger = getByRole("button", { name: /crt cache relay/i });
-    const crtVisual = container.querySelector(".crt-visual");
+    const crtHalo = container.querySelector(".crt-trigger-halo");
 
     expect(crtTrigger.getAttribute("data-state")).toBe("ready");
-    expect(crtVisual?.getAttribute("filter")).toBe(
-      "url(#crt-trigger-glow-ready)"
-    );
+    expect(crtHalo?.getAttribute("data-state")).toBe("ready");
 
     fireEvent.click(crtTrigger);
 
@@ -70,12 +68,10 @@ describe("SeparatorOut", () => {
 
     const { container, getByRole } = render(<SeparatorOut isCrt />);
     const crtTrigger = getByRole("button", { name: /crt cache relay/i });
-    const crtVisual = container.querySelector(".crt-visual");
+    const crtHalo = container.querySelector(".crt-trigger-halo");
 
     expect(crtTrigger.getAttribute("data-state")).toBe("pending");
-    expect(crtVisual?.getAttribute("filter")).toBe(
-      "url(#crt-trigger-glow-base)"
-    );
+    expect(crtHalo?.getAttribute("data-state")).toBe("pending");
 
     fireEvent.click(crtTrigger);
 
