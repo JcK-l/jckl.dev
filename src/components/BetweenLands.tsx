@@ -20,6 +20,18 @@ interface BetweenLandsProps {
 
 const originalImgWidth = 500;
 const originalSnapPoint = { x: 1600, y: 1750 };
+const MOBILE_BREAKPOINT_PX = 640;
+const MOBILE_PARALLAX_FACTOR = 0.28;
+
+export const getBetweenLandsParallaxDistance = (
+  separatorHeight: number,
+  viewportWidth: number
+) => {
+  const multiplier =
+    viewportWidth < MOBILE_BREAKPOINT_PX ? MOBILE_PARALLAX_FACTOR : 0.5;
+
+  return Number((separatorHeight * multiplier).toFixed(2));
+};
 
 export const BetweenLands = ({
   isBackground,
@@ -35,6 +47,7 @@ export const BetweenLands = ({
   const separatorInRef = useRef<HTMLDivElement>(null);
   const separatorOutRef = useRef<HTMLDivElement>(null);
   const [separatorHeight, setSeparatorHeight] = useState(0);
+  const [parallaxDistance, setParallaxDistance] = useState(0);
   const [dragConstraints, setDragConstraints] = useState({
     top: 0,
     left: 0,
@@ -56,8 +69,18 @@ export const BetweenLands = ({
 
     const bounds = ref.current.getBoundingClientRect();
     const viewportWidth = window.innerWidth;
+    const nextParallaxDistance = getBetweenLandsParallaxDistance(
+      inHeight,
+      viewportWidth
+    );
     const width = viewportWidth * 0.2;
     const scale = width / originalImgWidth;
+
+    setParallaxDistance((currentDistance) =>
+      currentDistance !== nextParallaxDistance
+        ? nextParallaxDistance
+        : currentDistance
+    );
 
     setSnapPoint({
       x: Math.round(originalSnapPoint.x * scale),
@@ -113,7 +136,7 @@ export const BetweenLands = ({
   const layer = useTransform(
     scrollYProgress,
     [0, 1],
-    [`-${separatorHeight / 2}px`, `${separatorHeight / 2}px`]
+    [`-${parallaxDistance}px`, `${parallaxDistance}px`]
   );
 
   const zeroPx = useMotionValue("0px");

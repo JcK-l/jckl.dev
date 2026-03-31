@@ -89,7 +89,7 @@ vi.mock("./SeparatorOut", () => ({
   }),
 }));
 
-import { BetweenLands } from "./BetweenLands";
+import { BetweenLands, getBetweenLandsParallaxDistance } from "./BetweenLands";
 
 const createBounds = ({
   height,
@@ -224,5 +224,30 @@ describe("BetweenLands", () => {
     });
 
     expect(crtCallback).toHaveBeenCalledTimes(1);
+  });
+
+  it("reduces the parallax range on mobile widths", async () => {
+    Object.defineProperty(window, "innerWidth", {
+      configurable: true,
+      value: 390,
+    });
+
+    const renderItem = vi.fn((shift: { get: () => string }) => (
+      <div data-testid="shift">{shift.get()}</div>
+    ));
+
+    render(<BetweenLands isBackground isCrt={false} renderItem={renderItem} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("crt").dataset.width).toBe("78");
+    });
+
+    expect(screen.getByTestId("shift").textContent).toBe("-33.6px");
+    expect(renderItem).toHaveBeenCalled();
+  });
+
+  it("keeps the stronger desktop parallax distance", () => {
+    expect(getBetweenLandsParallaxDistance(120, 390)).toBe(33.6);
+    expect(getBetweenLandsParallaxDistance(120, 1000)).toBe(60);
   });
 });
